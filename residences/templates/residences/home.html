@@ -1,0 +1,75 @@
+<!-- extends + load static : cette page hérite de la structure de base.html
+     et vient seulement remplir le bloc 'content' -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+
+    <!-- ===== SECTION HERO : met en avant l'océan, premier visuel du site ===== -->
+    <section class="hero">
+        <div class="hero-overlay">
+            <h1>{{ parametres.nom_residence }}</h1>
+            <p class="hero-subtitle">
+                Logements meublés face à l'océan, à Grand-Béréby, Côte d'Ivoire
+            </p>
+            <a href="{% url 'residences:unite_list' %}" class="btn btn-primary">
+                Voir nos chambres
+            </a>
+        </div>
+    </section>
+
+    <!-- ===== SECTION INTRO ===== -->
+    <section class="intro container">
+        <h2>Bienvenue à Résidences Bereby</h2>
+        <p>
+            Située sur le littoral de Grand-Béréby, notre résidence vous offre
+            des logements meublés confortables, à quelques pas de l'océan.
+            Idéal pour un séjour court ou prolongé.
+        </p>
+    </section>
+
+    <!-- ===== APERÇU DES UNITÉS ===== -->
+    <section class="unites-preview container">
+        <h2>Nos logements</h2>
+
+        <!-- Grille de cartes, une par unité disponible -->
+        <div class="unites-grid">
+            <!-- Boucle sur toutes les unités transmises depuis la vue home() -->
+            {% for unite in unites %}
+                <div class="unite-card">
+
+                    <!-- On affiche la photo principale si elle existe, sinon un espace réservé -->
+                    {% with photo=unite.photos.first %}
+                        {% if photo %}
+                            <img src="{{ photo.image.url }}" alt="{{ unite.nom }}">
+                        {% else %}
+                            <div class="unite-card-placeholder">Photo à venir</div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <div class="unite-card-body">
+                        <h3>{{ unite.nom }}</h3>
+                        <p>{{ unite.get_etage_display }}</p>
+
+                        <!-- Affiche un badge "Vue mer" uniquement si pertinent -->
+                        {% if unite.vue_mer %}
+                            <span class="badge badge-sea">Vue mer</span>
+                        {% endif %}
+
+                        <p class="unite-price">{{ unite.prix_nuit }} FCFA / nuit</p>
+
+                        <a href="{% url 'residences:unite_detail' pk=unite.pk %}" class="btn btn-secondary">
+                            Voir le détail
+                        </a>
+                    </div>
+                </div>
+            {% empty %}
+                <!-- Ce message s'affiche seulement si la liste 'unites' est vide -->
+                <p>Aucune unité disponible pour le moment.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+{% endblock %}

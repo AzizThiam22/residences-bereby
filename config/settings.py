@@ -55,7 +55,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -116,3 +116,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Dossiers statiques supplémentaires (en plus de ceux des apps)
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
+
+# ----- Configuration des fichiers media (images uploadées) -----
+
+# URL utilisée pour accéder aux fichiers media depuis le navigateur
+MEDIA_URL = '/media/'
+
+# Dossier physique sur le disque où Django stocke les fichiers uploadés
+# BASE_DIR est déjà défini plus haut dans settings.py par Django
+MEDIA_ROOT = BASE_DIR / 'media'

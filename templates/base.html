@@ -1,0 +1,84 @@
+{% load static %}
+<!-- {% load static %} permet d'utiliser {% static '...' %} plus bas pour charger le CSS -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 'block title' : chaque page pourra définir son propre titre d'onglet -->
+    <title>{% block title %}Résidences Bereby{% endblock %} | Grand-Béréby</title>
+
+    <!-- Lien vers notre feuille de style -->
+    <link rel="stylesheet" href="{% static 'residences/css/style.css' %}">
+
+    <!-- 'block extra_head' : permet d'ajouter des CSS/JS spécifiques à une page
+         (utile plus tard pour la carte Leaflet, par exemple) -->
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- ===== EN-TÊTE / NAVIGATION ===== -->
+    <header class="site-header">
+        <div class="container header-content">
+            <a href="{% url 'residences:home' %}" class="logo">
+                Résidences Bereby
+            </a>
+
+            <nav class="main-nav">
+                <a href="{% url 'residences:home' %}">Accueil</a>
+                <a href="{% url 'residences:unite_list' %}">Nos chambres</a>
+                <!-- Ces liens seront fonctionnels une fois les pages créées -->
+                <a href="#">Localisation</a>
+                <a href="#">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== CONTENU PRINCIPAL =====
+         'block content' : chaque page enfant viendra remplir cette zone -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ===== PIED DE PAGE ===== -->
+    <footer class="site-footer">
+        <div class="container footer-content">
+
+            <div class="footer-section">
+                <h3>{{ parametres.nom_residence }}</h3>
+                <p>{{ parametres.adresse }}</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Contact</h3>
+                {% if parametres.telephone_principal %}
+                    <p>Tél : {{ parametres.telephone_principal }}</p>
+                {% endif %}
+                {% if parametres.email_contact %}
+                    <p>Email : {{ parametres.email_contact }}</p>
+                {% endif %}
+            </div>
+
+            <div class="footer-section">
+                <h3>Suivez-nous</h3>
+                <div class="social-links">
+                    <!-- On n'affiche le lien que si l'URL a été renseignée dans l'admin -->
+                    {% if parametres.lien_facebook %}
+                        <a href="{{ parametres.lien_facebook }}" target="_blank">Facebook</a>
+                    {% endif %}
+                    {% if parametres.lien_instagram %}
+                        <a href="{{ parametres.lien_instagram }}" target="_blank">Instagram</a>
+                    {% endif %}
+                    {% if parametres.lien_whatsapp %}
+                        <a href="{{ parametres.lien_whatsapp }}" target="_blank">WhatsApp</a>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+        <p class="copyright">&copy; 2026 {{ parametres.nom_residence }}. Tous droits réservés.</p>
+    </footer>
+
+</body>
+</html>
