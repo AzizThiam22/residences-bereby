@@ -1,0 +1,18 @@
+# Environnements virtuels
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Django
+db.sqlite3
+*.log
+media/
+
+# Variables d'environnement (clés secrètes, mots de passe)
+.env
+
+# VS Code
+.vscode/
