@@ -63,6 +63,10 @@ python manage.py runserver
 
 🚧 **En cours de développement** — Maquette/prototype en attendant la finalisation des résidences (livraison estimée : ~1 an).
 
+## Note du développement
+Donner des noms aux unités afin d'apporter une touche aux résidences et facilité l'organisation des images sur le site web.
+
+
 ## Auteur
 
 Aziz THIAM
