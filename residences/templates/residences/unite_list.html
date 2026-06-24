@@ -1,0 +1,60 @@
+<!-- Page listant toutes les unités disponibles, avec filtres simples -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nos chambres{% endblock %}
+
+{% block content %}
+
+    <section class="page-header container">
+        <h1>Nos logements</h1>
+        <p>Studios et appartements meublés, certains avec vue directe sur l'océan.</p>
+    </section>
+
+    <!-- Barre de filtres simples : vue mer / tous -->
+    <section class="filters container">
+        <a href="{% url 'residences:unite_list' %}" class="filter-link {% if not request.GET.vue_mer %}active{% endif %}">
+            Toutes les unités
+        </a>
+        <a href="?vue_mer=1" class="filter-link {% if request.GET.vue_mer %}active{% endif %}">
+            Vue mer uniquement
+        </a>
+    </section>
+
+    <section class="unites-preview container">
+        <div class="unites-grid">
+            <!-- Boucle sur toutes les unités transmises par la vue -->
+            {% for unite in unites %}
+                <div class="unite-card">
+
+                    <!-- Affiche la photo principale si elle existe, sinon un espace réservé -->
+                    {% with photo=unite.photos.first %}
+                        {% if photo %}
+                            <img src="{{ photo.image.url }}" alt="{{ unite.nom }}">
+                        {% else %}
+                            <div class="unite-card-placeholder">Photo à venir</div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <div class="unite-card-body">
+                        <h3>{{ unite.nom }}</h3>
+                        <p>{{ unite.get_etage_display }} &middot; {{ unite.get_type_unite_display }}</p>
+
+                        {% if unite.vue_mer %}
+                            <span class="badge badge-sea">Vue mer</span>
+                        {% endif %}
+
+                        <p class="unite-price">{{ unite.prix_nuit }} FCFA / nuit</p>
+
+                        <a href="{% url 'residences:unite_detail' pk=unite.pk %}" class="btn btn-secondary">
+                            Voir le détail
+                        </a>
+                    </div>
+                </div>
+            {% empty %}
+                <p>Aucune unité ne correspond à ce filtre pour le moment.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+{% endblock %}

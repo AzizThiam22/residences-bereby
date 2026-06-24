@@ -27,11 +27,17 @@ def home(request):
 
 def unite_list(request):
     """
-    Page listant toutes les unités disponibles (chambres/studios/appartements),
-    avec leurs infos principales (prix, vue mer, étage).
+    Page listant toutes les unités disponibles, avec un filtre optionnel
+    sur la vue mer via le paramètre d'URL ?vue_mer=1
     """
     unites = Unite.objects.filter(disponible=True).exclude(
         type_unite='local_commercial')
+
+    # request.GET.get('vue_mer') récupère la valeur du paramètre d'URL ?vue_mer=...
+    # Si présent (peu importe la valeur), on filtre pour ne garder que les unités vue mer
+    if request.GET.get('vue_mer'):
+        unites = unites.filter(vue_mer=True)
+
     parametres = get_object_or_404(Parametres, pk=1)
 
     context = {

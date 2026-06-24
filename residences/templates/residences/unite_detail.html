@@ -1,0 +1,99 @@
+<!-- Page détaillée d'une unité précise : galerie photos, description, équipements -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+    <script src="{% static 'residences/js/carousel.js' %}" defer></script>
+{% endblock %}
+
+{% block title %}{{ unite.nom }}{% endblock %}
+
+{% block content %}
+
+    <section class="unite-detail container">
+
+        <a href="{% url 'residences:unite_list' %}" class="back-link">&larr; Retour aux logements</a>
+
+        <h1>{{ unite.nom }}</h1>
+        <p class="unite-detail-meta">
+            {{ unite.get_etage_display }} &middot; {{ unite.get_type_unite_display }}
+            {% if unite.vue_mer %}
+                <span class="badge badge-sea">Vue mer</span>
+            {% endif %}
+        </p>
+
+        <!-- ===== GALERIE PHOTOS (carrousel) ===== -->
+        {% with photos=unite.photos.all %}
+            {% if photos %}
+                <!-- data-index permettra au JS de savoir combien d'images sont dans le carrousel -->
+                <div class="carousel" data-total="{{ photos|length }}">
+
+                    <!-- Conteneur de toutes les images, empilées et masquées sauf la première -->
+                    <div class="carousel-track">
+                        {% for photo in photos %}
+                            <img src="{{ photo.image.url }}"
+                                alt="{{ photo.legende|default:unite.nom }}"
+                                class="carousel-img {% if forloop.first %}active{% endif %}">
+                        {% endfor %}
+                    </div>
+
+                    <!-- Flèches de navigation, affichées seulement si plus d'une photo -->
+                    {% if photos|length > 1 %}
+                        <button class="carousel-btn carousel-prev" aria-label="Photo précédente">&#10094;</button>
+                        <button class="carousel-btn carousel-next" aria-label="Photo suivante">&#10095;</button>
+
+                        <!-- Petits points indiquant la position actuelle dans le carrousel -->
+                        <div class="carousel-dots">
+                            {% for photo in photos %}
+                                <span class="carousel-dot {% if forloop.first %}active{% endif %}"></span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                </div>
+            {% else %}
+                <div class="unite-card-placeholder">Photos à venir</div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- ===== INFOS PRINCIPALES ===== -->
+        <div class="unite-detail-grid">
+
+            <div class="unite-detail-main">
+                <h2>Description</h2>
+                <!-- 'linebreaks' transforme les retours à la ligne du texte en vrais paragraphes HTML -->
+                <p>{{ unite.description_fr|linebreaks }}</p>
+
+                {% if unite.equipements.all %}
+                    <h2>Équipements</h2>
+                    <ul class="equipements-list">
+                        <!-- Boucle sur tous les équipements liés à cette unité (relation many-to-many) -->
+                        {% for equipement in unite.equipements.all %}
+                            <li>{{ equipement.nom_fr }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- ===== ENCART RÉSERVATION (carte latérale) ===== -->
+            <div class="unite-detail-sidebar">
+                <div class="booking-box">
+                    <p class="unite-price-big">{{ unite.prix_nuit }} FCFA <span>/ nuit</span></p>
+
+                    {% if unite.capacite_personnes %}
+                        <p>Capacité : {{ unite.capacite_personnes }} personne(s)</p>
+                    {% endif %}
+                    {% if unite.surface_m2 %}
+                        <p>Surface : {{ unite.surface_m2 }} m²</p>
+                    {% endif %}
+
+                    <!-- Le lien pointera vers le formulaire de réservation qu'on créera ensuite -->
+                    <a href="#" class="btn btn-primary btn-block">Réserver</a>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+{% endblock %}

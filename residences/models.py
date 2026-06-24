@@ -252,3 +252,37 @@ class Parametres(models.Model):
         # au lieu d'en créer un nouveau.
         self.pk = 1
         super().save(*args, **kwargs)
+
+
+class VilleCle(models.Model):
+    """
+    Une ville clé à afficher sur la carte de localisation, avec sa distance
+    et son temps de trajet approximatif depuis la résidence.
+    On stocke la distance manuellement (plutôt que de la calculer automatiquement)
+    car la distance routière réelle diffère souvent de la distance "à vol d'oiseau".
+    """
+
+    nom = models.CharField(max_length=100)
+
+    # Coordonnées GPS de la ville, utilisées pour placer un marqueur sur la carte
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+
+    # Distance routière approximative en kilomètres (saisie manuellement, plus fiable
+    # qu'un calcul automatique "à vol d'oiseau" qui ignore les routes réelles)
+    distance_km = models.DecimalField(
+        max_digits=6, decimal_places=1, null=True, blank=True)
+
+    # Temps de trajet approximatif, en texte libre pour rester flexible (ex: "1h30", "45 min")
+    temps_trajet = models.CharField(max_length=50, blank=True)
+
+    # Permet de choisir l'ordre d'affichage dans la liste (ex: villes les plus proches en premier)
+    ordre = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['ordre', 'distance_km']
+        verbose_name = "Ville clé"
+        verbose_name_plural = "Villes clés"
+
+    def __str__(self):
+        return self.nom
