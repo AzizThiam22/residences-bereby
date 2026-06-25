@@ -15,9 +15,9 @@ Résidence de 6 unités locatives réparties sur 3 étages, plus un local commer
 
 ## Fonctionnalités prévues
 
-- [ ] Présentation des unités avec galerie photo
-- [ ] Carte de localisation (Leaflet/OpenStreetMap) avec distances vers les villes clés
-- [ ] Formulaire de pré-réservation
+- [x] Présentation des unités avec galerie photo
+- [x] Carte de localisation (Leaflet/OpenStreetMap) avec distances vers les villes clés
+- [x] Formulaire de pré-réservation
 - [ ] Paiement en ligne (passerelle Mobile Money + carte) et/ou clic direct vers numéros Mobile Money
 - [ ] Site bilingue Français / Anglais
 - [ ] Formulaire de contact + liens réseaux sociaux
