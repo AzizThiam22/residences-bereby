@@ -369,3 +369,40 @@ body {
 .carousel-dot.active {
     background: white;
 }
+
+/* ===== Page Localisation ===== */
+.localisation-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    padding: 20px 20px 50px;
+}
+
+#map {
+    height: 450px;
+    border-radius: 8px;
+    z-index: 1;
+}
+
+.villes-list ul {
+    list-style: none;
+    margin-top: 15px;
+}
+
+.villes-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.ville-distance {
+    color: #555;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 700px) {
+    .localisation-layout {
+        grid-template-columns: 1fr;
+    }
+}

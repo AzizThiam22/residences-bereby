@@ -9,4 +9,5 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('chambres/', views.unite_list, name='unite_list'),
     path('chambres/<int:pk>/', views.unite_detail, name='unite_detail'),
+    path('localisation/', views.localisation, name='localisation'),
 ]

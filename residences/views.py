@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Unite, Parametres
+from .models import Unite, Parametres, VilleCle
 
 
 def home(request):
@@ -62,3 +62,18 @@ def unite_detail(request, pk):
         'parametres': parametres,
     }
     return render(request, 'residences/unite_detail.html', context)
+
+
+def localisation(request):
+    """
+    Page dédiée à la localisation : carte interactive (résidence + villes clés)
+    et liste des distances/temps de trajet.
+    """
+    parametres = get_object_or_404(Parametres, pk=1)
+    villes = VilleCle.objects.all()
+
+    context = {
+        'parametres': parametres,
+        'villes': villes,
+    }
+    return render(request, 'residences/localisation.html', context)

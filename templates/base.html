@@ -29,7 +29,7 @@
                 <a href="{% url 'residences:home' %}">Accueil</a>
                 <a href="{% url 'residences:unite_list' %}">Nos chambres</a>
                 <!-- Ces liens seront fonctionnels une fois les pages créées -->
-                <a href="#">Localisation</a>
+                <a href="{% url 'residences:localisation' %}">Localisation</a>
                 <a href="#">Contact</a>
             </nav>
         </div>
@@ -79,6 +79,8 @@
         </div>
         <p class="copyright">&copy; 2026 {{ parametres.nom_residence }}. Tous droits réservés.</p>
     </footer>
+
+        {% block extra_js %}{% endblock %}
 
 </body>
 </html>
