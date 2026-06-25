@@ -10,4 +10,8 @@ urlpatterns = [
     path('chambres/', views.unite_list, name='unite_list'),
     path('chambres/<int:pk>/', views.unite_detail, name='unite_detail'),
     path('localisation/', views.localisation, name='localisation'),
+    path('chambres/<int:pk>/reserver/',
+         views.reservation_form, name='reservation_form'),
+    path('reservation/confirmee/', views.reservation_success,
+         name='reservation_success'),
 ]

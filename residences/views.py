@@ -1,5 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Unite, Parametres, VilleCle
+from .forms import ReservationForm
 
 
 def home(request):
@@ -77,3 +78,52 @@ def localisation(request):
         'villes': villes,
     }
     return render(request, 'residences/localisation.html', context)
+
+
+def reservation_form(request, pk):
+    """
+    Affiche et traite le formulaire de pré-réservation pour une unité donnée.
+    pk = identifiant de l'unité concernée (récupéré depuis l'URL).
+    """
+    unite = get_object_or_404(Unite, pk=pk)
+    parametres = get_object_or_404(Parametres, pk=1)
+
+    if request.method == 'POST':
+        # Le formulaire a été soumis : on le reconstruit avec les données envoyées
+        form = ReservationForm(request.POST)
+        # On attache l'unité au formulaire AVANT d'appeler is_valid(),
+        # pour que clean() puisse y accéder via self.unite
+        form.unite = unite
+
+        if form.is_valid():
+            # form.save(commit=False) crée l'objet Reservation en mémoire,
+            # SANS l'enregistrer encore en base de données — ça nous laisse
+            # le temps d'ajouter manuellement le champ 'unite' avant la sauvegarde
+            reservation = form.save(commit=False)
+            reservation.unite = unite
+            reservation.save()
+
+            # redirect évite qu'un rechargement de page ne soumette le formulaire 2 fois
+            return redirect('residences:reservation_success')
+        # Si le formulaire n'est pas valide, on continue plus bas : il sera
+        # ré-affiché avec les erreurs visibles pour l'utilisateur
+    else:
+        # Première visite de la page (pas encore de soumission) : formulaire vide
+        form = ReservationForm()
+        form.unite = unite  # utile aussi en GET si besoin d'affichage conditionnel plus tard
+
+    context = {
+        'form': form,
+        'unite': unite,
+        'parametres': parametres,
+    }
+    return render(request, 'residences/reservation_form.html', context)
+
+
+def reservation_success(request):
+    """
+    Page de confirmation affichée après l'envoi réussi d'une pré-réservation.
+    """
+    parametres = get_object_or_404(Parametres, pk=1)
+    context = {'parametres': parametres}
+    return render(request, 'residences/reservation_success.html', context)

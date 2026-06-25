@@ -406,3 +406,178 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== Formulaire de réservation ===== */
+.reservation-page {
+    padding: 30px 20px 60px;
+    max-width: 600px;
+}
+
+.reservation-form {
+    margin-top: 25px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+/* Cible tous les types de champs générés par Django (texte, email, date, textarea...) */
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.form-errors {
+    background: #fdecea;
+    color: #b71c1c;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.field-error {
+    color: #b71c1c;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+.reservation-note {
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* ===== Page de confirmation ===== */
+.reservation-success {
+    padding: 60px 20px;
+    max-width: 600px;
+    text-align: center;
+}
+
+.reservation-success h1 {
+    margin-bottom: 20px;
+}
+
+.reservation-success p {
+    margin-bottom: 15px;
+}
+
+/* ===== Personnalisation du calendrier Flatpickr ===== */
+
+/* Couleur du jour sélectionné et au survol */
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+    background: #0a3d62;
+    border-color: #0a3d62;
+}
+
+.flatpickr-day:hover {
+    background: #e0e8f0;
+}
+
+/* En-tête du calendrier (mois/année + flèches de navigation) */
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month,
+.flatpickr-weekdays {
+    background: #8ca1b0;
+    color: white;
+    fill: white;
+}
+
+.flatpickr-weekday {
+    color: white;
+}
+
+/* Flèches précédent/suivant */
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+    fill: white;
+}
+
+/* Champ affiché à l'utilisateur (grâce à altInput) */
+.flatpickr-input.form-control {
+    background: white;
+}
+
+/* ===== Section Mobile Money ===== */
+.mobile-money-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.mobile-money-title {
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #444;
+}
+
+.mm-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.mm-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: white;
+}
+
+.mm-label {
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.mm-number {
+    font-size: 0.95rem;
+}
+
+/* Couleurs distinctes par opérateur, pour une reconnaissance visuelle immédiate */
+.mm-orange .mm-link {
+    background: #ff7900;
+}
+
+.mm-mtn .mm-link {
+    background: #ffcc00;
+    color: #222;
+}
+
+.mm-wave .mm-link {
+    background: #1dc8e0;
+}
+
+.mm-copy {
+    background: #e0e0e0;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.mm-copy:hover {
+    background: #d0d0d0;
+}
+
+.mm-note {
+    font-size: 0.8rem;
+    color: #ff0000;
+    margin-top: 10px;
+}

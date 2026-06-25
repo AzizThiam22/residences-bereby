@@ -1,0 +1,77 @@
+<!-- Formulaire de pré-réservation pour une unité précise -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+    <!-- CSS de Flatpickr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+{% endblock %}
+
+{% block title %}Réserver {{ unite.nom }}{% endblock %}
+
+{% block content %}
+
+    <section class="reservation-page container">
+
+        <a href="{% url 'residences:unite_detail' pk=unite.pk %}" class="back-link">&larr; Retour à {{ unite.nom }}</a>
+
+        <h1>Réserver : {{ unite.nom }}</h1>
+        <p class="unite-detail-meta">{{ unite.prix_nuit }} FCFA / nuit</p>
+
+        <!-- Affiche les erreurs globales du formulaire (ex: date de départ avant date d'arrivée) -->
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- method="post" : les données du formulaire seront envoyées en POST, pas dans l'URL -->
+        <form method="post" class="reservation-form">
+            <!-- csrf_token : jeton de sécurité obligatoire pour tout formulaire Django en POST,
+                 protège contre les attaques CSRF (falsification de requête) -->
+            {% csrf_token %}
+
+            <!-- Boucle sur tous les champs du formulaire pour un affichage uniforme -->
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    <!-- Affiche les erreurs spécifiques à ce champ, s'il y en a -->
+                    {% if field.errors %}
+                        <p class="field-error">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary btn-block">Envoyer ma demande de réservation</button>
+        </form>
+
+        <p class="reservation-note">
+            Ceci est une demande de pré-réservation. Nous vous contacterons rapidement
+            pour confirmer la disponibilité et finaliser les modalités de paiement.
+        </p>
+
+    </section>
+
+    {% block extra_js %}
+    <!-- JS de Flatpickr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <!-- Traduction française de Flatpickr (mois/jours en français) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/fr.js"></script>
+
+    <script>
+        // On initialise Flatpickr sur tous les champs ayant la classe 'datepicker'
+        // (donc nos deux champs date_arrivee et date_depart)
+        flatpickr('.datepicker', {
+            locale: 'fr',           // affiche le calendrier en français
+            dateFormat: 'Y-m-d',    // format envoyé au serveur (doit matcher le format Django ci-dessus)
+            altInput: true,         // affiche un format plus lisible à l'utilisateur...
+            altFormat: 'd F Y',     // ...par exemple "25 juin 2026"
+            minDate: 'today',       // empêche de choisir une date dans le passé
+            disableMobile: true     // garde notre calendrier custom même sur mobile (sinon le natif reprend le dessus)
+        });
+    </script>
+    {% endblock %}
+{% endblock %}

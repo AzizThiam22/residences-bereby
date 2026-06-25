@@ -88,7 +88,55 @@
                     {% endif %}
 
                     <!-- Le lien pointera vers le formulaire de réservation qu'on créera ensuite -->
-                    <a href="#" class="btn btn-primary btn-block">Réserver</a>
+                    <a href="{% url 'residences:reservation_form' pk=unite.pk %}" class="btn btn-primary btn-block">Réserver</a>
+                
+                    <!-- Affiche cette section uniquement si au moins un numéro Mobile Money est renseigné -->
+                    {% if parametres.numero_orange_money or parametres.numero_mtn_money or parametres.numero_wave %}
+                        <div class="mobile-money-section">
+                            <p class="mobile-money-title">Ou payez directement via Mobile Money</p>
+
+                            {% if parametres.numero_orange_money %}
+                                <div class="mm-option mm-orange">
+                                    <a href="tel:{{ parametres.numero_orange_money }}" class="mm-link">
+                                        <span class="mm-label">Orange Money</span>
+                                        <span class="mm-number">{{ parametres.numero_orange_money }}</span>
+                                    </a>
+                                    <!-- data-numero transmet le numéro au JS pour la fonction copier -->
+                                    <button class="mm-copy" data-numero="{{ parametres.numero_orange_money }}" title="Copier le numéro">
+                                        Copier
+                                    </button>
+                                </div>
+                            {% endif %}
+
+                            {% if parametres.numero_mtn_money %}
+                                <div class="mm-option mm-mtn">
+                                    <a href="tel:{{ parametres.numero_mtn_money }}" class="mm-link">
+                                        <span class="mm-label">MTN Money</span>
+                                        <span class="mm-number">{{ parametres.numero_mtn_money }}</span>
+                                    </a>
+                                    <button class="mm-copy" data-numero="{{ parametres.numero_mtn_money }}" title="Copier le numéro">
+                                        Copier
+                                    </button>
+                                </div>
+                            {% endif %}
+
+                            {% if parametres.numero_wave %}
+                                <div class="mm-option mm-wave">
+                                    <a href="tel:{{ parametres.numero_wave }}" class="mm-link">
+                                        <span class="mm-label">Wave</span>
+                                        <span class="mm-number">{{ parametres.numero_wave }}</span>
+                                    </a>
+                                    <button class="mm-copy" data-numero="{{ parametres.numero_wave }}" title="Copier le numéro">
+                                        Copier
+                                    </button>
+                                </div>
+                            {% endif %}
+
+                            <p class="mm-note">
+                                Envoyez le montant correspondant puis contactez-nous pour confirmation.
+                            </p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -96,4 +144,23 @@
 
     </section>
 
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Permet de copier un numéro Mobile Money dans le presse-papier en un clic
+        document.querySelectorAll('.mm-copy').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const numero = button.getAttribute('data-numero');
+
+                navigator.clipboard.writeText(numero).then(function () {
+                    const texteOriginal = button.textContent;
+                    button.textContent = 'Copié !';
+                    setTimeout(function () {
+                        button.textContent = texteOriginal;
+                    }, 1500);
+                });
+            });
+        });
+    </script>
 {% endblock %}

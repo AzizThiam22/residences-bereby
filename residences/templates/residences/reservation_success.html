@@ -1,0 +1,26 @@
+<!-- Page affichée après l'envoi réussi d'une pré-réservation -->
+{% extends 'base.html' %}
+
+{% block title %}Réservation envoyée{% endblock %}
+
+{% block content %}
+
+    <section class="reservation-success container">
+        <h1>Merci pour votre demande !</h1>
+        <p>
+            Votre demande de pré-réservation a bien été enregistrée.
+            Notre équipe vous contactera très prochainement pour confirmer
+            la disponibilité et les modalités de paiement.
+        </p>
+
+        {% if parametres.telephone_principal %}
+            <p>
+                Pour toute question, vous pouvez aussi nous contacter directement
+                au {{ parametres.telephone_principal }}.
+            </p>
+        {% endif %}
+
+        <a href="{% url 'residences:home' %}" class="btn btn-primary">Retour à l'accueil</a>
+    </section>
+
+{% endblock %}
