@@ -65,6 +65,7 @@ python manage.py runserver
 
 ## Note du développement
 Donner des noms aux unités afin d'apporter une touche aux résidences et facilité l'organisation des images sur le site web.
+Ajouter aussi des tests unitaires si possible
 
 
 ## Auteur
