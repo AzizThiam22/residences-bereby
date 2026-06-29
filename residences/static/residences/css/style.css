@@ -581,3 +581,53 @@ body {
     color: #ff0000;
     margin-top: 10px;
 }
+
+/* ===== Périodes déjà réservées ===== */
+.disponibilite-section {
+    margin: 15px 0;
+    padding: 12px;
+    background: #fff8e1;
+    border-radius: 6px;
+    border: 1px solid #ffe082;
+}
+
+.disponibilite-title {
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #444;
+}
+
+.disponibilite-list {
+    list-style: none;
+}
+
+.disponibilite-list li {
+    font-size: 0.85rem;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.badge-statut {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: white;
+}
+
+.badge-attente {
+    background: #f39c12;
+}
+
+.badge-confirmee {
+    background: #c0392b;
+}
+
+.disponibilite-note {
+    font-size: 0.75rem;
+    color: #777;
+    margin-top: 8px;
+}

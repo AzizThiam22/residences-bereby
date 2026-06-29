@@ -58,9 +58,17 @@ def unite_detail(request, pk):
     unite = get_object_or_404(Unite, pk=pk)
     parametres = get_object_or_404(Parametres, pk=1)
 
+    # On récupère les réservations en_attente ou confirmées pour cette unité,
+    # triées par date d'arrivée croissante (les plus proches dans le temps en premier).
+    # On exclut les réservations "annulee" : elles ne bloquent plus rien.
+    periodes_reservees = unite.reservations.filter(
+        statut__in=['en_attente', 'confirmee']
+    ).order_by('date_arrivee')
+
     context = {
         'unite': unite,
         'parametres': parametres,
+        'periodes_reservees': periodes_reservees,
     }
     return render(request, 'residences/unite_detail.html', context)
 

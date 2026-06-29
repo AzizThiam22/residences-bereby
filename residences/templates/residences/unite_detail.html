@@ -87,6 +87,30 @@
                         <p>Surface : {{ unite.surface_m2 }} m²</p>
                     {% endif %}
 
+                    <!-- Affiche cette section uniquement si au moins une période est déjà réservée -->
+                    {% if periodes_reservees %}
+                        <div class="disponibilite-section">
+                            <p class="disponibilite-title">Périodes déjà réservées</p>
+                            <ul class="disponibilite-list">
+                                <!-- Boucle sur toutes les réservations en cours pour cette unité -->
+                                {% for periode in periodes_reservees %}
+                                    <li>
+                                        Du {{ periode.date_arrivee|date:"d/m/Y" }}
+                                        au {{ periode.date_depart|date:"d/m/Y" }}
+                                        {% if periode.statut == 'en_attente' %}
+                                            <span class="badge-statut badge-attente">en attente</span>
+                                        {% else %}
+                                            <span class="badge-statut badge-confirmee">confirmée</span>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <p class="disponibilite-note">
+                                Merci de vérifier ces dates avant de soumettre votre demande.
+                            </p>
+                        </div>
+                    {% endif %}
+
                     <!-- Le lien pointera vers le formulaire de réservation qu'on créera ensuite -->
                     <a href="{% url 'residences:reservation_form' pk=unite.pk %}" class="btn btn-primary btn-block">Réserver</a>
                 
