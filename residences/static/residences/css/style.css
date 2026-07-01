@@ -631,3 +631,169 @@ body {
     color: #777;
     margin-top: 8px;
 }
+
+/* ===== Calendrier de disponibilité ===== */
+#dispo-calendar {
+    margin-top: 10px;
+}
+
+/* Flatpickr génère un <span> par jour avec la classe .flatpickr-day ;
+   on cible nos classes ajoutées via onDayCreate pour les colorer */
+span.flatpickr-day.dispo-attente {
+    background-color: #f39c12 !important;
+    color: white !important;
+    border-color: #f39c12 !important;
+}
+
+span.flatpickr-day.dispo-confirmee {
+    background-color: #c0392b !important;
+    color: white !important;
+    border-color: #c0392b !important;
+}
+
+.flatpickr-day.dispo-attente:hover,
+.flatpickr-day.dispo-confirmee:hover {
+    /* On garde la même couleur au survol, pour éviter de laisser penser
+       que ces jours restent cliquables/sélectionnables */
+    opacity: 0.9;
+}
+
+/* ===== Légende du calendrier ===== */
+.dispo-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-attente {
+    background: #f39c12;
+}
+
+.legend-confirmee {
+    background: #c0392b;
+}
+
+/* ===== Page Contact ===== */
+.contact-page {
+    padding: 40px 20px 60px;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    margin-top: 20px;
+}
+
+.contact-infos h1 {
+    margin-bottom: 10px;
+}
+
+.contact-intro {
+    color: #555;
+    margin-bottom: 25px;
+}
+
+.contact-bloc {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.contact-bloc h2 {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+}
+
+.contact-bloc h3 {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.contact-link {
+    color: #0a3d62;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.contact-link:hover {
+    text-decoration: underline;
+}
+
+/* Boutons réseaux sociaux */
+.contact-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.social-btn {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.social-facebook { background: #1877f2; }
+.social-instagram { background: #e1306c; }
+.social-whatsapp { background: #25d366; }
+
+.contact-form-col h2 {
+    margin-bottom: 20px;
+}
+
+@media (max-width: 700px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Sélecteur de langue ===== */
+.lang-switcher {
+    display: flex;
+    gap: 5px;
+    margin-left: 20px;
+}
+
+.lang-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.5);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.lang-btn.active {
+    background: white;
+    color: #0a3d62;
+    font-weight: bold;
+}
+
+.lang-btn:hover {
+    background: rgba(255,255,255,0.2);
+}

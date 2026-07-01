@@ -14,4 +14,6 @@ urlpatterns = [
          views.reservation_form, name='reservation_form'),
     path('reservation/confirmee/', views.reservation_success,
          name='reservation_success'),
+    path('contact/', views.contact, name='contact'),
+    path('contact/envoye/', views.contact_success, name='contact_success'),
 ]

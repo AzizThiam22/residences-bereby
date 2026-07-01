@@ -1,7 +1,8 @@
 {% load static %}
+{% load i18n %}
 <!-- {% load static %} permet d'utiliser {% static '...' %} plus bas pour charger le CSS -->
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,12 +27,20 @@
             </a>
 
             <nav class="main-nav">
-                <a href="{% url 'residences:home' %}">Accueil</a>
-                <a href="{% url 'residences:unite_list' %}">Nos chambres</a>
-                <!-- Ces liens seront fonctionnels une fois les pages créées -->
-                <a href="{% url 'residences:localisation' %}">Localisation</a>
-                <a href="#">Contact</a>
+                <a href="{% url 'residences:home' %}">{% trans "Accueil" %}</a>
+                <a href="{% url 'residences:unite_list' %}">{% trans "Nos chambres" %}</a>
+                 <a href="{% url 'residences:localisation' %}">{% trans "Localisation" %}</a>
+                <a href="{% url 'residences:contact' %}">{% trans "Contact" %}</a>
             </nav>
+
+            <!-- Sélecteur de langue : système i18n de Django pour changer la langue active -->
+            <form action="{% url 'set_language' %}" method="post" class="lang-switcher">
+                {% csrf_token %}
+                <!-- 'next' indique à Django où rediriger après le changement de langue -->
+                <input name="next" type="hidden" value="{{ request.path }}">
+                <button type="submit" name="language" value="fr" class="lang-btn {% if LANGUAGE_CODE == 'fr' %}active{% endif %}">FR</button>
+                <button type="submit" name="language" value="en" class="lang-btn {% if LANGUAGE_CODE == 'en' %}active{% endif %}">EN</button>
+                </form>
         </div>
     </header>
 
@@ -51,17 +60,17 @@
             </div>
 
             <div class="footer-section">
-                <h3>Contact</h3>
+                <h3>{% trans "Contact" %}</h3>
                 {% if parametres.telephone_principal %}
-                    <p>Tél : {{ parametres.telephone_principal }}</p>
+                    <p>{% trans "Tél" %} : {{ parametres.telephone_principal }}</p>
                 {% endif %}
                 {% if parametres.email_contact %}
-                    <p>Email : {{ parametres.email_contact }}</p>
+                    <p>{% trans "Email" %} : {{ parametres.email_contact }}</p>
                 {% endif %}
             </div>
 
             <div class="footer-section">
-                <h3>Suivez-nous</h3>
+                <h3>{% trans "Suivez-nous" %}</h3>
                 <div class="social-links">
                     <!-- On n'affiche le lien que si l'URL a été renseignée dans l'admin -->
                     {% if parametres.lien_facebook %}
@@ -77,7 +86,7 @@
             </div>
 
         </div>
-        <p class="copyright">&copy; 2026 {{ parametres.nom_residence }}. Tous droits réservés.</p>
+        <p class="copyright">&copy; 2026 {{ parametres.nom_residence }}. {% trans "Tous droits réservés" %}.</p>
     </footer>
 
         {% block extra_js %}{% endblock %}

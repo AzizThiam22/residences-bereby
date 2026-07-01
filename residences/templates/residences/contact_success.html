@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Message envoyé{% endblock %}
+
+{% block content %}
+
+    <section class="reservation-success container">
+        <h1>Message bien reçu !</h1>
+        <p>
+            Merci de nous avoir contactés. Nous vous répondrons dans les plus
+            brefs délais.
+        </p>
+        {% if parametres.telephone_principal %}
+            <p>
+                Pour une réponse plus rapide, vous pouvez aussi nous appeler
+                au {{ parametres.telephone_principal }}.
+            </p>
+        {% endif %}
+        <a href="{% url 'residences:home' %}" class="btn btn-primary">
+            Retour à l'accueil
+        </a>
+    </section>
+
+{% endblock %}

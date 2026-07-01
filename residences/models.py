@@ -48,8 +48,11 @@ class Unite(models.Model):
 
     # TextField = texte long, sans limite de caractères (contrairement à CharField)
     # blank=True = champ optionnel
-    description_fr = models.TextField(blank=True)
-    description_en = models.TextField(blank=True)
+    # anciennement, on avait deux champs séparés pour la description en français et en anglais.
+    # Avec django-modeltranslation, on va utiliser un seul champ "description" et modeltranslation
+    # Un seul champ 'description' : modeltranslation créera automatiquement
+    # 'description_fr' et 'description_en' en base de données
+    description = models.TextField(blank=True)
 
     # Prix par nuit. validators=[MinValueValidator(0)] empêche un prix négatif
     prix_nuit = models.DecimalField(

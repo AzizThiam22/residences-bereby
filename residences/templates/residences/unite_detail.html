@@ -4,6 +4,9 @@
 
 {% block extra_head %}
     <script src="{% static 'residences/js/carousel.js' %}" defer></script>
+
+    <!-- CSS de Flatpickr, pour le calendrier de disponibilité -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
 {% endblock %}
 
 {% block title %}{{ unite.nom }}{% endblock %}
@@ -73,6 +76,22 @@
                         {% endfor %}
                     </ul>
                 {% endif %}
+
+                <!-- ===== CALENDRIER DE DISPONIBILITÉ ===== -->
+                <h2>Disponibilité</h2>
+                <div id="dispo-calendar"></div>
+
+                <!-- Légende expliquant la signification des couleurs -->
+                <div class="dispo-legend">
+                    <span class="legend-item">
+                        <span class="legend-dot legend-attente"></span>
+                        Réservée mais non confirmée
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-dot legend-confirmee"></span>
+                        Réservée confirmée
+                    </span>
+                </div>
             </div>
 
             <!-- ===== ENCART RÉSERVATION (carte latérale) ===== -->
@@ -85,30 +104,6 @@
                     {% endif %}
                     {% if unite.surface_m2 %}
                         <p>Surface : {{ unite.surface_m2 }} m²</p>
-                    {% endif %}
-
-                    <!-- Affiche cette section uniquement si au moins une période est déjà réservée -->
-                    {% if periodes_reservees %}
-                        <div class="disponibilite-section">
-                            <p class="disponibilite-title">Périodes déjà réservées</p>
-                            <ul class="disponibilite-list">
-                                <!-- Boucle sur toutes les réservations en cours pour cette unité -->
-                                {% for periode in periodes_reservees %}
-                                    <li>
-                                        Du {{ periode.date_arrivee|date:"d/m/Y" }}
-                                        au {{ periode.date_depart|date:"d/m/Y" }}
-                                        {% if periode.statut == 'en_attente' %}
-                                            <span class="badge-statut badge-attente">en attente</span>
-                                        {% else %}
-                                            <span class="badge-statut badge-confirmee">confirmée</span>
-                                        {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                            <p class="disponibilite-note">
-                                Merci de vérifier ces dates avant de soumettre votre demande.
-                            </p>
-                        </div>
                     {% endif %}
 
                     <!-- Le lien pointera vers le formulaire de réservation qu'on créera ensuite -->
@@ -171,7 +166,50 @@
 {% endblock %}
 
 {% block extra_js %}
+    <!-- JS de Flatpickr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/fr.js"></script>
+
     <script>
+        // Django génère ici un tableau JavaScript avec toutes les périodes réservées
+        // pour CETTE unité (en_attente ou confirmée), sous forme de dates de début/fin.
+        const periodesReservees = [
+            {% for periode in periodes_reservees %}
+                {
+                    debut: "{{ periode.date_arrivee|date:'Y-m-d' }}",
+                    fin: "{{ periode.date_depart|date:'Y-m-d' }}",
+                    statut: "{{ periode.statut }}"
+                },
+            {% endfor %}
+        ];
+
+        // Calendrier en mode "inline" : affiché directement dans la page,
+        // pas dans un champ de formulaire
+        flatpickr('#dispo-calendar', {
+            inline: true,
+            locale: 'fr',
+            disableMobile: true,
+            minDate: 'today',
+
+            // onDayCreate s'exécute pour CHAQUE case de jour générée dans le calendrier,
+            // ce qui permet de lui ajouter une classe CSS personnalisée si besoin
+            onDayCreate: function (dObj, dStr, fp, dayElem) {
+                // On formate la date de cette case au format "AAAA-MM-JJ" pour comparaison
+                const dateStr = fp.formatDate(dayElem.dateObj, 'Y-m-d');
+
+                periodesReservees.forEach(function (periode) {
+                    // Le jour est considéré "réservé" s'il est compris entre le début
+                    // (inclus) et la fin (exclue, car le jour de départ redevient libre)
+                    if (dateStr >= periode.debut && dateStr < periode.fin) {
+                        if (periode.statut === 'confirmee') {
+                            dayElem.classList.add('dispo-confirmee');
+                        } else {
+                            dayElem.classList.add('dispo-attente');
+                        }
+                    }
+                });
+            }
+        });
         // Permet de copier un numéro Mobile Money dans le presse-papier en un clic
         document.querySelectorAll('.mm-copy').forEach(function (button) {
             button.addEventListener('click', function () {

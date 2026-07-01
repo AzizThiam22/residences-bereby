@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Unite, Parametres, VilleCle
-from .forms import ReservationForm
+from .forms import ReservationForm, ContactForm
 
 
 def home(request):
@@ -135,3 +135,36 @@ def reservation_success(request):
     parametres = get_object_or_404(Parametres, pk=1)
     context = {'parametres': parametres}
     return render(request, 'residences/reservation_success.html', context)
+
+
+def contact(request):
+    """
+    Page de contact : affiche les coordonnées, les réseaux sociaux,
+    et un formulaire de contact général.
+    """
+    parametres = get_object_or_404(Parametres, pk=1)
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+
+        if form.is_valid():
+            # Sauvegarde le message en base de données (visible dans l'admin)
+            form.save()
+            return redirect('residences:contact_success')
+    else:
+        # Première visite : formulaire vide
+        form = ContactForm()
+
+    context = {
+        'form': form,
+        'parametres': parametres,
+    }
+    return render(request, 'residences/contact.html', context)
+
+
+def contact_success(request):
+    """
+    Page de confirmation après envoi du formulaire de contact.
+    """
+    parametres = get_object_or_404(Parametres, pk=1)
+    return render(request, 'residences/contact_success.html', {'parametres': parametres})

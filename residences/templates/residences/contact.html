@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact{% endblock %}
+
+{% block content %}
+
+    <section class="contact-page container">
+
+        <div class="contact-grid">
+
+            <!-- ===== COLONNE GAUCHE : coordonnées + réseaux sociaux ===== -->
+            <div class="contact-infos">
+                <h1>Contactez-nous</h1>
+                <p class="contact-intro">
+                    Une question ? Une demande particulière ? N'hésitez pas à nous écrire
+                    ou à nous appeler directement.
+                </p>
+
+                <div class="contact-bloc">
+                    <h2>{{ parametres.nom_residence }}</h2>
+                    {% if parametres.adresse %}
+                        <p>{{ parametres.adresse }}</p>
+                    {% endif %}
+                </div>
+
+                {% if parametres.telephone_principal %}
+                    <div class="contact-bloc">
+                        <h3>Téléphone</h3>
+                        <!-- tel: permet d'appeler directement depuis un mobile -->
+                        <a href="tel:{{ parametres.telephone_principal }}" class="contact-link">
+                            {{ parametres.telephone_principal }}
+                        </a>
+                    </div>
+                {% endif %}
+
+                {% if parametres.email_contact %}
+                    <div class="contact-bloc">
+                        <h3>Email</h3>
+                        <a href="mailto:{{ parametres.email_contact }}" class="contact-link">
+                            {{ parametres.email_contact }}
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- Mobile Money sur la page contact aussi, pour référence rapide -->
+                {% if parametres.numero_orange_money or parametres.numero_mtn_money or parametres.numero_wave %}
+                    <div class="contact-bloc">
+                        <h3>Mobile Money</h3>
+                        {% if parametres.numero_orange_money %}
+                            <p>Orange Money : <strong>{{ parametres.numero_orange_money }}</strong></p>
+                        {% endif %}
+                        {% if parametres.numero_mtn_money %}
+                            <p>MTN Money : <strong>{{ parametres.numero_mtn_money }}</strong></p>
+                        {% endif %}
+                        {% if parametres.numero_wave %}
+                            <p>Wave : <strong>{{ parametres.numero_wave }}</strong></p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Réseaux sociaux -->
+                {% if parametres.lien_facebook or parametres.lien_instagram or parametres.lien_whatsapp %}
+                    <div class="contact-bloc">
+                        <h3>Réseaux sociaux</h3>
+                        <div class="contact-social">
+                            {% if parametres.lien_facebook %}
+                                <a href="{{ parametres.lien_facebook }}" target="_blank" class="social-btn social-facebook">
+                                    Facebook
+                                </a>
+                            {% endif %}
+                            {% if parametres.lien_instagram %}
+                                <a href="{{ parametres.lien_instagram }}" target="_blank" class="social-btn social-instagram">
+                                    Instagram
+                                </a>
+                            {% endif %}
+                            {% if parametres.lien_whatsapp %}
+                                <a href="{{ parametres.lien_whatsapp }}" target="_blank" class="social-btn social-whatsapp">
+                                    WhatsApp
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!-- ===== COLONNE DROITE : formulaire de contact ===== -->
+            <div class="contact-form-col">
+                <h2>Envoyez-nous un message</h2>
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post" class="reservation-form">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <p class="field-error">{{ field.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Envoyer le message
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+    </section>
+
+{% endblock %}

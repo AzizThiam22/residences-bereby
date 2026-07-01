@@ -1,5 +1,5 @@
 from django import forms
-from .models import Reservation
+from .models import Reservation, ContactMessage
 
 
 class ReservationForm(forms.ModelForm):
@@ -92,3 +92,41 @@ class ReservationForm(forms.ModelForm):
                     )
 
         return cleaned_data
+
+
+class ContactForm(forms.ModelForm):
+    """
+    Formulaire de contact général : pas lié à une unité spécifique,
+    pour toute question ou demande d'information.
+    """
+
+    class Meta:
+        model = ContactMessage
+        fields = ['nom', 'email', 'sujet', 'message']
+
+        widgets = {
+            'nom': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Votre nom complet'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'votre@email.com'
+            }),
+            'sujet': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Objet de votre message (optionnel)'
+            }),
+            'message': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 5,
+                'placeholder': 'Votre message...'
+            }),
+        }
+
+        labels = {
+            'nom': 'Nom complet',
+            'email': 'Email',
+            'sujet': 'Sujet',
+            'message': 'Message',
+        }

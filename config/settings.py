@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+from django.utils.translation import gettext_lazy as _
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,12 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'modeltranslation',
     'residences',  # L'application
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -62,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
             ],
         },
     },
@@ -129,3 +133,20 @@ MEDIA_URL = '/media/'
 # Dossier physique sur le disque où Django stocke les fichiers uploadés
 # BASE_DIR est déjà défini plus haut dans settings.py par Django
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Langue par défaut du site
+LANGUAGE_CODE = 'fr'
+
+# Langues disponibles sur le site
+LANGUAGES = [
+    ('fr', _('Français')),
+    ('en', _('English')),
+]
+
+# Middleware nécessaire pour la détection de la langue
+# Cherchez la liste MIDDLEWARE dans settings.py et ajoutez cette ligne
+# après 'django.contrib.sessions.middleware.SessionMiddleware' :
+# 'django.middleware.locale.LocaleMiddleware',
+
+# Dossier où seront stockées les traductions des textes statiques (interface, nav, etc.)
+LOCALE_PATHS = [BASE_DIR / 'locale']

@@ -2,8 +2,9 @@
      et vient seulement remplir le bloc 'content' -->
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}{% trans "Accueil" %}{% endblock %}
 
 {% block content %}
 
@@ -12,27 +13,25 @@
         <div class="hero-overlay">
             <h1>{{ parametres.nom_residence }}</h1>
             <p class="hero-subtitle">
-                Logements meublés face à l'océan, à Grand-Béréby, Côte d'Ivoire
+                {% trans "Logements meublés face à l'océan, à Grand-Béréby, Côte d'Ivoire" %}
             </p>
             <a href="{% url 'residences:unite_list' %}" class="btn btn-primary">
-                Voir nos chambres
+                {% trans "Voir nos chambres" %}
             </a>
         </div>
     </section>
 
     <!-- ===== SECTION INTRO ===== -->
     <section class="intro container">
-        <h2>Bienvenue à Résidences Bereby</h2>
+        <h2>{% trans "Bienvenue à Résidences Bereby" %}</h2>
         <p>
-            Située sur le littoral de Grand-Béréby, notre résidence vous offre
-            des logements meublés confortables, à quelques pas de l'océan.
-            Idéal pour un séjour court ou prolongé.
+            {% trans "Située sur le littoral de Grand-Béréby, notre résidence vous offre des logements meublés confortables, à quelques pas de l'océan. Idéal pour un séjour court ou prolongé." %}
         </p>
     </section>
 
     <!-- ===== APERÇU DES UNITÉS ===== -->
     <section class="unites-preview container">
-        <h2>Nos logements</h2>
+        <h2>{% trans "Nos logements" %}</h2>
 
         <!-- Grille de cartes, une par unité disponible -->
         <div class="unites-grid">
@@ -45,7 +44,7 @@
                         {% if photo %}
                             <img src="{{ photo.image.url }}" alt="{{ unite.nom }}">
                         {% else %}
-                            <div class="unite-card-placeholder">Photo à venir</div>
+                            <div class="unite-card-placeholder">{% trans "Photo à venir" %}</div>
                         {% endif %}
                     {% endwith %}
 
@@ -55,19 +54,19 @@
 
                         <!-- Affiche un badge "Vue mer" uniquement si pertinent -->
                         {% if unite.vue_mer %}
-                            <span class="badge badge-sea">Vue mer</span>
+                            <span class="badge badge-sea">{% trans "Vue mer" %}</span>
                         {% endif %}
 
-                        <p class="unite-price">{{ unite.prix_nuit }} FCFA / nuit</p>
+                        <p class="unite-price">{{ unite.prix_nuit }} FCFA / {% trans "nuit" %}</p>
 
                         <a href="{% url 'residences:unite_detail' pk=unite.pk %}" class="btn btn-secondary">
-                            Voir le détail
+                            {% trans "Voir le détail" %}
                         </a>
                     </div>
                 </div>
             {% empty %}
                 <!-- Ce message s'affiche seulement si la liste 'unites' est vide -->
-                <p>Aucune unité disponible pour le moment.</p>
+                <p>{% trans "Aucune unité disponible pour le moment." %}</p>
             {% endfor %}
         </div>
     </section>
