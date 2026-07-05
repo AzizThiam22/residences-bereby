@@ -1,22 +1,23 @@
 <!-- Page de localisation : carte interactive + liste des distances vers les villes clés -->
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Localisation{% endblock %}
+{% block title %}{% trans "Localisation" %}{% endblock %}
 
 <!-- On charge le CSS et le JS de Leaflet depuis un CDN, uniquement sur cette page -->
 {% block extra_head %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 {% endblock %}
 
 {% block content %}
 
     <section class="page-header container">
-        <h1>Notre localisation</h1>
+        <h1>{% trans "Notre localisation" %}</h1>
         <p>
-            {{ parametres.nom_residence }} est située directement sur le littoral
-            de Grand-Béréby, en bord d'océan Atlantique.
+            {% blocktrans with nom=parametres.nom_residence %}
+                {{ nom }} est située directement sur le littoral de Grand-Béréby, en bord d'océan Atlantique.
+            {% endblocktrans %}
         </p>
     </section>
 
@@ -27,7 +28,7 @@
 
         <!-- Liste des distances vers les villes clés, en complément visuel de la carte -->
         <div class="villes-list">
-            <h2>Distances depuis la résidence</h2>
+            <h2>{% trans "Distances depuis la résidence" %}</h2>
             <ul>
                 <!-- Boucle sur toutes les villes clés ajoutées dans l'admin -->
                 {% for ville in villes %}
@@ -49,32 +50,41 @@
 {% endblock %}
 
 {% block extra_js %}
+    <!-- Leaflet JS chargé ici (après le DOM) pour garantir que #map existe avant l'init -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     // Coordonnées GPS de la résidence, transmises depuis Django (notez le |default:0
     // qui évite une erreur si jamais latitude/longitude n'étaient pas encore renseignées)
-    const residenceLat = {{ parametres.latitude|default:0 }};
-    const residenceLng = {{ parametres.longitude|default:0 }};
+    const residenceLat = parseFloat("{{ parametres.latitude|default:'4.7833' }}");
+    const residenceLng = parseFloat("{{ parametres.longitude|default:'-7.0500' }}");
 
-    // Initialise la carte centrée sur la résidence, avec un niveau de zoom raisonnable
-    const map = L.map('map').setView([residenceLat, residenceLng], 9);
+    // Vérifie que les coordonnées sont valides avant d'initialiser la carte
+    if (!isNaN(residenceLat) && !isNaN(residenceLng)) {
+        // Initialise la carte centrée sur la résidence, avec un niveau de zoom raisonnable
+        const map = L.map('map').setView([residenceLat, residenceLng], 9);
 
-    // Ajoute le fond de carte OpenStreetMap (gratuit, pas de clé API nécessaire)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-    }).addTo(map);
+        // Ajoute le fond de carte OpenStreetMap (gratuit, pas de clé API nécessaire)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(map);
 
-    // Marqueur principal sur la résidence, avec une popup d'info
-    L.marker([residenceLat, residenceLng])
-        .addTo(map)
-        .bindPopup("<strong>{{ parametres.nom_residence }}</strong><br>Grand-Béréby, littoral")
-        .openPopup();
-
-    // Boucle Django (pas JavaScript) qui génère un marqueur pour chaque ville clé
-    {% for ville in villes %}
-        L.marker([{{ ville.latitude }}, {{ ville.longitude }}])
+        // Marqueur principal sur la résidence, avec une popup d'info
+        L.marker([residenceLat, residenceLng])
             .addTo(map)
-            .bindPopup("{{ ville.nom }}{% if ville.distance_km %} — {{ ville.distance_km }} km{% endif %}");
-    {% endfor %}
+            .bindPopup("<strong>{{ parametres.nom_residence }}</strong><br>Grand-Béréby, littoral")
+            .openPopup();
+
+        // Boucle Django (pas JavaScript) qui génère un marqueur pour chaque ville clé
+        {% for ville in villes %}
+            L.marker([{{ ville.latitude }}, {{ ville.longitude }}])
+                .addTo(map)
+                .bindPopup("{{ ville.nom }}{% if ville.distance_km %} — {{ ville.distance_km }} km{% endif %}");
+        {% endfor %}
+    } else {   
+        // Affiche un message si les coordonnées sont manquantes
+            document.getElementById('map').innerHTML =
+                '<p style="padding:20px;color:#555;">Carte temporairement indisponible — coordonnées GPS à configurer dans l\'admin.</p>';
+    } 
 </script>
 {% endblock %}

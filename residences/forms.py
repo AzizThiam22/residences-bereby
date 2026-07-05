@@ -1,5 +1,6 @@
 from django import forms
 from .models import Reservation, ContactMessage
+from django.utils.translation import gettext_lazy as _
 
 
 class ReservationForm(forms.ModelForm):
@@ -27,8 +28,8 @@ class ReservationForm(forms.ModelForm):
         # 'widgets' permet de personnaliser l'apparence HTML de chaque champ
         # (par défaut, Django génère des <input> très basiques sans classe CSS)
         widgets = {
-            'nom_client': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Votre nom complet'}),
-            'email_client': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'votre@email.com'}),
+            'nom_client': forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Votre nom complet')}),
+            'email_client': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': _('votre@email.com')}),
             'telephone_client': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+225 XX XX XX XX XX'}),
             # type='date' affiche un vrai sélecteur de date dans le navigateur
             # On utilise un champ texte (et non type='date') car le calendrier natif du navigateur
@@ -36,27 +37,27 @@ class ReservationForm(forms.ModelForm):
             # avec un vrai calendrier visuel personnalisé.
             'date_arrivee': forms.DateInput(
                 attrs={'class': 'form-control datepicker',
-                       'placeholder': 'Sélectionner une date', 'autocomplete': 'off'},
+                       'placeholder': _('Sélectionner une date'), 'autocomplete': 'off'},
                 format='%Y-%m-%d'
             ),
             'date_depart': forms.DateInput(
                 attrs={'class': 'form-control datepicker',
-                       'placeholder': 'Sélectionner une date', 'autocomplete': 'off'},
+                       'placeholder': _('Sélectionner une date'), 'autocomplete': 'off'},
                 format='%Y-%m-%d'
             ),
             'nombre_personnes': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-            'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Demandes particulières (optionnel)'}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': _('Demandes particulières (optionnel)')}),
         }
 
         # Labels personnalisés (texte affiché au-dessus de chaque champ)
         labels = {
-            'nom_client': 'Nom complet',
-            'email_client': 'Email',
-            'telephone_client': 'Téléphone',
-            'date_arrivee': "Date d'arrivée",
-            'date_depart': 'Date de départ',
-            'nombre_personnes': 'Nombre de personnes',
-            'message': 'Message (optionnel)',
+            'nom_client': _('Nom complet'),
+            'email_client': _('Email'),
+            'telephone_client': _('Téléphone'),
+            'date_arrivee': _('Date d\'arrivée'),
+            'date_depart': _('Date de départ'),
+            'nombre_personnes': _('Nombre de personnes'),
+            'message': _('Message (optionnel)'),
         }
 
     def clean(self):
@@ -107,26 +108,26 @@ class ContactForm(forms.ModelForm):
         widgets = {
             'nom': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Votre nom complet'
+                'placeholder': _('Votre nom complet')
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'votre@email.com'
+                'placeholder': _('votre@email.com')
             }),
             'sujet': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Objet de votre message (optionnel)'
+                'placeholder': _('Objet de votre message (optionnel)')
             }),
             'message': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 5,
-                'placeholder': 'Votre message...'
+                'placeholder': _('Votre message...')
             }),
         }
 
         labels = {
-            'nom': 'Nom complet',
-            'email': 'Email',
-            'sujet': 'Sujet',
-            'message': 'Message',
+            'nom': _('Nom complet'),
+            'email': _('Email'),
+            'sujet': _('Sujet'),
+            'message': _('Message'),
         }

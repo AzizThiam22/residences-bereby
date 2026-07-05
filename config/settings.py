@@ -45,7 +45,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    'residences.middleware.DefaultLanguageMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -62,10 +62,13 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Nécessaire pour que LANGUAGE_CODE soit accessible dans les templates
                 'django.template.context_processors.i18n',
+
             ],
         },
     },
@@ -107,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr'
 
 TIME_ZONE = 'UTC'
 
@@ -115,6 +118,21 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Langues disponibles — OBLIGATOIRE pour que modeltranslation
+# ne génère que les colonnes _fr et _en uniquement
+LANGUAGES = [
+    ('fr', _('Français')),
+    ('en', _('English')),
+]
+
+# Nom du cookie qui mémorise la langue choisie par l'utilisateur
+LANGUAGE_COOKIE_NAME = 'django_language'
+LANGUAGE_COOKIE_AGE = 365 * 24 * 60 * 60  # 1 an en secondes
+
+
+# Dossier contenant les fichiers de traduction (.po et .mo)
+# Sans ça, Django ne sait pas où chercher vos traductions
+LOCALE_PATHS = [BASE_DIR / 'locale']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
@@ -134,19 +152,5 @@ MEDIA_URL = '/media/'
 # BASE_DIR est déjà défini plus haut dans settings.py par Django
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Langue par défaut du site
-LANGUAGE_CODE = 'fr'
-
-# Langues disponibles sur le site
-LANGUAGES = [
-    ('fr', _('Français')),
-    ('en', _('English')),
-]
-
-# Middleware nécessaire pour la détection de la langue
-# Cherchez la liste MIDDLEWARE dans settings.py et ajoutez cette ligne
-# après 'django.contrib.sessions.middleware.SessionMiddleware' :
-# 'django.middleware.locale.LocaleMiddleware',
-
-# Dossier où seront stockées les traductions des textes statiques (interface, nav, etc.)
-LOCALE_PATHS = [BASE_DIR / 'locale']
+# Clé primaire par défaut
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

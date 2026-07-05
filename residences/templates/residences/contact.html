@@ -1,20 +1,19 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Contact{% endblock %}
+{% block title %}{% trans "Contact" %}{% endblock %}
 
 {% block content %}
-
     <section class="contact-page container">
 
         <div class="contact-grid">
 
             <!-- ===== COLONNE GAUCHE : coordonnées + réseaux sociaux ===== -->
             <div class="contact-infos">
-                <h1>Contactez-nous</h1>
+                <h1>{% trans "Contactez-nous" %}</h1>
                 <p class="contact-intro">
-                    Une question ? Une demande particulière ? N'hésitez pas à nous écrire
-                    ou à nous appeler directement.
+                    {% trans "Une question ? Une demande particulière ? N'hésitez pas à nous écrire ou à nous appeler directement." %}
                 </p>
 
                 <div class="contact-bloc">
@@ -26,7 +25,7 @@
 
                 {% if parametres.telephone_principal %}
                     <div class="contact-bloc">
-                        <h3>Téléphone</h3>
+                        <h3>{% trans "Téléphone" %}</h3>
                         <!-- tel: permet d'appeler directement depuis un mobile -->
                         <a href="tel:{{ parametres.telephone_principal }}" class="contact-link">
                             {{ parametres.telephone_principal }}
@@ -62,7 +61,7 @@
                 <!-- Réseaux sociaux -->
                 {% if parametres.lien_facebook or parametres.lien_instagram or parametres.lien_whatsapp %}
                     <div class="contact-bloc">
-                        <h3>Réseaux sociaux</h3>
+                        <h3>{% trans "Réseaux sociaux" %}</h3>
                         <div class="contact-social">
                             {% if parametres.lien_facebook %}
                                 <a href="{{ parametres.lien_facebook }}" target="_blank" class="social-btn social-facebook">
@@ -87,7 +86,7 @@
 
             <!-- ===== COLONNE DROITE : formulaire de contact ===== -->
             <div class="contact-form-col">
-                <h2>Envoyez-nous un message</h2>
+                <h2>{% trans "Envoyez-nous un message" %}</h2>
 
                 {% if form.non_field_errors %}
                     <div class="form-errors">
@@ -111,7 +110,7 @@
                     {% endfor %}
 
                     <button type="submit" class="btn btn-primary btn-block">
-                        Envoyer le message
+                        {% trans "Envoyer le message" %}
                     </button>
                 </form>
             </div>

@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Unite, Parametres, VilleCle
 from .forms import ReservationForm, ContactForm
+from django.utils import translation
+from django.http import HttpResponseRedirect
 
 
 def home(request):
@@ -168,3 +170,36 @@ def contact_success(request):
     """
     parametres = get_object_or_404(Parametres, pk=1)
     return render(request, 'residences/contact_success.html', {'parametres': parametres})
+
+
+def changer_langue(request):
+    """
+    Vue personnalisée pour changer la langue active du site.
+    Sauvegarde le choix dans un cookie valable 1 an.
+    """
+    if request.method == 'POST':
+        langue = request.POST.get('language', 'fr')
+
+        # Validation : on n'accepte que 'fr' ou 'en'
+        if langue not in ('fr', 'en'):
+            langue = 'fr'
+
+        # Active la langue immédiatement pour cette requête
+        translation.activate(langue)
+
+        # Redirige vers la page d'accueil
+        response = HttpResponseRedirect('/')
+
+        # Sauvegarde le choix dans un cookie pour les prochaines visites
+        response.set_cookie(
+            'django_language',
+            langue,
+            max_age=365 * 24 * 60 * 60,
+            httponly=False,
+            samesite='Lax'
+        )
+
+        return response
+
+    # Si accès direct sans POST, redirige vers l'accueil
+    return HttpResponseRedirect('/')

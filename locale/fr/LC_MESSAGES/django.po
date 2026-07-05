@@ -24,3 +24,6 @@ msgstr ""
 #: .\config\settings.py:142
 msgid "English"
 msgstr ""
+
+msgid "Email"
+msgstr "Email"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-01 01:08+0000\n"
+"POT-Creation-Date: 2026-07-05 14:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,100 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\config\settings.py:142
+#: .\config\settings.py:149
 msgid "Français"
 msgstr ""
 
-#: .\config\settings.py:143
+#: .\config\settings.py:150
 msgid "English"
 msgstr ""
+
+#: .\residences\forms.py:31 .\residences\forms.py:111
+msgid "Votre nom complet"
+msgstr "Your full name"
+
+#: .\residences\forms.py:32 .\residences\forms.py:115
+msgid "votre@email.com"
+msgstr "your@email.com"
+
+#: .\residences\forms.py:40 .\residences\forms.py:45
+msgid "Sélectionner une date"
+msgstr "Select a date"
+
+#: .\residences\forms.py:49
+msgid "Demandes particulières (optionnel)"
+msgstr "Special requests (optional)"
+
+#: .\residences\forms.py:54 .\residences\forms.py:129
+msgid "Nom complet"
+msgstr "Full name"
+
+#: .\residences\forms.py:55 .\residences\forms.py:130 .\templates\base.html:70
+msgid "Email"
+msgstr "Email"
+
+#: .\residences\forms.py:56 .\residences\templates\residences\contact.html:28
+msgid "Téléphone"
+msgstr "Phone"
+
+#: .\residences\forms.py:57
+msgid "Date d'arrivée"
+msgstr "Check-in date"
+
+#: .\residences\forms.py:58
+msgid "Date de départ"
+msgstr "Check-out date"
+
+#: .\residences\forms.py:59
+msgid "Nombre de personnes"
+msgstr "people"
+
+#: .\residences\forms.py:60
+msgid "Message (optionnel)"
+msgstr "Message (Optional)"
+
+#: .\residences\forms.py:119
+msgid "Objet de votre message (optionnel)"
+msgstr "Subject (optional)"
+
+#: .\residences\forms.py:124
+msgid "Votre message..."
+msgstr "Send message"
+
+#: .\residences\forms.py:131
+msgid "Sujet"
+msgstr "Subject"
+
+#: .\residences\forms.py:132
+msgid "Message"
+msgstr "Your message"
+
+#: .\residences\templates\residences\contact.html:5 .\templates\base.html:33
+#: .\templates\base.html:65
+msgid "Contact"
+msgstr "Contact"
+
+#: .\residences\templates\residences\contact.html:14
+msgid "Contactez-nous"
+msgstr "Contact us"
+
+#: .\residences\templates\residences\contact.html:16
+msgid ""
+"Une question ? Une demande particulière ? N'hésitez pas à nous écrire ou à "
+"nous appeler directement."
+msgstr "One question? Call us now! "
+
+#: .\residences\templates\residences\contact.html:64
+msgid "Réseaux sociaux"
+msgstr "Social Media"
+
+#: .\residences\templates\residences\contact.html:89
+msgid "Envoyez-nous un message"
+msgstr "Send us message"
+
+#: .\residences\templates\residences\contact.html:113
+msgid "Envoyer le message"
+msgstr "Send message"
 
 #: .\residences\templates\residences\home.html:7 .\templates\base.html:30
 msgid "Accueil"
@@ -32,7 +119,8 @@ msgstr "Home"
 
 #: .\residences\templates\residences\home.html:16
 msgid "Logements meublés face à l'océan, à Grand-Béréby, Côte d'Ivoire"
-msgstr "Furnished accommodations facing the ocean, in Grand-Béréby, Ivory Coast"
+msgstr ""
+"Furnished accommodations facing the ocean, in Grand-Béréby, Ivory Coast"
 
 #: .\residences\templates\residences\home.html:19
 msgid "Voir nos chambres"
@@ -47,7 +135,10 @@ msgid ""
 "Située sur le littoral de Grand-Béréby, notre résidence vous offre des "
 "logements meublés confortables, à quelques pas de l'océan. Idéal pour un "
 "séjour court ou prolongé."
-msgstr "Located on the coast of Grand-Béréby, our residence offers comfortable furnished accommodations, just steps from the ocean. Perfect for a short or extended stay."
+msgstr ""
+"Located on the coast of Grand-Béréby, our residence offers comfortable "
+"furnished accommodations, just steps from the ocean. Perfect for a short or "
+"extended stay."
 
 #: .\residences\templates\residences\home.html:34
 #: .\residences\templates\residences\unite_list.html:11
@@ -65,6 +156,7 @@ msgid "Vue mer"
 msgstr "Ocean view"
 
 #: .\residences\templates\residences\home.html:60
+#: .\residences\templates\residences\unite_detail.html:103
 #: .\residences\templates\residences\unite_list.html:48
 msgid "nuit"
 msgstr "night"
@@ -77,6 +169,84 @@ msgstr "View details"
 #: .\residences\templates\residences\home.html:69
 msgid "Aucune unité disponible pour le moment."
 msgstr "No units available at the moment."
+
+#: .\residences\templates\residences\localisation.html:6
+#: .\templates\base.html:32
+msgid "Localisation"
+msgstr "Location"
+
+#: .\residences\templates\residences\localisation.html:17
+#, fuzzy
+#| msgid "Localisation"
+msgid "Notre localisation"
+msgstr "Our location"
+
+#: .\residences\templates\residences\localisation.html:19
+#, python-format
+msgid ""
+"\n"
+"                %(nom)s est située directement sur le littoral de Grand-"
+"Béréby, en bord d'océan Atlantique.\n"
+"            "
+msgstr ""
+"\n"
+"                %(nom)s is located on the coast of Grand-Béréby, on the edge "
+"of the Atlantic Ocean.\n"
+"            "
+
+#: .\residences\templates\residences\localisation.html:32
+msgid "Distances depuis la résidence"
+msgstr "Distances from the residence"
+
+#: .\residences\templates\residences\unite_detail.html:21
+#, fuzzy
+#| msgid "Nos logements"
+msgid "Retour aux logements"
+msgstr "Back to accommodations"
+
+#: .\residences\templates\residences\unite_detail.html:69
+msgid "Description"
+msgstr "Description"
+
+#: .\residences\templates\residences\unite_detail.html:74
+msgid "Équipements"
+msgstr "Equipments"
+
+#: .\residences\templates\residences\unite_detail.html:84
+msgid "Disponibilité"
+msgstr "Availability"
+
+#: .\residences\templates\residences\unite_detail.html:91
+msgid "Réservée mais non confirmée"
+msgstr "Reserved but not confirmed"
+
+#: .\residences\templates\residences\unite_detail.html:95
+msgid "Réservée confirmée"
+msgstr "Reserved confirmed"
+
+#: .\residences\templates\residences\unite_detail.html:106
+msgid "Capacité"
+msgstr "Housing capacity"
+
+#: .\residences\templates\residences\unite_detail.html:106
+msgid "personne(s)"
+msgstr "people"
+
+#: .\residences\templates\residences\unite_detail.html:109
+msgid "Surface"
+msgstr "Surface"
+
+#: .\residences\templates\residences\unite_detail.html:113
+msgid "Réserver"
+msgstr "Book"
+
+#: .\residences\templates\residences\unite_detail.html:118
+msgid "Ou payez directement via Mobile Money"
+msgstr "Or pay via mobile money"
+
+#: .\residences\templates\residences\unite_detail.html:158
+msgid "Envoyez le montant correspondant puis contactez-nous pour confirmation."
+msgstr "Send the corresponding amount then contact us for confirmation"
 
 #: .\residences\templates\residences\unite_list.html:12
 msgid "Studios et appartements meublés, certains avec vue directe sur l'océan."
@@ -98,26 +268,14 @@ msgstr "No units match this filter."
 msgid "Nos chambres"
 msgstr "Our rooms"
 
-#: .\templates\base.html:32
-msgid "Localisation"
-msgstr "Location"
-
-#: .\templates\base.html:33 .\templates\base.html:63
-msgid "Contact"
-msgstr "Contact"
-
-#: .\templates\base.html:65
+#: .\templates\base.html:67
 msgid "Tél"
 msgstr "Phone"
 
-#: .\templates\base.html:68
-msgid "Email"
-msgstr "Email"
-
-#: .\templates\base.html:73
+#: .\templates\base.html:75
 msgid "Suivez-nous"
 msgstr "Follow us"
 
-#: .\templates\base.html:89
+#: .\templates\base.html:91
 msgid "Tous droits réservés"
 msgstr "All rights reserved"

@@ -1,6 +1,9 @@
 <!-- Page détaillée d'une unité précise : galerie photos, description, équipements -->
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
+
+{% block title %}{{ unite.nom }}{% endblock %}
 
 {% block extra_head %}
     <script src="{% static 'residences/js/carousel.js' %}" defer></script>
@@ -15,7 +18,7 @@
 
     <section class="unite-detail container">
 
-        <a href="{% url 'residences:unite_list' %}" class="back-link">&larr; Retour aux logements</a>
+        <a href="{% url 'residences:unite_list' %}" class="back-link">&larr; {% trans "Retour aux logements" %}</a>
 
         <h1>{{ unite.nom }}</h1>
         <p class="unite-detail-meta">
@@ -63,12 +66,12 @@
         <div class="unite-detail-grid">
 
             <div class="unite-detail-main">
-                <h2>Description</h2>
+                <h2>{% trans "Description" %}</h2>
                 <!-- 'linebreaks' transforme les retours à la ligne du texte en vrais paragraphes HTML -->
                 <p>{{ unite.description_fr|linebreaks }}</p>
 
                 {% if unite.equipements.all %}
-                    <h2>Équipements</h2>
+                    <h2>{% trans "Équipements" %}</h2>
                     <ul class="equipements-list">
                         <!-- Boucle sur tous les équipements liés à cette unité (relation many-to-many) -->
                         {% for equipement in unite.equipements.all %}
@@ -78,18 +81,18 @@
                 {% endif %}
 
                 <!-- ===== CALENDRIER DE DISPONIBILITÉ ===== -->
-                <h2>Disponibilité</h2>
+                <h2>{% trans "Disponibilité" %}</h2>
                 <div id="dispo-calendar"></div>
 
                 <!-- Légende expliquant la signification des couleurs -->
                 <div class="dispo-legend">
                     <span class="legend-item">
                         <span class="legend-dot legend-attente"></span>
-                        Réservée mais non confirmée
+                        {% trans "Réservée mais non confirmée" %}
                     </span>
                     <span class="legend-item">
                         <span class="legend-dot legend-confirmee"></span>
-                        Réservée confirmée
+                        {% trans "Réservée confirmée" %}
                     </span>
                 </div>
             </div>
@@ -97,22 +100,22 @@
             <!-- ===== ENCART RÉSERVATION (carte latérale) ===== -->
             <div class="unite-detail-sidebar">
                 <div class="booking-box">
-                    <p class="unite-price-big">{{ unite.prix_nuit }} FCFA <span>/ nuit</span></p>
+                    <p class="unite-price-big">{{ unite.prix_nuit }} FCFA <span>/ {% trans "nuit" %}</span></p>
 
                     {% if unite.capacite_personnes %}
-                        <p>Capacité : {{ unite.capacite_personnes }} personne(s)</p>
+                        <p>{% trans "Capacité" %} : {{ unite.capacite_personnes }} {% trans "personne(s)" %}</p>
                     {% endif %}
                     {% if unite.surface_m2 %}
-                        <p>Surface : {{ unite.surface_m2 }} m²</p>
+                        <p>{% trans "Surface" %} : {{ unite.surface_m2 }} m²</p>
                     {% endif %}
 
                     <!-- Le lien pointera vers le formulaire de réservation qu'on créera ensuite -->
-                    <a href="{% url 'residences:reservation_form' pk=unite.pk %}" class="btn btn-primary btn-block">Réserver</a>
-                
+                    <a href="{% url 'residences:reservation_form' pk=unite.pk %}" class="btn btn-primary btn-block">{% trans "Réserver" %}</a>
+
                     <!-- Affiche cette section uniquement si au moins un numéro Mobile Money est renseigné -->
                     {% if parametres.numero_orange_money or parametres.numero_mtn_money or parametres.numero_wave %}
                         <div class="mobile-money-section">
-                            <p class="mobile-money-title">Ou payez directement via Mobile Money</p>
+                            <p class="mobile-money-title">{% trans "Ou payez directement via Mobile Money" %}</p>
 
                             {% if parametres.numero_orange_money %}
                                 <div class="mm-option mm-orange">
@@ -152,7 +155,7 @@
                             {% endif %}
 
                             <p class="mm-note">
-                                Envoyez le montant correspondant puis contactez-nous pour confirmation.
+                                {% trans "Envoyez le montant correspondant puis contactez-nous pour confirmation." %}
                             </p>
                         </div>
                     {% endif %}

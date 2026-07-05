@@ -34,13 +34,13 @@
             </nav>
 
             <!-- Sélecteur de langue : système i18n de Django pour changer la langue active -->
-            <form action="{% url 'set_language' %}" method="post" class="lang-switcher">
+            <form action="{% url 'residences:changer_langue' %}" method="post" class="lang-switcher">
                 {% csrf_token %}
-                <!-- 'next' indique à Django où rediriger après le changement de langue -->
-                <input name="next" type="hidden" value="{{ request.path }}">
-                <button type="submit" name="language" value="fr" class="lang-btn {% if LANGUAGE_CODE == 'fr' %}active{% endif %}">FR</button>
-                <button type="submit" name="language" value="en" class="lang-btn {% if LANGUAGE_CODE == 'en' %}active{% endif %}">EN</button>
-                </form>
+                <button type="submit" name="language" value="fr"
+                    class="lang-btn {% if LANGUAGE_CODE == 'fr' %}active{% endif %}">FR</button>
+                <button type="submit" name="language" value="en"
+                    class="lang-btn {% if LANGUAGE_CODE == 'en' %}active{% endif %}">EN</button>
+            </form>
         </div>
     </header>
 
