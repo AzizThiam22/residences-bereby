@@ -55,8 +55,10 @@
 <script>
     // Coordonnées GPS de la résidence, transmises depuis Django (notez le |default:0
     // qui évite une erreur si jamais latitude/longitude n'étaient pas encore renseignées)
-    const residenceLat = parseFloat("{{ parametres.latitude|default:'4.7833' }}");
-    const residenceLng = parseFloat("{{ parametres.longitude|default:'-7.0500' }}");
+    // Le filtre |floatformat force un point comme séparateur décimal,
+    // peu importe la locale active (FR utilise la virgule par défaut)
+    const residenceLat = parseFloat("{{ parametres.latitude|stringformat:'f' }}");
+    const residenceLng = parseFloat("{{ parametres.longitude|stringformat:'f' }}");
 
     // Vérifie que les coordonnées sont valides avant d'initialiser la carte
     if (!isNaN(residenceLat) && !isNaN(residenceLng)) {
@@ -77,7 +79,10 @@
 
         // Boucle Django (pas JavaScript) qui génère un marqueur pour chaque ville clé
         {% for ville in villes %}
-            L.marker([{{ ville.latitude }}, {{ ville.longitude }}])
+            L.marker([
+                parseFloat("{{ ville.latitude|stringformat:'f' }}"),
+                parseFloat("{{ ville.longitude|stringformat:'f' }}")
+            ])
                 .addTo(map)
                 .bindPopup("{{ ville.nom }}{% if ville.distance_km %} — {{ ville.distance_km }} km{% endif %}");
         {% endfor %}
