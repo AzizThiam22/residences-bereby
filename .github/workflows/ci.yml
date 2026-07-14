@@ -1,0 +1,43 @@
+# Ce fichier configure l'intégration continue (CI) via GitHub Actions.
+# À chaque push ou pull request sur la branche main, GitHub va :
+# 1. Créer une machine virtuelle Ubuntu propre
+# 2. Installer Python et les dépendances
+# 3. Lancer tous les tests automatiquement
+# Si un test échoue, GitHub vous notifie par email et bloque le merge.
+
+name: Tests Django
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Étape 1 : récupère le code source depuis GitHub
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      # Étape 2 : installe Python 3.12
+      - name: Installation de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Étape 3 : installe les dépendances du projet
+      - name: Installation des dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Étape 4 : lance les migrations (crée la base de données de test)
+      - name: Migrations
+        run: python manage.py migrate
+
+      # Étape 5 : lance tous les tests
+      - name: Lancement des tests
+        run: python manage.py test residences --verbosity=2
