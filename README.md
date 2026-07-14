@@ -9,9 +9,9 @@ Résidence de 6 unités locatives réparties sur 3 étages, plus un local commer
 | Niveau | Unités |
 |---|---|
 | Sous-sol | 1 local commercial (location séparée) |
-| 1er étage | 1 studio (vue arrière) + 1 studio (vue mer) |
-| 2e étage | 1 studio (vue arrière) + 1 studio (vue mer) |
-| 3e étage | 2 appartements (vue mer) |
+| 1er étage | 4 studio (vue arrière) + 2 studio (vue mer) |
+| 2e étage | 4 studio (vue arrière) + 2 studio (vue mer) |
+| 3e étage | 2 grands appartements (vue mer) |
 
 ## Fonctionnalités prévues
 
@@ -20,7 +20,7 @@ Résidence de 6 unités locatives réparties sur 3 étages, plus un local commer
 - [x] Formulaire de pré-réservation
 - [x] Paiement en ligne (passerelle Mobile Money + carte) et/ou clic direct vers numéros Mobile Money
 - [x] Site bilingue Français / Anglais
-- [] Formulaire de contact + liens réseaux sociaux
+- [x] Formulaire de contact + liens réseaux sociaux (à venir)
 
 ## Stack technique
 
