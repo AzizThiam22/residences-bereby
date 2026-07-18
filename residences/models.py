@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.utils.translation import gettext_lazy as _
 
 
 class Unite(models.Model):
@@ -11,17 +12,17 @@ class Unite(models.Model):
     # Liste des choix possibles pour le type d'unité.
     # Format : (valeur stockée en base de données, texte affiché dans l'admin/formulaires)
     TYPE_CHOICES = [
-        ('studio', 'Studio'),
-        ('appartement', 'Appartement'),
-        ('local_commercial', 'Local commercial'),
+        ('studio', _('Studio')),
+        ('appartement', _('Appartement')),
+        ('local_commercial', _('Local commercial')),
     ]
 
     # Pareil pour l'étage : on stocke un chiffre (0,1,2,3) mais on affiche un texte clair
     ETAGE_CHOICES = [
-        (0, 'Sous-sol'),
-        (1, '1er étage'),
-        (2, '2e étage'),
-        (3, '3e étage'),
+        (0, _('Sous-sol')),
+        (1, _('1er étage')),
+        (2, _('2e étage')),
+        (3, _('3e étage')),
     ]
 
     # CharField = texte court (max_length obligatoire)
