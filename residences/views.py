@@ -94,9 +94,17 @@ def reservation_form(request, pk):
     """
     Affiche et traite le formulaire de pré-réservation pour une unité donnée.
     pk = identifiant de l'unité concernée (récupéré depuis l'URL).
+    On ajoute les périodes réservées pour afficher le calendrier
+    de disponibilité sur cette page également.
     """
     unite = get_object_or_404(Unite, pk=pk)
     parametres = get_object_or_404(Parametres, pk=1)
+
+    # Récupère les périodes déjà réservées pour cette unité
+    # (même logique que sur la page détail)
+    periodes_reservees = unite.reservations.filter(
+        statut__in=['en_attente', 'confirmee']
+    ).order_by('date_arrivee')
 
     if request.method == 'POST':
         # Le formulaire a été soumis : on le reconstruit avec les données envoyées
@@ -126,6 +134,7 @@ def reservation_form(request, pk):
         'form': form,
         'unite': unite,
         'parametres': parametres,
+        'periodes_reservees': periodes_reservees,
     }
     return render(request, 'residences/reservation_form.html', context)
 

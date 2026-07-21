@@ -800,3 +800,87 @@ span.flatpickr-day.dispo-confirmee {
 .lang-btn:hover {
     background: rgba(255,255,255,0.2);
 }
+
+/* ===== Calendrier sur le formulaire de réservation ===== */
+.dispo-reservation-form {
+    background: var(--ocean-light);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 28px;
+    border: 1.5px solid var(--gris-light);
+}
+
+.dispo-reservation-form h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: var(--ocean-dark);
+}
+
+/* ===== Formulaire de réservation avec calendrier intégré ===== */
+.reservation-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 28px;
+    align-items: start;
+}
+
+.reservation-section-title {
+    font-size: 1rem;
+    color: var(--ocean);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--or-light);
+}
+
+/* Affichage des dates sélectionnées au-dessus du calendrier */
+.dates-selectionnees {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.date-selected-item {
+    flex: 1;
+    background: var(--ocean-light);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    text-align: center;
+}
+
+.date-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ocean);
+    margin-bottom: 4px;
+}
+
+.date-value {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--ocean-dark);
+    font-weight: 600;
+}
+
+/* Message d'avertissement si les dates ne sont pas sélectionnées */
+.dates-warning {
+    background: #FEF3C7;
+    color: #92400E;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+    border-left: 3px solid #F59E0B;
+}
+
+@media (max-width: 800px) {
+    .reservation-grid {
+        grid-template-columns: 1fr;
+    }
+}

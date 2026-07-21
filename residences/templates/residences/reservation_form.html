@@ -1,6 +1,221 @@
-<!-- Formulaire de pré-réservation pour une unité précise -->
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Réserver" %} {{ unite.nom }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<section class="reservation-page container" style="max-width: 900px;">
+
+    <a href="{% url 'residences:unite_detail' pk=unite.pk %}" class="back-link">
+        &larr; {% trans "Retour à" %} {{ unite.nom }}
+    </a>
+
+    <h1>{% trans "Réserver" %} : {{ unite.nom }}</h1>
+    <p class="unite-detail-meta">{{ unite.prix_nuit }} FCFA / {% trans "nuit" %}</p>
+
+    {% if form.non_field_errors %}
+        <div class="form-errors">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="reservation-grid">
+
+        <!-- Colonne gauche : calendrier de sélection -->
+        <div class="reservation-calendar-col">
+            <h2 class="reservation-section-title">{% trans "Choisissez vos dates" %}</h2>
+
+            <!-- Affichage des dates sélectionnées -->
+            <div class="dates-selectionnees" id="dates-display">
+                <div class="date-selected-item">
+                    <span class="date-label">{% trans "Arrivée" %}</span>
+                    <span class="date-value" id="display-arrivee">—</span>
+                </div>
+                <div class="date-selected-item">
+                    <span class="date-label">{% trans "Départ" %}</span>
+                    <span class="date-value" id="display-depart">—</span>
+                </div>
+            </div>
+
+            <!-- Calendrier inline -->
+            <div id="calendrier-reservation"></div>
+
+            <!-- Légende -->
+            <div class="dispo-legend" style="margin-top: 12px;">
+                <span class="legend-item">
+                    <span class="legend-dot legend-attente"></span>
+                    {% trans "En attente de confirmation" %}
+                </span>
+                <span class="legend-item">
+                    <span class="legend-dot legend-confirmee"></span>
+                    {% trans "Réservée confirmée" %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Colonne droite : formulaire -->
+        <div class="reservation-form-col">
+            <h2 class="reservation-section-title">{% trans "Vos informations" %}</h2>
+
+            <form method="post" class="reservation-form" id="reservation-form">
+                {% csrf_token %}
+
+                {% for field in form %}
+                    {% if field.name != 'date_arrivee' and field.name != 'date_depart' %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <p class="field-error">{{ field.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Champs cachés pour les dates (remplis par le calendrier via JS) -->
+                <input type="hidden" name="date_arrivee" id="id_date_arrivee">
+                <input type="hidden" name="date_depart" id="id_date_depart">
+
+                {% if form.date_arrivee.errors %}
+                    <p class="field-error">{{ form.date_arrivee.errors.0 }}</p>
+                {% endif %}
+
+                <!-- Message d'avertissement si dates non sélectionnées -->
+                <p class="dates-warning" id="dates-warning" style="display:none;">
+                    ⚠️ {% trans "Veuillez sélectionner vos dates d'arrivée et de départ dans le calendrier." %}
+                </p>
+
+                <button type="submit" class="btn btn-primary btn-block" id="btn-submit">
+                    {% trans "Envoyer ma demande de réservation" %}
+                </button>
+            </form>
+
+            <p class="reservation-note">
+                {% trans "Ceci est une demande de pré-réservation. Nous vous contacterons rapidement pour confirmer la disponibilité et finaliser les modalités de paiement." %}
+            </p>
+        </div>
+
+    </div>
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/fr.js"></script>
+    <script>
+        // Périodes déjà réservées pour cette unité
+        const periodesReservees = [
+            {% for periode in periodes_reservees %}
+                {
+                    debut: "{{ periode.date_arrivee|date:'Y-m-d' }}",
+                    fin: "{{ periode.date_depart|date:'Y-m-d' }}",
+                    statut: "{{ periode.statut }}"
+                },
+            {% endfor %}
+        ];
+
+        // Construit la liste des dates à désactiver (les jours déjà réservés)
+        // Flatpickr accepte des fonctions de désactivation : on lui passe une fonction
+        // qui retourne true si la date doit être désactivée
+        function estDateReservee(date) {
+            const dateStr = date.toISOString().split('T')[0];
+            return periodesReservees.some(function(periode) {
+                return dateStr >= periode.debut && dateStr < periode.fin;
+            });
+        }
+
+        // Formate une date en "jj/mm/aaaa" pour l'affichage
+        function formaterDate(dateStr) {
+            const [annee, mois, jour] = dateStr.split('-');
+            return `${jour}/${mois}/${annee}`;
+        }
+
+        // Initialise le calendrier en mode "range" (plage de dates)
+        flatpickr('#calendrier-reservation', {
+            inline: true,
+            mode: 'range',       // permet de sélectionner une plage arrivée → départ
+            locale: 'fr',
+            minDate: 'today',
+            disableMobile: true,
+
+            // Désactive les dates déjà réservées
+            disable: [estDateReservee],
+
+            // Appelé à chaque création d'une case de jour dans le calendrier
+            onDayCreate: function(dObj, dStr, fp, dayElem) {
+                const dateStr = fp.formatDate(dayElem.dateObj, 'Y-m-d');
+                periodesReservees.forEach(function(periode) {
+                    if (dateStr >= periode.debut && dateStr < periode.fin) {
+                        dayElem.classList.add(
+                            periode.statut === 'confirmee' ? 'dispo-confirmee' : 'dispo-attente'
+                        );
+                    }
+                });
+            },
+
+            // Appelé quand l'utilisateur sélectionne une ou deux dates
+            onChange: function(selectedDates) {
+                if (selectedDates.length === 2) {
+                    // Deux dates sélectionnées : arrivée et départ
+                    const arrivee = selectedDates[0];
+                    const depart  = selectedDates[1];
+
+                    // Formate en YYYY-MM-DD pour Django
+                    const arriveeStr = arrivee.toISOString().split('T')[0];
+                    const departStr  = depart.toISOString().split('T')[0];
+
+                    // Remplit les champs cachés du formulaire
+                    document.getElementById('id_date_arrivee').value = arriveeStr;
+                    document.getElementById('id_date_depart').value  = departStr;
+
+                    // Met à jour l'affichage des dates sélectionnées
+                    document.getElementById('display-arrivee').textContent = formaterDate(arriveeStr);
+                    document.getElementById('display-depart').textContent  = formaterDate(departStr);
+
+                    // Cache le message d'avertissement
+                    document.getElementById('dates-warning').style.display = 'none';
+
+                } else if (selectedDates.length === 1) {
+                    // Une seule date sélectionnée : en attente de la deuxième
+                    const arriveeStr = selectedDates[0].toISOString().split('T')[0];
+                    document.getElementById('display-arrivee').textContent = formaterDate(arriveeStr);
+                    document.getElementById('display-depart').textContent  = '—';
+                    document.getElementById('id_date_arrivee').value = '';
+                    document.getElementById('id_date_depart').value  = '';
+                }
+            }
+        });
+
+        // Vérifie que les dates sont bien sélectionnées avant de soumettre le formulaire
+        document.getElementById('reservation-form').addEventListener('submit', function(e) {
+            const arrivee = document.getElementById('id_date_arrivee').value;
+            const depart  = document.getElementById('id_date_depart').value;
+
+            if (!arrivee || !depart) {
+                // Empêche la soumission et affiche le message d'avertissement
+                e.preventDefault();
+                document.getElementById('dates-warning').style.display = 'block';
+                document.getElementById('calendrier-reservation').scrollIntoView({
+                    behavior: 'smooth', block: 'center'
+                });
+            }
+        });
+    </script>
+{% endblock %}
+
+{% comment %}
+Formulaire de pré-réservation pour une unité précise
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
 
 {% block extra_head %}
     <!-- CSS de Flatpickr -->
@@ -15,8 +230,8 @@
 
         <a href="{% url 'residences:unite_detail' pk=unite.pk %}" class="back-link">&larr; Retour à {{ unite.nom }}</a>
 
-        <h1>Réserver : {{ unite.nom }}</h1>
-        <p class="unite-detail-meta">{{ unite.prix_nuit }} FCFA / nuit</p>
+        <h1>{% trans "Réserver" %} : {{ unite.nom }}</h1>
+        <p class="unite-detail-meta">{{ unite.prix_nuit }} FCFA / {% trans "nuit" %}</p>
 
         <!-- Affiche les erreurs globales du formulaire (ex: date de départ avant date d'arrivée) -->
         {% if form.non_field_errors %}
@@ -24,6 +239,24 @@
                 {% for error in form.non_field_errors %}
                     <p>{{ error }}</p>
                 {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Calendrier de disponibilité : même logique que sur la page détail -->
+        {% if periodes_reservees %}
+            <div class="dispo-reservation-form">
+                <h3>{% trans "Dates déjà réservées" %}</h3>
+                <div id="dispo-calendar-form"></div>
+                <div class="dispo-legend">
+                    <span class="legend-item">
+                        <span class="legend-dot legend-attente"></span>
+                        {% trans "Réservée mais non confirmée" %}
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-dot legend-confirmee"></span>
+                        {% trans "Réservée confirmée" %}
+                    </span>
+                </div>
             </div>
         {% endif %}
 
@@ -62,6 +295,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/fr.js"></script>
 
     <script>
+        // Initialise le calendrier de disponibilité (lecture seule, informatif)
+        const periodesReservees = [
+            {% for periode in periodes_reservees %}
+                {
+                    debut: "{{ periode.date_arrivee|date:'Y-m-d' }}",
+                    fin: "{{ periode.date_depart|date:'Y-m-d' }}",
+                    statut: "{{ periode.statut }}"
+                },
+            {% endfor %}
+        ];
+
+        {% if periodes_reservees %}
+        flatpickr('#dispo-calendar-form', {
+            inline: true,
+            locale: 'fr',
+            disableMobile: true,
+            minDate: 'today',
+            onDayCreate: function(dObj, dStr, fp, dayElem) {
+                const dateStr = fp.formatDate(dayElem.dateObj, 'Y-m-d');
+                periodesReservees.forEach(function(periode) {
+                    if (dateStr >= periode.debut && dateStr < periode.fin) {
+                        dayElem.classList.add(
+                            periode.statut === 'confirmee' ? 'dispo-confirmee' : 'dispo-attente'
+                        );
+                    }
+                });
+            }
+        });
+        {% endif %}
         // On initialise Flatpickr sur tous les champs ayant la classe 'datepicker'
         // (donc nos deux champs date_arrivee et date_depart)
         flatpickr('.datepicker', {
@@ -75,3 +337,6 @@
     </script>
     {% endblock %}
 {% endblock %}
+
+{% endcomment %}
+

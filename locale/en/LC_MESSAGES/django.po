@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-18 17:19+0000\n"
+"POT-Creation-Date: 2026-07-21 22:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\config\settings.py:124
+#: .\config\settings.py:130
 msgid "Français"
 msgstr ""
 
-#: .\config\settings.py:125
+#: .\config\settings.py:131
 msgid "English"
 msgstr ""
 
@@ -184,6 +184,7 @@ msgid "Vue mer"
 msgstr "Ocean view"
 
 #: .\residences\templates\residences\home.html:60
+#: .\residences\templates\residences\reservation_form.html:19
 #: .\residences\templates\residences\unite_detail.html:102
 #: .\residences\templates\residences\unite_list.html:48
 msgid "nuit"
@@ -226,6 +227,60 @@ msgstr ""
 msgid "Distances depuis la résidence"
 msgstr "Distances from the residence"
 
+#: .\residences\templates\residences\reservation_form.html:5
+#: .\residences\templates\residences\reservation_form.html:18
+#: .\residences\templates\residences\unite_detail.html:112
+msgid "Réserver"
+msgstr "Book"
+
+#: .\residences\templates\residences\reservation_form.html:15
+msgid "Retour à"
+msgstr "Back to"
+
+#: .\residences\templates\residences\reservation_form.html:33
+msgid "Choisissez vos dates"
+msgstr "Choose your dates"
+
+#: .\residences\templates\residences\reservation_form.html:38
+#, fuzzy
+#| msgid "Date d'arrivée"
+msgid "Arrivée"
+msgstr "Check-in date"
+
+#: .\residences\templates\residences\reservation_form.html:42
+#, fuzzy
+#| msgid "Date de départ"
+msgid "Départ"
+msgstr "Check-out date"
+
+#: .\residences\templates\residences\reservation_form.html:54
+msgid "En attente de confirmation"
+msgstr "Pending confirmation"
+
+#: .\residences\templates\residences\reservation_form.html:58
+#: .\residences\templates\residences\unite_detail.html:94
+msgid "Réservée confirmée"
+msgstr "Confirmed reservation"
+
+#: .\residences\templates\residences\reservation_form.html:65
+msgid "Vos informations"
+msgstr "Your information"
+
+#: .\residences\templates\residences\reservation_form.html:92
+msgid ""
+"Veuillez sélectionner vos dates d'arrivée et de départ dans le calendrier."
+msgstr "Please select your check-in and check-out dates in the calendar."
+
+#: .\residences\templates\residences\reservation_form.html:96
+msgid "Envoyer ma demande de réservation"
+msgstr "Send my booking request"
+
+#: .\residences\templates\residences\reservation_form.html:101
+msgid ""
+"Ceci est une demande de pré-réservation. Nous vous contacterons rapidement "
+"pour confirmer la disponibilité et finaliser les modalités de paiement."
+msgstr "This is a pre-booking request. We will contact you shortly to confirm availability and finalize payment details."
+
 #: .\residences\templates\residences\unite_detail.html:20
 #, fuzzy
 #| msgid "Nos logements"
@@ -248,10 +303,6 @@ msgstr "Availability"
 msgid "Réservée mais non confirmée"
 msgstr "Reserved but not confirmed"
 
-#: .\residences\templates\residences\unite_detail.html:94
-msgid "Réservée confirmée"
-msgstr "Reserved confirmed"
-
 #: .\residences\templates\residences\unite_detail.html:105
 msgid "Capacité"
 msgstr "Housing capacity"
@@ -263,10 +314,6 @@ msgstr "people"
 #: .\residences\templates\residences\unite_detail.html:108
 msgid "Surface"
 msgstr "Surface"
-
-#: .\residences\templates\residences\unite_detail.html:112
-msgid "Réserver"
-msgstr "Book"
 
 #: .\residences\templates\residences\unite_detail.html:117
 msgid "Ou payez directement via Mobile Money"
