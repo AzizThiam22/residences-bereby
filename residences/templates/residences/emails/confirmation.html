@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation de réservation</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #F5EFE0; margin: 0; padding: 0; }
+        .wrapper { max-width: 580px; margin: 0 auto; background: #ffffff; }
+        .header { background: #1A3A3A; padding: 32px 40px; text-align: center; }
+        .header h1 { color: #ffffff; font-size: 1.5rem; margin: 0; }
+        .header .accent { display: block; width: 40px; height: 2px; background: #C8A96E; margin: 12px auto 0; }
+        .body { padding: 40px; }
+        .greeting { font-size: 1.05rem; color: #1A3A3A; margin-bottom: 24px; }
+        .recap { background: #E8F4F4; border-radius: 10px; padding: 24px; margin-bottom: 28px; }
+        .recap h2 { color: #2C6B6B; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 16px; }
+        .recap-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(44,107,107,0.1); font-size: 0.95rem; }
+        .recap-row:last-child { border-bottom: none; }
+        .recap-label { color: #6B7280; }
+        .recap-value { color: #1A3A3A; font-weight: 600; }
+        .code-box { background: #1A3A3A; border-radius: 10px; padding: 24px; text-align: center; margin-bottom: 28px; }
+        .code-label { color: rgba(255,255,255,0.7); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+        .code { color: #C8A96E; font-size: 1.8rem; font-weight: 700; letter-spacing: 0.15em; font-family: monospace; }
+        .qr-section { text-align: center; margin-bottom: 28px; }
+        .qr-section p { color: #6B7280; font-size: 0.88rem; margin-bottom: 12px; }
+        .qr-section img { width: 140px; height: 140px; border: 4px solid #E8F4F4; border-radius: 8px; }
+        .btn { display: block; background: #2C6B6B; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 10px; text-align: center; font-weight: 600; margin-bottom: 28px; }
+        .note { background: #FEF3C7; border-left: 3px solid #C8A96E; padding: 16px; border-radius: 0 8px 8px 0; font-size: 0.9rem; color: #92400E; margin-bottom: 28px; }
+        .footer { background: #1A3A3A; padding: 24px 40px; text-align: center; }
+        .footer p { color: rgba(255,255,255,0.5); font-size: 0.82rem; margin: 4px 0; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+
+        <div class="header">
+            <h1>Résidences Bereby</h1>
+            <span class="accent"></span>
+        </div>
+
+        <div class="body">
+            <p class="greeting">Bonjour <strong>{{ reservation.nom_client }}</strong>,</p>
+            <p style="color:#6B7280; margin-bottom:28px;">
+                Votre demande de réservation a bien été enregistrée.
+                Notre équipe vous contactera pour confirmer la disponibilité.
+            </p>
+
+            <!-- Récapitulatif -->
+            <div class="recap">
+                <h2>Récapitulatif</h2>
+                <div class="recap-row">
+                    <span class="recap-label">Logement</span>
+                    <span class="recap-value">{{ reservation.unite.nom }}</span>
+                </div>
+                <div class="recap-row">
+                    <span class="recap-label">Arrivée</span>
+                    <span class="recap-value">{{ reservation.date_arrivee|date:"d/m/Y" }}</span>
+                </div>
+                <div class="recap-row">
+                    <span class="recap-label">Départ</span>
+                    <span class="recap-value">{{ reservation.date_depart|date:"d/m/Y" }}</span>
+                </div>
+                <div class="recap-row">
+                    <span class="recap-label">Personnes</span>
+                    <span class="recap-value">{{ reservation.nombre_personnes }}</span>
+                </div>
+                <div class="recap-row">
+                    <span class="recap-label">Statut</span>
+                    <span class="recap-value" style="color:#F59E0B;">⏳ En attente de confirmation</span>
+                </div>
+            </div>
+
+            <!-- Code de confirmation -->
+            <div class="code-box">
+                <p class="code-label">Votre code de réservation</p>
+                <p class="code">{{ reservation.code_confirmation }}</p>
+            </div>
+
+            <!-- QR Code -->
+            <div class="qr-section">
+                <p>Scannez ce QR code pour consulter votre réservation à tout moment</p>
+                <!-- Le QR code est intégré directement en base64, pas besoin d'URL externe -->
+                <img src="data:image/png;base64,{{ qr_base64 }}" alt="QR Code réservation">
+            </div>
+
+            <!-- Bouton consulter -->
+            <a href="{{ url_consultation }}" class="btn">Consulter ma réservation en ligne</a>
+
+            <!-- Note importante -->
+            <div class="note">
+                <strong>Important</strong> : conservez ce code ou ce QR code.
+                Il vous permettra de consulter le statut de votre réservation
+                sans besoin de créer un compte.
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Résidences Bereby | Grand-Béréby, Côte d'Ivoire</p>
+            <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre directement.</p>
+        </div>
+
+    </div>
+</body>
+</html>

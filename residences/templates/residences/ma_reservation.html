@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Ma réservation" %} — {{ reservation.code_confirmation }}{% endblock %}
+
+{% block content %}
+<section class="reservation-page container">
+
+    <h1>{% trans "Ma réservation" %}</h1>
+    <p style="color:var(--gris); margin-bottom:32px;">
+        {% trans "Code" %} : <strong style="font-family:var(--font-mono); color:var(--ocean);">
+            {{ reservation.code_confirmation }}
+        </strong>
+    </p>
+
+    <div class="ma-reservation-grid">
+
+        <!-- Informations de la réservation -->
+        <div class="recap-card">
+            <h2>{% trans "Récapitulatif" %}</h2>
+
+            <div class="recap-row">
+                <span class="recap-label">{% trans "Logement" %}</span>
+                <span class="recap-value">{{ reservation.unite.nom }}</span>
+            </div>
+            <div class="recap-row">
+                <span class="recap-label">{% trans "Étage" %}</span>
+                <span class="recap-value">{{ reservation.unite.get_etage_display }}</span>
+            </div>
+            <div class="recap-row">
+                <span class="recap-label">{% trans "Arrivée" %}</span>
+                <span class="recap-value">{{ reservation.date_arrivee|date:"d/m/Y" }}</span>
+            </div>
+            <div class="recap-row">
+                <span class="recap-label">{% trans "Départ" %}</span>
+                <span class="recap-value">{{ reservation.date_depart|date:"d/m/Y" }}</span>
+            </div>
+            <div class="recap-row">
+                <span class="recap-label">{% trans "Personnes" %}</span>
+                <span class="recap-value">{{ reservation.nombre_personnes }}</span>
+            </div>
+            <div class="recap-row">
+                <span class="recap-label">{% trans "Statut" %}</span>
+                <span class="recap-value">
+                    {% if reservation.statut == 'confirmee' %}
+                        <span class="statut-badge statut-confirmee">✓ {% trans "Confirmée" %}</span>
+                    {% elif reservation.statut == 'annulee' %}
+                        <span class="statut-badge statut-annulee">✗ {% trans "Annulée" %}</span>
+                    {% else %}
+                        <span class="statut-badge statut-attente">⏳ {% trans "En attente" %}</span>
+                    {% endif %}
+                </span>
+            </div>
+            {% if reservation.message %}
+                <div class="recap-row">
+                    <span class="recap-label">{% trans "Votre message" %}</span>
+                    <span class="recap-value">{{ reservation.message }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Infos contact -->
+        <div class="recap-card">
+            <h2>{% trans "Contact" %}</h2>
+            <p style="color:var(--gris); font-size:0.9rem; margin-bottom:16px;">
+                {% trans "Pour toute question concernant votre réservation, contactez-nous directement." %}
+            </p>
+
+            {% if parametres.telephone_principal %}
+                <a href="tel:{{ parametres.telephone_principal }}" class="btn btn-primary btn-block">
+                    📞 {{ parametres.telephone_principal }}
+                </a>
+            {% endif %}
+
+            {% if parametres.lien_whatsapp %}
+                <a href="{{ parametres.lien_whatsapp }}" target="_blank"
+                   class="btn btn-secondary btn-block" style="margin-top:10px;">
+                    WhatsApp
+                </a>
+            {% endif %}
+
+            <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--gris-light);">
+                <p style="font-size:0.85rem; color:var(--gris);">
+                    {% trans "Réservation effectuée le" %} {{ reservation.date_creation|date:"d/m/Y à H:i" }}
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="{% url 'residences:home' %}" class="back-link" style="margin-top:32px; display:inline-block;">
+        &larr; {% trans "Retour à l'accueil" %}
+    </a>
+
+</section>
+{% endblock %}

@@ -884,3 +884,59 @@ span.flatpickr-day.dispo-confirmee {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== Page Ma Réservation ===== */
+.ma-reservation-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 28px;
+    margin-top: 8px;
+}
+
+.recap-card {
+    background: var(--blanc);
+    border: 1.5px solid var(--gris-light);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow);
+}
+
+.recap-card h2 {
+    font-size: 1rem;
+    color: var(--ocean);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--or-light);
+}
+
+.recap-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gris-light);
+    font-size: 0.95rem;
+    gap: 16px;
+}
+
+.recap-row:last-child { border-bottom: none; }
+.recap-label { color: var(--gris); flex-shrink: 0; }
+.recap-value { font-weight: 600; text-align: right; }
+
+.statut-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.statut-confirmee { background: #D1FAE5; color: #065F46; }
+.statut-attente   { background: #FEF3C7; color: #92400E; }
+.statut-annulee   { background: #FEE2E2; color: #991B1B; }
+
+@media (max-width: 700px) {
+    .ma-reservation-grid { grid-template-columns: 1fr; }
+}

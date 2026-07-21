@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Unite, Parametres, VilleCle
+from .models import Unite, Parametres, VilleCle, Reservation
 from .forms import ReservationForm, ContactForm
 from django.utils import translation
 from django.http import HttpResponseRedirect
+from .emails import envoyer_email_confirmation
 
 
 def home(request):
@@ -121,6 +122,14 @@ def reservation_form(request, pk):
             reservation.unite = unite
             reservation.save()
 
+            # Envoie l'email de confirmation avec le code et le QR code
+            try:
+                envoyer_email_confirmation(reservation, request)
+            except Exception as e:
+                # On ne bloque pas la réservation si l'email échoue
+                # (sera loggé en production)
+                print(f"Erreur envoi email : {e}")
+
             # redirect évite qu'un rechargement de page ne soumette le formulaire 2 fois
             return redirect('residences:reservation_success')
         # Si le formulaire n'est pas valide, on continue plus bas : il sera
@@ -212,3 +221,24 @@ def changer_langue(request):
 
     # Si accès direct sans POST, redirige vers l'accueil
     return HttpResponseRedirect('/')
+
+
+def ma_reservation(request, code):
+    """
+    Page publique permettant à un client de consulter sa réservation
+    uniquement avec son code de confirmation (pas besoin de compte).
+    """
+    parametres = get_object_or_404(Parametres, pk=1)
+
+    # Cherche la réservation correspondant à ce code
+    # iexact = insensible à la casse (BRB-AB12 = brb-ab12)
+    reservation = get_object_or_404(
+        Reservation,
+        code_confirmation__iexact=code
+    )
+
+    context = {
+        'reservation': reservation,
+        'parametres': parametres,
+    }
+    return render(request, 'residences/ma_reservation.html', context)

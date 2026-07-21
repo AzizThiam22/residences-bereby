@@ -17,4 +17,6 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('contact/envoye/', views.contact_success, name='contact_success'),
     path('langue/', views.changer_langue, name='changer_langue'),
+    path('ma-reservation/<str:code>/',
+         views.ma_reservation, name='ma_reservation'),
 ]

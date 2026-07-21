@@ -160,3 +160,21 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Clé primaire par défaut
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ===== Configuration email =====
+# Pour le développement : affiche les emails dans le terminal (pas d'envoi réel)
+# Pratique pour tester sans configurer un vrai serveur SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# En production, remplacez par :
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'votre@gmail.com'
+# EMAIL_HOST_PASSWORD = 'votre_mot_de_passe_app'
+
+DEFAULT_FROM_EMAIL = 'Résidences Bereby <noreply@residences-bereby.com>'
+
+# URL de base du site (utilisé pour générer les liens dans les emails)
+SITE_URL = 'http://127.0.0.1:8080'

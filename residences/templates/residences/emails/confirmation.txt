@@ -1,0 +1,25 @@
+Résidences Bereby — Confirmation de votre demande
+
+Bonjour {{ reservation.nom_client }},
+
+Votre demande de réservation a bien été enregistrée.
+
+RÉCAPITULATIF
+-------------
+Logement   : {{ reservation.unite.nom }}
+Arrivée    : {{ reservation.date_arrivee|date:"d/m/Y" }}
+Départ     : {{ reservation.date_depart|date:"d/m/Y" }}
+Personnes  : {{ reservation.nombre_personnes }}
+Statut     : En attente de confirmation
+
+VOTRE CODE DE RÉSERVATION : {{ reservation.code_confirmation }}
+
+Consultez votre réservation ici :
+{{ url_consultation }}
+
+Notre équipe vous contactera pour confirmer votre réservation
+et vous communiquer les modalités de paiement.
+
+Pour toute question : {{ reservation.unite.nom }}
+---
+Résidences Bereby | Grand-Béréby, Côte d'Ivoire

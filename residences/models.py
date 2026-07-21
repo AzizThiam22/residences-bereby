@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
+import uuid
 
 
 class Unite(models.Model):
@@ -185,6 +186,28 @@ class Reservation(models.Model):
 
     def __str__(self):
         return f"{self.nom_client} - {self.unite.nom} ({self.date_arrivee} au {self.date_depart})"
+
+    # Code unique généré automatiquement à la création de la réservation.
+    # Permet au client de consulter sa réservation sans avoir de compte.
+    # uuid4() génère un identifiant aléatoire universel (très peu probable d'avoir deux fois le même)
+    code_confirmation = models.CharField(
+        max_length=20,
+        unique=True,
+        blank=True,  # sera rempli automatiquement dans save()
+        help_text="Code unique envoyé au client pour consulter sa réservation"
+    )
+
+    def save(self, *args, **kwargs):
+        """
+        Génère automatiquement un code de confirmation à la première sauvegarde
+        (quand l'objet est créé, pas lors des modifications suivantes).
+        Format : BRB-XXXX-XXXX (lisible et court)
+        """
+        if not self.code_confirmation:
+            # Prend les 8 premiers caractères d'un UUID, en majuscules
+            code = uuid.uuid4().hex[:8].upper()
+            self.code_confirmation = f"BRB-{code[:4]}-{code[4:]}"
+        super().save(*args, **kwargs)
 
 
 class ContactMessage(models.Model):
