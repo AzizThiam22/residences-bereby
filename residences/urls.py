@@ -19,4 +19,10 @@ urlpatterns = [
     path('langue/', views.changer_langue, name='changer_langue'),
     path('ma-reservation/<str:code>/',
          views.ma_reservation, name='ma_reservation'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/reservation/<int:reservation_id>/<str:action>/',
+         views.dashboard_action, name='dashboard_action'),
+    # Authentification gestionnaire
+    path('login/', views.gestionnaire_login, name='login'),
+    path('logout/', views.gestionnaire_logout, name='logout'),
 ]

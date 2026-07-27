@@ -940,3 +940,425 @@ span.flatpickr-day.dispo-confirmee {
 @media (max-width: 700px) {
     .ma-reservation-grid { grid-template-columns: 1fr; }
 }
+
+/* ===== Dashboard Gestionnaire ===== */
+.dashboard-wrapper {
+    background: var(--sable);
+    min-height: 100vh;
+}
+
+.dashboard-header {
+    background: var(--ocean-dark);
+    color: white;
+    padding: 24px 0;
+    margin-bottom: 32px;
+}
+
+.dashboard-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.dashboard-header h1 {
+    color: white;
+    font-size: 1.6rem;
+    margin-bottom: 4px;
+}
+
+.dashboard-date {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.9rem;
+}
+
+.dashboard-header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.dashboard-content {
+    padding-bottom: 60px;
+}
+
+/* Stats rapides */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: var(--blanc);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border-top: 4px solid transparent;
+}
+
+.stat-attente  { border-top-color: #F59E0B; }
+.stat-arrivees { border-top-color: #2C6B6B; }
+.stat-departs  { border-top-color: #C8A96E; }
+.stat-messages { border-top-color: #EF4444; }
+
+.stat-number {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--ocean-dark);
+    line-height: 1;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--gris);
+    margin-top: 8px;
+}
+
+/* Sections */
+.dashboard-section {
+    background: var(--blanc);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+.dashboard-section h2 {
+    font-size: 1rem;
+    color: var(--ocean);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--or-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.badge-count {
+    background: #EF4444;
+    color: white;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* Disponibilité des unités */
+.unites-dispo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.unite-dispo-card {
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1.5px solid var(--gris-light);
+}
+
+.unite-dispo-libre   { border-color: #A7F3D0; background: #F0FDF4; }
+.unite-dispo-occupee { border-color: #FECACA; background: #FEF2F2; }
+.unite-dispo-attente { border-color: #FDE68A; background: #FFFBEB; }
+
+.unite-dispo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.unite-dispo-nom {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.unite-dispo-meta {
+    font-size: 0.8rem;
+    color: var(--gris);
+}
+
+.unite-dispo-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.badge-libre   { background: #D1FAE5; color: #065F46; }
+.badge-occupee { background: #FEE2E2; color: #991B1B; }
+.badge-attente { background: #FEF3C7; color: #92400E; }
+
+/* Recherche */
+.dashboard-search {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.search-input { flex: 1; min-width: 250px; }
+
+.search-results h3 {
+    font-size: 0.9rem;
+    color: var(--gris);
+    margin-bottom: 12px;
+}
+
+.no-results {
+    color: var(--gris);
+    font-style: italic;
+}
+
+/* Liste de réservations */
+.reservations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.reservation-item {
+    border: 1.5px solid var(--gris-light);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    background: var(--sable);
+}
+
+.reservation-attente {
+    border-left: 4px solid #F59E0B;
+}
+
+.reservation-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.reservation-item-date {
+    font-size: 0.8rem;
+    color: var(--gris);
+}
+
+.reservation-item-body {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 0.88rem;
+    color: var(--gris);
+    margin-bottom: 10px;
+}
+
+.reservation-item-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.message-preview {
+    font-size: 0.88rem;
+    color: var(--ocean-dark);
+    font-style: italic;
+    margin: 6px 0 10px;
+    padding: 8px;
+    background: var(--ocean-light);
+    border-radius: 6px;
+}
+
+/* Boutons d'action */
+.btn-action {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.btn-confirmer {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.btn-confirmer:hover {
+    background: #065F46;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-annuler {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.btn-annuler:hover {
+    background: #991B1B;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-detail {
+    background: var(--ocean-light);
+    color: var(--ocean);
+}
+
+.btn-detail:hover {
+    background: var(--ocean);
+    color: white;
+    text-decoration: none;
+}
+
+/* Tableau */
+.table-wrapper { overflow-x: auto; }
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.dashboard-table th {
+    background: var(--ocean-dark);
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dashboard-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--gris-light);
+    vertical-align: middle;
+}
+
+.dashboard-table tr:hover td {
+    background: var(--ocean-light);
+}
+
+.row-annulee td { opacity: 0.5; }
+
+.actions-cell {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* Grille principale */
+.dashboard-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.empty-state {
+    color: #065F46;
+    background: #D1FAE5;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+    .dashboard-main-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 500px) {
+    .stats-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== Page de login gestionnaire ===== */
+.login-wrapper {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background: var(--sable);
+}
+
+.login-card {
+    background: var(--blanc);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-hover);
+    width: 100%;
+    max-width: 420px;
+    overflow: hidden;
+}
+
+.login-header {
+    background: var(--ocean-dark);
+    padding: 36px 40px 28px;
+    text-align: center;
+}
+
+.login-header h1 {
+    font-family: var(--font-display);
+    color: var(--blanc);
+    font-size: 1.5rem;
+    margin-bottom: 0;
+}
+
+.login-accent {
+    display: block;
+    width: 40px;
+    height: 2px;
+    background: var(--or);
+    margin: 12px auto;
+}
+
+.login-subtitle {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.login-error {
+    background: #FEE2E2;
+    color: #991B1B;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    border-left: 3px solid #EF4444;
+    margin: 0;
+}
+
+.login-form {
+    padding: 32px 40px;
+}
+
+.login-btn {
+    margin-top: 8px;
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+}
+
+.login-footer {
+    padding: 16px 40px 28px;
+    text-align: center;
+    border-top: 1px solid var(--gris-light);
+}
+
+.login-back {
+    color: var(--gris);
+    font-size: 0.88rem;
+    transition: var(--transition);
+}
+
+.login-back:hover {
+    color: var(--ocean);
+}

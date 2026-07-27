@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Espace gestionnaire{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+
+    <div class="login-card">
+
+        <!-- En-tête -->
+        <div class="login-header">
+            <h1>Résidences Bereby</h1>
+            <span class="login-accent"></span>
+            <p class="login-subtitle">Espace gestionnaire</p>
+        </div>
+
+        <!-- Message d'erreur -->
+        {% if erreur %}
+            <div class="login-error">
+                {{ erreur }}
+            </div>
+        {% endif %}
+
+        <!-- Formulaire de connexion -->
+        <form method="post" class="login-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="username">Identifiant</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="form-control"
+                    placeholder="Votre identifiant"
+                    autofocus
+                    autocomplete="username"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-control"
+                    placeholder="••••••••"
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block login-btn">
+                Se connecter
+            </button>
+        </form>
+
+        <!-- Lien retour -->
+        <div class="login-footer">
+            <a href="{% url 'residences:home' %}" class="login-back">
+                &larr; Retour au site
+            </a>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

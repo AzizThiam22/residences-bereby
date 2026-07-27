@@ -31,6 +31,17 @@
                 <a href="{% url 'residences:unite_list' %}">{% trans "Nos chambres" %}</a>
                  <a href="{% url 'residences:localisation' %}">{% trans "Localisation" %}</a>
                 <a href="{% url 'residences:contact' %}">{% trans "Contact" %}</a>
+                {% if request.user.is_authenticated and request.user.is_staff %}
+                    <a href="{% url 'residences:dashboard' %}" style="color: var(--or);">
+                        Dashboard
+                    </a>
+                {% endif %}
+                {% if request.user.is_authenticated and request.user.is_staff %}
+                    <a href="{% url 'residences:logout' %}"
+                    style="color: rgba(255,255,255,0.5); font-size:0.85rem;">
+                        Déconnexion
+                    </a>
+                {% endif %}
             </nav>
 
             <!-- Sélecteur de langue : système i18n de Django pour changer la langue active -->
