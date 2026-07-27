@@ -425,3 +425,199 @@ class ReservationViewTest(TestCase):
         reservation = Reservation.objects.first()
         self.assertEqual(reservation.nom_client, 'Test Client')
         self.assertEqual(reservation.statut, 'en_attente')
+
+        # ===== TESTS DU CODE DE CONFIRMATION =====
+
+
+class CodeConfirmationTest(TestCase):
+    """Tests de la génération automatique du code de confirmation."""
+
+    def setUp(self):
+        self.unite = Unite.objects.create(
+            nom_fr="Studio Test", nom_en="Test Studio",
+            type_unite="studio", etage=1, vue_mer=False,
+            prix_nuit=30000, disponible=True,
+        )
+
+    def test_code_genere_automatiquement(self):
+        """
+        Vérifie qu'un code de confirmation est généré automatiquement
+        à la création d'une réservation.
+        """
+        reservation = Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Test Client",
+            email_client="test@test.com",
+            telephone_client="+225 01 02 03 04 05",
+            date_arrivee=date.today() + timedelta(days=1),
+            date_depart=date.today() + timedelta(days=3),
+        )
+        # Le code ne doit pas être vide
+        self.assertTrue(reservation.code_confirmation)
+        # Le code doit commencer par "BRB-"
+        self.assertTrue(reservation.code_confirmation.startswith("BRB-"))
+        # Le code doit avoir le format BRB-XXXX-XXXX (12 caractères)
+        self.assertEqual(len(reservation.code_confirmation), 13)
+
+    def test_codes_uniques(self):
+        """
+        Vérifie que deux réservations ont des codes différents.
+        """
+        aujourd_hui = date.today()
+        reservation1 = Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Client 1",
+            email_client="client1@test.com",
+            telephone_client="+225 01 01 01 01 01",
+            date_arrivee=aujourd_hui + timedelta(days=1),
+            date_depart=aujourd_hui + timedelta(days=3),
+        )
+        reservation2 = Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Client 2",
+            email_client="client2@test.com",
+            telephone_client="+225 02 02 02 02 02",
+            date_arrivee=aujourd_hui + timedelta(days=5),
+            date_depart=aujourd_hui + timedelta(days=8),
+        )
+        self.assertNotEqual(
+            reservation1.code_confirmation,
+            reservation2.code_confirmation
+        )
+
+
+# ===== TESTS DE LA PAGE DE CONSULTATION =====
+
+class MaReservationViewTest(TestCase):
+    """Tests de la page de consultation de réservation par code."""
+
+    def setUp(self):
+        self.client = Client()
+        Parametres.objects.create(
+            nom_residence_fr="Résidences Bereby",
+            nom_residence_en="Bereby Residences",
+            latitude=4.65082,
+            longitude=-6.92441,
+        )
+        self.unite = Unite.objects.create(
+            nom_fr="Studio Test", nom_en="Test Studio",
+            type_unite="studio", etage=1, vue_mer=False,
+            prix_nuit=30000, disponible=True,
+        )
+        # Crée une réservation avec un code connu
+        self.reservation = Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Jean Dupont",
+            email_client="jean@test.com",
+            telephone_client="+225 01 02 03 04 05",
+            date_arrivee=date.today() + timedelta(days=1),
+            date_depart=date.today() + timedelta(days=3),
+        )
+
+    def test_consultation_avec_bon_code(self):
+        """
+        Avec un code valide, la page doit retourner 200
+        et afficher les infos de la réservation.
+        """
+        response = self.client.get(
+            reverse('residences:ma_reservation',
+                    kwargs={'code': self.reservation.code_confirmation})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Jean Dupont")
+        self.assertContains(response, self.reservation.code_confirmation)
+
+    def test_consultation_avec_mauvais_code(self):
+        """Un code inexistant doit retourner 404."""
+        response = self.client.get(
+            reverse('residences:ma_reservation',
+                    kwargs={'code': 'BRB-0000-0000'})
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_consultation_insensible_casse(self):
+        """
+        La recherche par code doit fonctionner en minuscules aussi
+        (grâce à iexact dans la vue).
+        """
+        code_minuscule = self.reservation.code_confirmation.lower()
+        response = self.client.get(
+            reverse('residences:ma_reservation',
+                    kwargs={'code': code_minuscule})
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_consultation_affiche_statut(self):
+        """La page doit afficher le statut de la réservation."""
+        response = self.client.get(
+            reverse('residences:ma_reservation',
+                    kwargs={'code': self.reservation.code_confirmation})
+        )
+        # Le statut par défaut est 'en_attente'
+        self.assertContains(response, "attente")
+
+
+# ===== TESTS DE L'EMAIL DE CONFIRMATION =====
+
+class EmailConfirmationTest(TestCase):
+    """Tests de la génération et de l'envoi de l'email de confirmation."""
+
+    def setUp(self):
+        self.unite = Unite.objects.create(
+            nom_fr="Studio Test", nom_en="Test Studio",
+            type_unite="studio", etage=1, vue_mer=False,
+            prix_nuit=30000, disponible=True,
+        )
+        self.reservation = Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Marie Martin",
+            email_client="marie@test.com",
+            telephone_client="+225 05 05 05 05 05",
+            date_arrivee=date.today() + timedelta(days=2),
+            date_depart=date.today() + timedelta(days=5),
+        )
+
+    def test_email_envoye_apres_reservation(self):
+        """
+        Vérifie qu'un email est envoyé après une réservation réussie.
+        Django redirige les emails vers la liste 'mail.outbox' en mode test,
+        ce qui permet de vérifier leur contenu sans vrai serveur SMTP.
+        """
+        from django.core import mail
+        from .emails import envoyer_email_confirmation
+
+        envoyer_email_confirmation(self.reservation)
+
+        # Un email doit avoir été "envoyé" (capturé dans outbox)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_email_destinataire_correct(self):
+        """L'email doit être envoyé à l'adresse du client."""
+        from django.core import mail
+        from .emails import envoyer_email_confirmation
+
+        envoyer_email_confirmation(self.reservation)
+
+        self.assertEqual(mail.outbox[0].to, ["marie@test.com"])
+
+    def test_email_contient_code(self):
+        """Le sujet ou le corps de l'email doit contenir le code de confirmation."""
+        from django.core import mail
+        from .emails import envoyer_email_confirmation
+
+        envoyer_email_confirmation(self.reservation)
+
+        # Vérifie dans le corps texte brut
+        self.assertIn(
+            self.reservation.code_confirmation,
+            mail.outbox[0].body
+        )
+
+    def test_email_sujet_correct(self):
+        """Le sujet de l'email doit mentionner la résidence."""
+        from django.core import mail
+        from .emails import envoyer_email_confirmation
+
+        envoyer_email_confirmation(self.reservation)
+
+        self.assertIn("Résidences Bereby", mail.outbox[0].subject)

@@ -25,6 +25,10 @@
                 <span class="recap-value">{{ reservation.unite.nom }}</span>
             </div>
             <div class="recap-row">
+                <span class="recap-label">{% trans "Nom" %}</span>
+                <span class="recap-value">{{ reservation.nom_client }}</span>
+            </div>
+            <div class="recap-row">
                 <span class="recap-label">{% trans "Étage" %}</span>
                 <span class="recap-value">{{ reservation.unite.get_etage_display }}</span>
             </div>

@@ -44,7 +44,9 @@ def envoyer_email_confirmation(reservation, request=None):
     if request:
         base_url = request.build_absolute_uri('/')
     else:
-        base_url = settings.SITE_URL
+        # Fallback vers SITE_URL si pas de requête disponible (ex: tests)
+        from django.conf import settings
+        base_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8080')
 
     url_consultation = f"{base_url}ma-reservation/{reservation.code_confirmation}/"
 
