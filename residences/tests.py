@@ -4,9 +4,11 @@ from datetime import date, timedelta
 from .models import Unite, Parametres, Reservation, VilleCle
 from .forms import ReservationForm, ContactForm
 from django.contrib.auth.models import User
-
+from django.core.management import call_command
+from io import StringIO
 
 # ===== TESTS DES MODÈLES =====
+
 
 class UniteModelTest(TestCase):
     """Tests du modèle Unite : création, validation, méthodes."""
@@ -830,3 +832,362 @@ class DashboardViewTest(TestCase):
         self.assertRedirects(response, '/dashboard/')
         reservation.refresh_from_db()
         self.assertEqual(reservation.statut, 'annulee')
+
+# ===== TESTS DES ABONNEMENTS DE DISPONIBILITÉ =====
+
+
+class AbonnementDisponibiliteModelTest(TestCase):
+    """Tests du modèle AbonnementDisponibilite."""
+
+    def setUp(self):
+        self.unite = Unite.objects.create(
+            nom_fr="Studio Test", nom_en="Test Studio",
+            type_unite="studio", etage=1, vue_mer=False,
+            prix_nuit=30000, disponible=True,
+        )
+
+    def test_creation_abonnement(self):
+        """Vérifie qu'un abonnement est bien créé."""
+        from .models import AbonnementDisponibilite
+        abonnement = AbonnementDisponibilite.objects.create(
+            unite=self.unite,
+            email="client@test.com",
+            nom="Jean Dupont",
+        )
+        self.assertEqual(abonnement.email, "client@test.com")
+        self.assertTrue(abonnement.actif)
+        self.assertEqual(
+            str(abonnement), f"client@test.com → {self.unite.nom}")
+
+    def test_unicite_email_par_unite(self):
+        """
+        Un même email ne peut pas s'abonner deux fois à la même unité.
+        La contrainte unique_together doit lever une IntegrityError.
+        """
+        from .models import AbonnementDisponibilite
+        from django.db import IntegrityError
+
+        AbonnementDisponibilite.objects.create(
+            unite=self.unite,
+            email="client@test.com",
+        )
+        with self.assertRaises(IntegrityError):
+            AbonnementDisponibilite.objects.create(
+                unite=self.unite,
+                email="client@test.com",
+            )
+
+    def test_meme_email_differentes_unites(self):
+        """
+        Le même email peut s'abonner à des unités différentes.
+        """
+        from .models import AbonnementDisponibilite
+
+        unite2 = Unite.objects.create(
+            nom_fr="Studio 2", nom_en="Studio 2",
+            type_unite="studio", etage=2, vue_mer=True,
+            prix_nuit=38000, disponible=True,
+        )
+        AbonnementDisponibilite.objects.create(
+            unite=self.unite, email="client@test.com"
+        )
+        AbonnementDisponibilite.objects.create(
+            unite=unite2, email="client@test.com"
+        )
+        from .models import AbonnementDisponibilite as A
+        self.assertEqual(A.objects.filter(email="client@test.com").count(), 2)
+
+
+class AbonnementViewTest(TestCase):
+    """Tests des vues d'abonnement aux notifications de disponibilité."""
+
+    def setUp(self):
+        self.client = Client()
+        Parametres.objects.create(
+            nom_residence_fr="Résidences Bereby",
+            nom_residence_en="Bereby Residences",
+            latitude=4.65082,
+            longitude=-6.92441,
+        )
+        self.unite = Unite.objects.create(
+            nom_fr="Studio Test", nom_en="Test Studio",
+            type_unite="studio", etage=1, vue_mer=False,
+            prix_nuit=30000, disponible=True,
+        )
+
+    def test_page_abonnement_accessible(self):
+        """La page d'abonnement doit retourner 200."""
+        response = self.client.get(
+            reverse('residences:abonnement_disponibilite',
+                    kwargs={'pk': self.unite.pk})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, 'residences/abonnement_disponibilite.html'
+        )
+
+    def test_soumission_abonnement_valide(self):
+        """
+        Une soumission valide doit créer un abonnement et rediriger
+        vers la page de confirmation.
+        """
+        from .models import AbonnementDisponibilite
+
+        response = self.client.post(
+            reverse('residences:abonnement_disponibilite',
+                    kwargs={'pk': self.unite.pk}),
+            data={
+                'nom': 'Marie Martin',
+                'email': 'marie@test.com',
+            }
+        )
+        # Doit rediriger vers la page de confirmation
+        self.assertRedirects(
+            response,
+            reverse('residences:abonnement_success',
+                    kwargs={'pk': self.unite.pk})
+        )
+        # Doit avoir créé un abonnement en base
+        self.assertEqual(AbonnementDisponibilite.objects.count(), 1)
+        abonnement = AbonnementDisponibilite.objects.first()
+        self.assertEqual(abonnement.email, 'marie@test.com')
+        self.assertEqual(abonnement.unite, self.unite)
+        self.assertTrue(abonnement.actif)
+
+    def test_soumission_doublon_redirige_quand_meme(self):
+        """
+        Si un email est déjà abonné à cette unité, la soumission
+        doit quand même rediriger vers la confirmation (pas d'erreur visible).
+        """
+        from .models import AbonnementDisponibilite
+
+        # Crée un abonnement existant
+        AbonnementDisponibilite.objects.create(
+            unite=self.unite,
+            email="marie@test.com",
+        )
+        # Soumet à nouveau le même email
+        response = self.client.post(
+            reverse('residences:abonnement_disponibilite',
+                    kwargs={'pk': self.unite.pk}),
+            data={'nom': 'Marie Martin', 'email': 'marie@test.com'}
+        )
+        # Doit quand même rediriger proprement
+        self.assertRedirects(
+            response,
+            reverse('residences:abonnement_success',
+                    kwargs={'pk': self.unite.pk})
+        )
+        # Toujours un seul abonnement (pas de doublon)
+        self.assertEqual(AbonnementDisponibilite.objects.count(), 1)
+
+    def test_page_confirmation_accessible(self):
+        """La page de confirmation d'abonnement doit retourner 200."""
+        response = self.client.get(
+            reverse('residences:abonnement_success',
+                    kwargs={'pk': self.unite.pk})
+        )
+        self.assertEqual(response.status_code, 200)
+
+
+class NotificationsDisponibiliteTest(TestCase):
+    """Tests de l'envoi des emails de notification de disponibilité."""
+
+    def setUp(self):
+        self.unite = Unite.objects.create(
+            nom_fr="Studio Test", nom_en="Test Studio",
+            type_unite="studio", etage=1, vue_mer=False,
+            prix_nuit=30000, disponible=True,
+        )
+
+    def test_notification_envoyee_aux_abonnes(self):
+        """
+        L'envoi de notifications doit envoyer un email
+        à chaque abonné actif de l'unité.
+        """
+        from django.core import mail
+        from .models import AbonnementDisponibilite
+        from .emails import envoyer_notifications_disponibilite
+
+        # Crée 2 abonnements actifs
+        AbonnementDisponibilite.objects.create(
+            unite=self.unite, email="client1@test.com", actif=True
+        )
+        AbonnementDisponibilite.objects.create(
+            unite=self.unite, email="client2@test.com", actif=True
+        )
+
+        nb = envoyer_notifications_disponibilite(
+            self.unite, raison='annulation')
+
+        # 2 emails doivent avoir été envoyés
+        self.assertEqual(nb, 2)
+        self.assertEqual(len(mail.outbox), 2)
+
+    def test_abonnement_desactive_apres_notification(self):
+        """
+        Après l'envoi d'une notification, l'abonnement doit être désactivé
+        pour éviter de notifier plusieurs fois le même client.
+        """
+        from django.core import mail
+        from .models import AbonnementDisponibilite
+        from .emails import envoyer_notifications_disponibilite
+
+        abonnement = AbonnementDisponibilite.objects.create(
+            unite=self.unite, email="client@test.com", actif=True
+        )
+
+        envoyer_notifications_disponibilite(self.unite, raison='annulation')
+
+        # Recharge depuis la base de données
+        abonnement.refresh_from_db()
+        self.assertFalse(abonnement.actif)
+
+    def test_pas_notification_si_aucun_abonne(self):
+        """
+        Si personne n'est abonné, aucun email ne doit être envoyé.
+        """
+        from django.core import mail
+        from .emails import envoyer_notifications_disponibilite
+
+        nb = envoyer_notifications_disponibilite(
+            self.unite, raison='annulation')
+
+        self.assertEqual(nb, 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_abonnement_inactif_non_notifie(self):
+        """
+        Les abonnements inactifs (actif=False) ne doivent pas recevoir
+        de notification.
+        """
+        from django.core import mail
+        from .models import AbonnementDisponibilite
+        from .emails import envoyer_notifications_disponibilite
+
+        # Crée un abonnement inactif
+        AbonnementDisponibilite.objects.create(
+            unite=self.unite,
+            email="client@test.com",
+            actif=False  # inactif
+        )
+
+        nb = envoyer_notifications_disponibilite(
+            self.unite, raison='annulation')
+
+        self.assertEqual(nb, 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_notification_lors_annulation_dashboard(self):
+        """
+        Quand une réservation est annulée depuis le dashboard,
+        les abonnés de cette unité doivent être notifiés.
+        """
+        from django.core import mail
+        from django.contrib.auth.models import User
+        from .models import AbonnementDisponibilite
+
+        # Crée le gestionnaire et les données nécessaires
+        Parametres.objects.create(
+            nom_residence_fr="Résidences Bereby",
+            nom_residence_en="Bereby Residences",
+            latitude=4.65082, longitude=-6.92441,
+        )
+        gestionnaire = User.objects.create_user(
+            username='gestionnaire', password='mdp123', is_staff=True
+        )
+        reservation = Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Client Test",
+            email_client="client@test.com",
+            telephone_client="+225 01 01 01 01 01",
+            date_arrivee=date.today() + timedelta(days=1),
+            date_depart=date.today() + timedelta(days=3),
+            statut='en_attente',
+        )
+        # Crée un abonnement actif
+        AbonnementDisponibilite.objects.create(
+            unite=self.unite, email="abonne@test.com", actif=True
+        )
+
+        # Connecte le gestionnaire et annule la réservation
+        self.client.login(username='gestionnaire', password='mdp123')
+        self.client.get(
+            reverse('residences:dashboard_action',
+                    kwargs={'reservation_id': reservation.pk, 'action': 'annuler'})
+        )
+
+        # Vérifie que le statut a changé
+        reservation.refresh_from_db()
+        self.assertEqual(reservation.statut, 'annulee')
+
+        # Au moins un email de notification doit avoir été envoyé
+        self.assertGreater(len(mail.outbox), 0)
+        destinataires = [email.to[0] for email in mail.outbox]
+        self.assertIn("abonne@test.com", destinataires)
+
+
+class CommandeVerifierDepartsTest(TestCase):
+    """Tests de la commande management verifier_departs."""
+
+    def setUp(self):
+        self.unite = Unite.objects.create(
+            nom_fr="Studio Test", nom_en="Test Studio",
+            type_unite="studio", etage=1, vue_mer=False,
+            prix_nuit=30000, disponible=True,
+        )
+        Parametres.objects.create(
+            nom_residence_fr="Résidences Bereby",
+            nom_residence_en="Bereby Residences",
+            latitude=4.65082, longitude=-6.92441,
+        )
+
+    def test_commande_sans_departs(self):
+        """
+        Si aucune réservation n'est terminée, la commande
+        doit s'exécuter sans erreur et sans envoyer d'email.
+        """
+        from django.core import mail
+        from django.core.management import call_command
+        from io import StringIO
+
+        out = StringIO()
+        # call_command exécute la commande Django comme si on la tapait en terminal
+        call_command('verifier_departs', stdout=out)
+
+        self.assertIn("Aucun départ", out.getvalue())
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_commande_avec_depart_termine(self):
+        """
+        Une réservation confirmée dont la date de départ est passée
+        doit déclencher une notification aux abonnés.
+        """
+        from django.core import mail
+        from django.core.management import call_command
+        from .models import AbonnementDisponibilite
+        from io import StringIO
+
+        # Crée une réservation terminée (départ hier)
+        Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Client Parti",
+            email_client="parti@test.com",
+            telephone_client="+225 00 00 00 00 00",
+            date_arrivee=date.today() - timedelta(days=5),
+            date_depart=date.today() - timedelta(days=1),  # parti hier
+            statut='confirmee',
+        )
+        # Crée un abonné
+        AbonnementDisponibilite.objects.create(
+            unite=self.unite,
+            email="abonne@test.com",
+            actif=True,
+        )
+
+        out = StringIO()
+        call_command('verifier_departs', stdout=out)
+
+        # Un email doit avoir été envoyé
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["abonne@test.com"])

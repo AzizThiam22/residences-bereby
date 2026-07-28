@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-21 23:26+0000\n"
+"POT-Creation-Date: 2026-07-28 22:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,65 +26,77 @@ msgstr ""
 msgid "English"
 msgstr ""
 
-#: .\residences\forms.py:31 .\residences\forms.py:111
+#: .\residences\forms.py:32 .\residences\forms.py:112
 msgid "Votre nom complet"
 msgstr "Your full name"
 
-#: .\residences\forms.py:32 .\residences\forms.py:115
+#: .\residences\forms.py:33 .\residences\forms.py:116
 msgid "votre@email.com"
 msgstr "your@email.com"
 
-#: .\residences\forms.py:40 .\residences\forms.py:45
+#: .\residences\forms.py:41 .\residences\forms.py:46
 msgid "Sélectionner une date"
 msgstr "Select a date"
 
-#: .\residences\forms.py:49
+#: .\residences\forms.py:50
 msgid "Demandes particulières (optionnel)"
 msgstr "Special requests (optional)"
 
-#: .\residences\forms.py:54 .\residences\forms.py:129
+#: .\residences\forms.py:55 .\residences\forms.py:130
 msgid "Nom complet"
 msgstr "Full name"
 
-#: .\residences\forms.py:55 .\residences\forms.py:130 .\templates\base.html:68
+#: .\residences\forms.py:56 .\residences\forms.py:131 .\residences\forms.py:157
+#: .\templates\base.html:79
 msgid "Email"
 msgstr "Email"
 
-#: .\residences\forms.py:56 .\residences\templates\residences\contact.html:28
+#: .\residences\forms.py:57 .\residences\templates\residences\contact.html:28
 msgid "Téléphone"
 msgstr "Phone"
 
-#: .\residences\forms.py:57
+#: .\residences\forms.py:58
 msgid "Date d'arrivée"
 msgstr "Check-in date"
 
-#: .\residences\forms.py:58
+#: .\residences\forms.py:59
 msgid "Date de départ"
 msgstr "Check-out date"
 
-#: .\residences\forms.py:59
+#: .\residences\forms.py:60
 msgid "Nombre de personnes"
 msgstr "people"
 
-#: .\residences\forms.py:60
+#: .\residences\forms.py:61
 msgid "Message (optionnel)"
 msgstr "Message (Optional)"
 
-#: .\residences\forms.py:119
+#: .\residences\forms.py:120
 msgid "Objet de votre message (optionnel)"
 msgstr "Subject (optional)"
 
-#: .\residences\forms.py:124
+#: .\residences\forms.py:125
 msgid "Votre message..."
 msgstr "Send message"
 
-#: .\residences\forms.py:131
+#: .\residences\forms.py:132
 msgid "Sujet"
 msgstr "Subject"
 
-#: .\residences\forms.py:132
+#: .\residences\forms.py:133
 msgid "Message"
 msgstr "Your message"
+
+#: .\residences\forms.py:148
+#, fuzzy
+#| msgid "Votre nom complet"
+msgid "Votre nom (optionnel)"
+msgstr "Your full name"
+
+#: .\residences\forms.py:156
+#: .\residences\templates\residences\ma_reservation.html:28
+msgid "Nom"
+msgstr ""
 
 #: .\residences\models.py:16
 msgid "Studio"
@@ -114,9 +126,60 @@ msgstr "2nd floor"
 msgid "3e étage"
 msgstr "3rd floor"
 
+#: .\residences\templates\residences\abonnement_disponibilite.html:5
+msgid "Être notifié"
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_disponibilite.html:11
+#: .\residences\templates\residences\reservation_form.html:15
+msgid "Retour à"
+msgstr "Back to"
+
+#: .\residences\templates\residences\abonnement_disponibilite.html:14
+msgid "Être notifié de la disponibilité"
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_disponibilite.html:16
+#, python-format
+msgid ""
+"\n"
+"            Laissez votre email ci-dessous. Nous vous contacterons dès que\n"
+"            <strong>%(nom)s</strong> sera à nouveau disponible.\n"
+"        "
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_disponibilite.html:34
+msgid "Me notifier dès que disponible"
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_success.html:4
+#, fuzzy
+#| msgid "Réservée mais non confirmée"
+msgid "Inscription confirmée"
+msgstr "Reserved but not confirmed"
+
+#: .\residences\templates\residences\abonnement_success.html:8
+msgid "Vous serez notifié !"
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_success.html:10
+#, python-format
+msgid ""
+"\n"
+"            Nous vous enverrons un email dès que <strong>%(nom)s</strong>\n"
+"            sera à nouveau disponible.\n"
+"        "
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_success.html:16
+#, fuzzy
+#| msgid "Nos logements"
+msgid "Voir les autres logements"
+msgstr "Back to accommodations"
+
 #: .\residences\templates\residences\contact.html:5
-#: .\residences\templates\residences\ma_reservation.html:65
-#: .\templates\base.html:33 .\templates\base.html:63
+#: .\residences\templates\residences\ma_reservation.html:69
+#: .\templates\base.html:33 .\templates\base.html:74
 msgid "Contact"
 msgstr "Contact"
 
@@ -206,8 +269,6 @@ msgid "Localisation"
 msgstr "Location"
 
 #: .\residences\templates\residences\localisation.html:16
-#, fuzzy
-#| msgid "Localisation"
 msgid "Notre localisation"
 msgstr "Our location"
 
@@ -247,64 +308,64 @@ msgstr "Recap"
 msgid "Logement"
 msgstr "Our accommodations"
 
-#: .\residences\templates\residences\ma_reservation.html:28
+#: .\residences\templates\residences\ma_reservation.html:32
 #, fuzzy
 #| msgid "2e étage"
 msgid "Étage"
 msgstr "2nd floor"
 
-#: .\residences\templates\residences\ma_reservation.html:32
+#: .\residences\templates\residences\ma_reservation.html:36
 #: .\residences\templates\residences\reservation_form.html:38
 #, fuzzy
 #| msgid "Date d'arrivée"
 msgid "Arrivée"
 msgstr "Check-in date"
 
-#: .\residences\templates\residences\ma_reservation.html:36
+#: .\residences\templates\residences\ma_reservation.html:40
 #: .\residences\templates\residences\reservation_form.html:42
 #, fuzzy
 #| msgid "Date de départ"
 msgid "Départ"
 msgstr "Check-out date"
 
-#: .\residences\templates\residences\ma_reservation.html:40
+#: .\residences\templates\residences\ma_reservation.html:44
 #, fuzzy
 #| msgid "personne(s)"
 msgid "Personnes"
 msgstr "people"
 
-#: .\residences\templates\residences\ma_reservation.html:44
+#: .\residences\templates\residences\ma_reservation.html:48
 msgid "Statut"
 msgstr "Status"
 
-#: .\residences\templates\residences\ma_reservation.html:47
+#: .\residences\templates\residences\ma_reservation.html:51
 msgid "Confirmée"
 msgstr "Confirmed"
 
-#: .\residences\templates\residences\ma_reservation.html:49
+#: .\residences\templates\residences\ma_reservation.html:53
 msgid "Annulée"
 msgstr "Canceled"
 
-#: .\residences\templates\residences\ma_reservation.html:51
+#: .\residences\templates\residences\ma_reservation.html:55
 msgid "En attente"
 msgstr "Pending"
 
-#: .\residences\templates\residences\ma_reservation.html:57
+#: .\residences\templates\residences\ma_reservation.html:61
 #, fuzzy
 #| msgid "Votre message..."
 msgid "Votre message"
 msgstr "Send message"
 
-#: .\residences\templates\residences\ma_reservation.html:67
+#: .\residences\templates\residences\ma_reservation.html:71
 msgid ""
 "Pour toute question concernant votre réservation, contactez-nous directement."
 msgstr "For any questions about your reservation, contact-us directly."
 
-#: .\residences\templates\residences\ma_reservation.html:85
+#: .\residences\templates\residences\ma_reservation.html:89
 msgid "Réservation effectuée le"
 msgstr "Resrevation made on"
 
-#: .\residences\templates\residences\ma_reservation.html:93
+#: .\residences\templates\residences\ma_reservation.html:97
 #, fuzzy
 #| msgid "Retour à"
 msgid "Retour à l'accueil"
@@ -315,10 +376,6 @@ msgstr "Back to"
 #: .\residences\templates\residences\unite_detail.html:112
 msgid "Réserver"
 msgstr "Book"
-
-#: .\residences\templates\residences\reservation_form.html:15
-msgid "Retour à"
-msgstr "Back to"
 
 #: .\residences\templates\residences\reservation_form.html:33
 msgid "Choisissez vos dates"
@@ -388,11 +445,15 @@ msgstr "people"
 msgid "Surface"
 msgstr "Surface"
 
-#: .\residences\templates\residences\unite_detail.html:117
+#: .\residences\templates\residences\unite_detail.html:119
+msgid "Me notifier si une date se libère"
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:127
 msgid "Ou payez directement via Mobile Money"
 msgstr "Or pay via mobile money"
 
-#: .\residences\templates\residences\unite_detail.html:157
+#: .\residences\templates\residences\unite_detail.html:167
 msgid "Envoyez le montant correspondant puis contactez-nous pour confirmation."
 msgstr "Send the corresponding amount then contact us for confirmation"
 
@@ -416,14 +477,14 @@ msgstr "No units match this filter."
 msgid "Nos chambres"
 msgstr "Our rooms"
 
-#: .\templates\base.html:65
+#: .\templates\base.html:76
 msgid "Tél"
 msgstr "Phone"
 
-#: .\templates\base.html:73
+#: .\templates\base.html:84
 msgid "Suivez-nous"
 msgstr "Follow us"
 
-#: .\templates\base.html:89
+#: .\templates\base.html:100
 msgid "Tous droits réservés"
 msgstr "All rights reserved"

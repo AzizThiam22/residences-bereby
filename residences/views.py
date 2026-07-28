@@ -451,8 +451,10 @@ def abonnement_disponibilite(request, pk):
     """
     Permet à un client de s'abonner pour être notifié
     quand une unité spécifique se libère.
+    On utilise transaction.atomic() pour isoler l'IntegrityError
+    (doublon email+unité) sans casser la transaction principale.
     """
-    from django.db import IntegrityError
+    from django.db import transaction, IntegrityError
 
     unite = get_object_or_404(Unite, pk=pk)
     parametres = get_object_or_404(Parametres, pk=1)
@@ -461,13 +463,18 @@ def abonnement_disponibilite(request, pk):
         form = AbonnementDisponibiliteForm(request.POST)
         if form.is_valid():
             try:
-                abonnement = form.save(commit=False)
-                abonnement.unite = unite
-                abonnement.save()
-                return redirect('residences:abonnement_success', pk=pk)
+                # savepoint() crée un point de sauvegarde dans la transaction.
+                # Si l'IntegrityError survient, seul ce bloc est annulé,
+                # pas toute la transaction Django — ce qui permet de continuer
+                # à faire des requêtes après (comme la redirection).
+                with transaction.atomic():
+                    abonnement = form.save(commit=False)
+                    abonnement.unite = unite
+                    abonnement.save()
             except IntegrityError:
-                # Déjà abonné : on le redirige quand même vers la confirmation
-                return redirect('residences:abonnement_success', pk=pk)
+                # Déjà abonné : on ignore silencieusement
+                pass
+            return redirect('residences:abonnement_success', pk=pk)
     else:
         form = AbonnementDisponibiliteForm()
 
