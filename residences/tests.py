@@ -3,6 +3,7 @@ from django.urls import reverse
 from datetime import date, timedelta
 from .models import Unite, Parametres, Reservation, VilleCle
 from .forms import ReservationForm, ContactForm
+from django.contrib.auth.models import User
 
 
 # ===== TESTS DES MODÈLES =====
@@ -621,3 +622,211 @@ class EmailConfirmationTest(TestCase):
         envoyer_email_confirmation(self.reservation)
 
         self.assertIn("Résidences Bereby", mail.outbox[0].subject)
+
+# ===== TESTS DU DASHBOARD ET DE L'AUTHENTIFICATION =====
+
+
+class LoginViewTest(TestCase):
+    """Tests de la page de login gestionnaire."""
+
+    def setUp(self):
+        self.client = Client()
+        Parametres.objects.create(
+            nom_residence_fr="Résidences Bereby",
+            nom_residence_en="Bereby Residences",
+            latitude=4.65082,
+            longitude=-6.92441,
+        )
+        # Crée un utilisateur staff (gestionnaire)
+        self.gestionnaire = User.objects.create_user(
+            username='gestionnaire',
+            password='motdepasse123',
+            is_staff=True,
+        )
+        # Crée un utilisateur normal (pas staff)
+        self.client_normal = User.objects.create_user(
+            username='client',
+            password='motdepasse123',
+            is_staff=False,
+        )
+
+    def test_page_login_accessible(self):
+        """La page de login doit être accessible sans être connecté."""
+        response = self.client.get(reverse('residences:login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'residences/login.html')
+
+    def test_login_valide_staff(self):
+        """
+        Un utilisateur staff avec les bons identifiants doit être
+        redirigé vers le dashboard.
+        """
+        response = self.client.post(reverse('residences:login'), {
+            'username': 'gestionnaire',
+            'password': 'motdepasse123',
+        })
+        self.assertRedirects(response, '/dashboard/')
+
+    def test_login_mauvais_mot_de_passe(self):
+        """
+        Un mauvais mot de passe doit afficher un message d'erreur
+        et rester sur la page de login.
+        """
+        response = self.client.post(reverse('residences:login'), {
+            'username': 'gestionnaire',
+            'password': 'mauvaismdp',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Identifiants incorrects")
+
+    def test_login_utilisateur_non_staff(self):
+        """
+        Un utilisateur non-staff ne doit pas pouvoir accéder au dashboard,
+        même avec les bons identifiants.
+        """
+        response = self.client.post(reverse('residences:login'), {
+            'username': 'client',
+            'password': 'motdepasse123',
+        })
+        self.assertEqual(response.status_code, 200)
+        # On cherche un mot sans apostrophe pour éviter les problèmes d'encodage HTML
+        self.assertContains(response, "droits")
+
+    def test_login_redirige_si_deja_connecte(self):
+        """
+        Un gestionnaire déjà connecté qui visite /login/
+        doit être redirigé vers le dashboard.
+        """
+        self.client.login(username='gestionnaire', password='motdepasse123')
+        response = self.client.get(reverse('residences:login'))
+        self.assertRedirects(response, '/dashboard/')
+
+
+class DashboardViewTest(TestCase):
+    """Tests du tableau de bord gestionnaire."""
+
+    def setUp(self):
+        self.client = Client()
+        Parametres.objects.create(
+            nom_residence_fr="Résidences Bereby",
+            nom_residence_en="Bereby Residences",
+            latitude=4.65082,
+            longitude=-6.92441,
+        )
+        self.unite = Unite.objects.create(
+            nom_fr="Studio Test", nom_en="Test Studio",
+            type_unite="studio", etage=1, vue_mer=False,
+            prix_nuit=30000, disponible=True,
+        )
+        # Utilisateur staff pour les tests
+        self.gestionnaire = User.objects.create_user(
+            username='gestionnaire',
+            password='motdepasse123',
+            is_staff=True,
+        )
+
+    def test_dashboard_inaccessible_sans_connexion(self):
+        """
+        Le dashboard doit rediriger vers /login/ si non connecté.
+        """
+        response = self.client.get(reverse('residences:dashboard'))
+        self.assertRedirects(response, '/login/?next=/dashboard/')
+
+    def test_dashboard_accessible_staff(self):
+        """
+        Un gestionnaire connecté doit pouvoir accéder au dashboard.
+        """
+        self.client.login(username='gestionnaire', password='motdepasse123')
+        response = self.client.get(reverse('residences:dashboard'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'residences/dashboard.html')
+
+    def test_dashboard_affiche_unites(self):
+        """Le dashboard doit afficher les unités disponibles."""
+        self.client.login(username='gestionnaire', password='motdepasse123')
+        response = self.client.get(reverse('residences:dashboard'))
+        self.assertContains(response, "Studio Test")
+
+    def test_recherche_par_nom(self):
+        """
+        La recherche par nom doit retourner les réservations correspondantes.
+        """
+        # Crée une réservation de test
+        Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Kouamé Yao",
+            email_client="kouame@test.com",
+            telephone_client="+225 01 02 03 04 05",
+            date_arrivee=date.today() + timedelta(days=1),
+            date_depart=date.today() + timedelta(days=3),
+        )
+        self.client.login(username='gestionnaire', password='motdepasse123')
+        response = self.client.get(
+            reverse('residences:dashboard') + '?q=Kouamé'
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Kouamé Yao")
+
+    def test_recherche_par_telephone(self):
+        """La recherche par téléphone doit aussi fonctionner."""
+        Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Awa Diallo",
+            email_client="awa@test.com",
+            telephone_client="+225 07 08 09 10 11",
+            date_arrivee=date.today() + timedelta(days=2),
+            date_depart=date.today() + timedelta(days=4),
+        )
+        self.client.login(username='gestionnaire', password='motdepasse123')
+        response = self.client.get(
+            reverse('residences:dashboard') + '?q=07 08 09'
+        )
+        self.assertContains(response, "Awa Diallo")
+
+    def test_action_confirmer_reservation(self):
+        """
+        L'action 'confirmer' doit changer le statut de la réservation
+        à 'confirmee'.
+        """
+        reservation = Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Test Client",
+            email_client="test@test.com",
+            telephone_client="+225 01 01 01 01 01",
+            date_arrivee=date.today() + timedelta(days=1),
+            date_depart=date.today() + timedelta(days=3),
+            statut='en_attente',
+        )
+        self.client.login(username='gestionnaire', password='motdepasse123')
+        response = self.client.get(
+            reverse('residences:dashboard_action',
+                    kwargs={'reservation_id': reservation.pk, 'action': 'confirmer'})
+        )
+        # Doit rediriger vers le dashboard
+        self.assertRedirects(response, '/dashboard/')
+        # Le statut doit avoir changé
+        reservation.refresh_from_db()
+        self.assertEqual(reservation.statut, 'confirmee')
+
+    def test_action_annuler_reservation(self):
+        """
+        L'action 'annuler' doit changer le statut de la réservation
+        à 'annulee'.
+        """
+        reservation = Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Test Client",
+            email_client="test@test.com",
+            telephone_client="+225 01 01 01 01 01",
+            date_arrivee=date.today() + timedelta(days=1),
+            date_depart=date.today() + timedelta(days=3),
+            statut='en_attente',
+        )
+        self.client.login(username='gestionnaire', password='motdepasse123')
+        response = self.client.get(
+            reverse('residences:dashboard_action',
+                    kwargs={'reservation_id': reservation.pk, 'action': 'annuler'})
+        )
+        self.assertRedirects(response, '/dashboard/')
+        reservation.refresh_from_db()
+        self.assertEqual(reservation.statut, 'annulee')
