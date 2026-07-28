@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Unite, Photo, Equipement, Reservation, ContactMessage, Parametres, VilleCle
+from .models import Unite, Photo, Equipement, Reservation, ContactMessage, Parametres, VilleCle, AbonnementDisponibilite
 
 
 # Inline = permet d'ajouter/modifier les photos directement DANS la page d'une unité,
@@ -73,3 +73,11 @@ class ParametresAdmin(admin.ModelAdmin):
 class VilleCleAdmin(admin.ModelAdmin):
     list_display = ['nom', 'distance_km', 'temps_trajet', 'ordre']
     list_editable = ['distance_km', 'temps_trajet', 'ordre']
+
+
+@admin.register(AbonnementDisponibilite)
+class AbonnementDisponibiliteAdmin(admin.ModelAdmin):
+    list_display = ['email', 'nom', 'unite', 'date_inscription', 'actif']
+    list_filter = ['actif', 'unite']
+    list_editable = ['actif']
+    search_fields = ['email', 'nom']

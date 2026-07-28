@@ -75,3 +75,98 @@ def envoyer_email_confirmation(reservation, request=None):
     )
     email.attach_alternative(html_content, "text/html")
     email.send()
+
+
+def envoyer_notifications_disponibilite(unite, raison='annulation'):
+    """
+    Envoie un email à tous les abonnés actifs d'une unité
+    pour les informer qu'elle est maintenant disponible.
+    raison : 'annulation' ou 'depart' (fin de séjour naturelle)
+    """
+    from .models import AbonnementDisponibilite
+    from django.conf import settings
+
+    abonnements = AbonnementDisponibilite.objects.filter(
+        unite=unite,
+        actif=True
+    )
+
+    if not abonnements.exists():
+        return 0  # Aucun abonné, on s'arrête
+
+    nb_envoyes = 0
+
+    for abonnement in abonnements:
+        try:
+            # Contexte pour le template
+            context = {
+                'abonnement': abonnement,
+                'unite': unite,
+                'raison': raison,
+                'url_reservation': f"{getattr(settings, 'SITE_URL', 'http://127.0.0.1:8080')}/chambres/{unite.pk}/reserver/",
+                'url_detail': f"{getattr(settings, 'SITE_URL', 'http://127.0.0.1:8080')}/chambres/{unite.pk}/",
+            }
+
+            html_content = render_to_string(
+                'residences/emails/disponibilite.html', context
+            )
+            text_content = render_to_string(
+                'residences/emails/disponibilite.txt', context
+            )
+
+            email = EmailMultiAlternatives(
+                subject=f"{unite.nom} est maintenant disponible — Résidences Bereby",
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[abonnement.email],
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            # Désactive l'abonnement après notification
+            # (évite de spammer si l'unité se libère plusieurs fois)
+            abonnement.actif = False
+            abonnement.save()
+
+            nb_envoyes += 1
+
+        except Exception as e:
+            print(f"Erreur notification {abonnement.email} : {e}")
+
+    return nb_envoyes
+
+
+def envoyer_notification_gestionnaire(unite, raison, parametres):
+    """
+    Notifie le gestionnaire par email quand une unité se libère.
+    raison : 'annulation' ou 'depart'
+    """
+    from django.conf import settings
+
+    if not parametres.email_contact:
+        return  # Pas d'email gestionnaire configuré
+
+    nb_abonnes = unite.abonnements.filter(actif=True).count()
+
+    context = {
+        'unite': unite,
+        'raison': raison,
+        'nb_abonnes': nb_abonnes,
+        'url_dashboard': f"{getattr(settings, 'SITE_URL', 'http://127.0.0.1:8080')}/dashboard/",
+    }
+
+    html_content = render_to_string(
+        'residences/emails/notification_gestionnaire.html', context
+    )
+    text_content = render_to_string(
+        'residences/emails/notification_gestionnaire.txt', context
+    )
+
+    email = EmailMultiAlternatives(
+        subject=f"[Résidences Bereby] {unite.nom} vient de se libérer",
+        body=text_content,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[parametres.email_contact],
+    )
+    email.attach_alternative(html_content, "text/html")
+    email.send()

@@ -1,3 +1,4 @@
+from .forms import ReservationForm, ContactForm, AbonnementDisponibiliteForm
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Unite, Parametres, VilleCle, Reservation
 from .forms import ReservationForm, ContactForm
@@ -364,20 +365,37 @@ def dashboard(request):
 @login_required(login_url='/login/')
 def dashboard_action(request, reservation_id, action):
     """
-    Permet de confirmer ou annuler une réservation directement depuis le dashboard,
-    sans passer par l'interface admin.
-    action : 'confirmer' ou 'annuler'
+    Confirme ou annule une réservation depuis le dashboard.
+    Si annulation : notifie les abonnés et le gestionnaire.
     """
+    from .emails import envoyer_notifications_disponibilite, envoyer_notification_gestionnaire
+
     reservation = get_object_or_404(Reservation, pk=reservation_id)
+    parametres = get_object_or_404(Parametres, pk=1)
 
     if action == 'confirmer':
         reservation.statut = 'confirmee'
         reservation.save()
+
     elif action == 'annuler':
         reservation.statut = 'annulee'
         reservation.save()
 
-    # Redirige vers le dashboard avec un message de confirmation
+        # Notifie les clients abonnés à cette unité
+        try:
+            nb = envoyer_notifications_disponibilite(
+                reservation.unite, raison='annulation')
+            print(f"{nb} notification(s) envoyée(s) pour {reservation.unite.nom}")
+        except Exception as e:
+            print(f"Erreur notifications clients : {e}")
+
+        # Notifie le gestionnaire
+        try:
+            envoyer_notification_gestionnaire(
+                reservation.unite, 'annulation', parametres)
+        except Exception as e:
+            print(f"Erreur notification gestionnaire : {e}")
+
     return redirect('residences:dashboard')
 
 
@@ -427,3 +445,45 @@ def gestionnaire_logout(request):
     """
     logout(request)
     return redirect('residences:login')
+
+
+def abonnement_disponibilite(request, pk):
+    """
+    Permet à un client de s'abonner pour être notifié
+    quand une unité spécifique se libère.
+    """
+    from django.db import IntegrityError
+
+    unite = get_object_or_404(Unite, pk=pk)
+    parametres = get_object_or_404(Parametres, pk=1)
+
+    if request.method == 'POST':
+        form = AbonnementDisponibiliteForm(request.POST)
+        if form.is_valid():
+            try:
+                abonnement = form.save(commit=False)
+                abonnement.unite = unite
+                abonnement.save()
+                return redirect('residences:abonnement_success', pk=pk)
+            except IntegrityError:
+                # Déjà abonné : on le redirige quand même vers la confirmation
+                return redirect('residences:abonnement_success', pk=pk)
+    else:
+        form = AbonnementDisponibiliteForm()
+
+    context = {
+        'form': form,
+        'unite': unite,
+        'parametres': parametres,
+    }
+    return render(request, 'residences/abonnement_disponibilite.html', context)
+
+
+def abonnement_success(request, pk):
+    """Page de confirmation après inscription aux notifications."""
+    unite = get_object_or_404(Unite, pk=pk)
+    parametres = get_object_or_404(Parametres, pk=1)
+    return render(request, 'residences/abonnement_success.html', {
+        'unite': unite,
+        'parametres': parametres,
+    })

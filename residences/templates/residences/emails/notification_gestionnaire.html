@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #F5EFE0; margin: 0; }
+        .wrapper { max-width: 580px; margin: 0 auto; background: #ffffff; }
+        .header { background: #1A3A3A; padding: 28px 40px; }
+        .header h1 { color: #C8A96E; font-size: 1rem; margin: 0; text-transform: uppercase; letter-spacing: 0.1em; }
+        .body { padding: 36px 40px; }
+        .alert { background: #FEF3C7; border-left: 4px solid #C8A96E; padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 24px; }
+        .alert h2 { color: #92400E; font-size: 1rem; margin: 0 0 4px; }
+        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #E5E7EB; }
+        .info-label { color: #6B7280; font-size: 0.9rem; }
+        .info-value { font-weight: 600; }
+        .abonnes-note { background: #E8F4F4; border-radius: 8px; padding: 14px; margin: 20px 0; font-size: 0.9rem; color: #2C6B6B; }
+        .btn { display: block; background: #2C6B6B; color: #ffffff; text-decoration: none; padding: 14px; border-radius: 8px; text-align: center; font-weight: 600; margin-top: 20px; }
+        .footer { background: #F9FAFB; padding: 20px 40px; text-align: center; }
+        .footer p { color: #9CA3AF; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <h1>Résidences Bereby — Notification interne</h1>
+        </div>
+        <div class="body">
+            <div class="alert">
+                <h2>🏠 Unité libérée</h2>
+                <p style="margin:0; color:#92400E; font-size:0.9rem;">
+                    {% if raison == 'annulation' %}Suite à une annulation{% else %}Fin de séjour{% endif %}
+                </p>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Unité</span>
+                <span class="info-value">{{ unite.nom }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Étage</span>
+                <span class="info-value">{{ unite.get_etage_display }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Vue mer</span>
+                <span class="info-value">{% if unite.vue_mer %}Oui 🌊{% else %}Non{% endif %}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Prix / nuit</span>
+                <span class="info-value">{{ unite.prix_nuit }} FCFA</span>
+            </div>
+
+            {% if nb_abonnes > 0 %}
+                <div class="abonnes-note">
+                    ✓ <strong>{{ nb_abonnes }} client(s)</strong> en liste d'attente
+                    ont été notifiés automatiquement.
+                </div>
+            {% else %}
+                <p style="color:#6B7280; font-size:0.9rem; margin-top:16px;">
+                    Aucun client en liste d'attente pour cette unité.
+                </p>
+            {% endif %}
+
+            <a href="{{ url_dashboard }}" class="btn">Accéder au dashboard</a>
+        </div>
+        <div class="footer">
+            <p>Cet email est envoyé automatiquement par le système de Résidences Bereby.</p>
+        </div>
+    </div>
+</body>
+</html>

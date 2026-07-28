@@ -313,3 +313,32 @@ class VilleCle(models.Model):
 
     def __str__(self):
         return self.nom
+
+
+class AbonnementDisponibilite(models.Model):
+    """
+    Permet à un client de s'abonner pour recevoir un email
+    quand une unité spécifique se libère, sans avoir de compte.
+    """
+    unite = models.ForeignKey(
+        Unite,
+        on_delete=models.CASCADE,
+        related_name='abonnements'
+    )
+    email = models.EmailField()
+    nom = models.CharField(max_length=100, blank=True)
+    date_inscription = models.DateTimeField(auto_now_add=True)
+
+    # Permet de désactiver un abonnement sans le supprimer
+    # (utile si le client a déjà été notifié)
+    actif = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-date_inscription']
+        # Un email ne peut s'abonner qu'une fois par unité
+        unique_together = ['unite', 'email']
+        verbose_name = "Abonnement disponibilité"
+        verbose_name_plural = "Abonnements disponibilité"
+
+    def __str__(self):
+        return f"{self.email} → {self.unite.nom}"

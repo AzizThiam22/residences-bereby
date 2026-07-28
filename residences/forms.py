@@ -1,3 +1,4 @@
+from .models import Reservation, ContactMessage, AbonnementDisponibilite
 from django import forms
 from .models import Reservation, ContactMessage
 from django.utils.translation import gettext_lazy as _
@@ -130,4 +131,28 @@ class ContactForm(forms.ModelForm):
             'email': _('Email'),
             'sujet': _('Sujet'),
             'message': _('Message'),
+        }
+
+
+class AbonnementDisponibiliteForm(forms.ModelForm):
+    """
+    Formulaire permettant à un client de s'abonner aux notifications
+    de disponibilité d'une unité, sans avoir de compte.
+    """
+    class Meta:
+        model = AbonnementDisponibilite
+        fields = ['nom', 'email']
+        widgets = {
+            'nom': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Votre nom (optionnel)')
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'votre@email.com'
+            }),
+        }
+        labels = {
+            'nom': _('Nom'),
+            'email': _('Email'),
         }

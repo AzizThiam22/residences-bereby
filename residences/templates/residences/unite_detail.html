@@ -111,6 +111,16 @@
                     <!-- Le lien pointera vers le formulaire de réservation qu'on créera ensuite -->
                     <a href="{% url 'residences:reservation_form' pk=unite.pk %}" class="btn btn-primary btn-block">{% trans "Réserver" %}</a>
 
+                    <!-- Lien vers l'abonnement notification, visible si l'unité a des périodes réservées -->
+                    {% if periodes_reservees %}
+                        <div style="margin-top:12px; text-align:center;">
+                            <a href="{% url 'residences:abonnement_disponibilite' pk=unite.pk %}"
+                            style="font-size:0.85rem; color:var(--gris);">
+                                🔔 {% trans "Me notifier si une date se libère" %}
+                            </a>
+                        </div>
+                    {% endif %}
+
                     <!-- Affiche cette section uniquement si au moins un numéro Mobile Money est renseigné -->
                     {% if parametres.numero_orange_money or parametres.numero_mtn_money or parametres.numero_wave %}
                         <div class="mobile-money-section">

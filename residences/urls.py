@@ -25,4 +25,8 @@ urlpatterns = [
     # Authentification gestionnaire
     path('login/', views.gestionnaire_login, name='login'),
     path('logout/', views.gestionnaire_logout, name='logout'),
+    path('chambres/<int:pk>/notifier/', views.abonnement_disponibilite,
+         name='abonnement_disponibilite'),
+    path('chambres/<int:pk>/notifier/confirme/',
+         views.abonnement_success, name='abonnement_success'),
 ]

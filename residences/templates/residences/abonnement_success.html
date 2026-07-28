@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Inscription confirmée" %}{% endblock %}
+
+{% block content %}
+<section class="reservation-success container">
+    <h1>{% trans "Vous serez notifié !" %}</h1>
+    <p>
+        {% blocktrans with nom=unite.nom %}
+            Nous vous enverrons un email dès que <strong>{{ nom }}</strong>
+            sera à nouveau disponible.
+        {% endblocktrans %}
+    </p>
+    <a href="{% url 'residences:unite_list' %}" class="btn btn-primary">
+        {% trans "Voir les autres logements" %}
+    </a>
+</section>
+{% endblock %}

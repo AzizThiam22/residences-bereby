@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Être notifié" %} — {{ unite.nom }}{% endblock %}
+
+{% block content %}
+<section class="reservation-page container">
+
+    <a href="{% url 'residences:unite_detail' pk=unite.pk %}" class="back-link">
+        &larr; {% trans "Retour à" %} {{ unite.nom }}
+    </a>
+
+    <h1>{% trans "Être notifié de la disponibilité" %}</h1>
+    <p style="color:var(--gris); margin-bottom:28px;">
+        {% blocktrans with nom=unite.nom %}
+            Laissez votre email ci-dessous. Nous vous contacterons dès que
+            <strong>{{ nom }}</strong> sera à nouveau disponible.
+        {% endblocktrans %}
+    </p>
+
+    <form method="post" class="reservation-form" style="max-width:420px;">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <p class="field-error">{{ field.errors.0 }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary btn-block">
+            {% trans "Me notifier dès que disponible" %}
+        </button>
+    </form>
+
+</section>
+{% endblock %}

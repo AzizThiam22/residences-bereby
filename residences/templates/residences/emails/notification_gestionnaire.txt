@@ -1,0 +1,15 @@
+[Résidences Bereby] Unité libérée
+
+Bonjour,
+
+L'unité "{{ unite.nom }}" vient de se libérer.
+
+Raison : {% if raison == 'annulation' %}Annulation de réservation{% else %}Fin de séjour{% endif %}
+
+{% if nb_abonnes > 0 %}{{ nb_abonnes }} client(s) en attente ont été notifiés automatiquement.{% endif %}
+
+Accédez au dashboard pour gérer les nouvelles demandes :
+{{ url_dashboard }}
+
+---
+Résidences Bereby

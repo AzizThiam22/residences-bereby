@@ -1,0 +1,25 @@
+Résidences Bereby — Bonne nouvelle !
+
+Bonjour {% if abonnement.nom %}{{ abonnement.nom }}{% else %}{% endif %},
+
+L'unité que vous attendiez est maintenant disponible !
+
+UNITÉ DISPONIBLE
+----------------
+{{ unite.nom }}
+{{ unite.get_etage_display }}{% if unite.vue_mer %} · Vue mer{% endif %}
+{{ unite.prix_nuit }} FCFA / nuit
+
+{% if raison == 'annulation' %}Une réservation a été annulée, libérant cette unité.
+{% else %}Le séjour précédent est terminé, l'unité est à nouveau disponible.
+{% endif %}
+
+Réservez maintenant :
+{{ url_reservation }}
+
+Voir le détail de l'unité :
+{{ url_detail }}
+
+---
+Résidences Bereby | Grand-Béréby, Côte d'Ivoire
+Cet email a été envoyé suite à votre demande de notification.
