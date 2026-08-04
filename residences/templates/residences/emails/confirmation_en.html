@@ -1,0 +1,76 @@
+    <!-- ===== ENGLISH VERSION ===== -->
+    <p class="greeting">Hello <strong>{{ reservation.nom_client }}</strong>,</p>
+    <p style="color:#6B7280; margin-bottom:28px;">
+        Your booking request has been successfully received.
+        Our team will contact you to confirm availability.
+    </p>
+
+    <!-- Summary -->
+    <div class="recap">
+        <h2>Summary</h2>
+        <div class="recap-row">
+            <span class="recap-label">Accommodation</span>
+            <span class="recap-value">{{ reservation.unite.nom }}</span>
+        </div>
+        <div class="recap-row">
+            <span class="recap-label">Check-in</span>
+            <span class="recap-value">{{ reservation.date_arrivee|date:"d/m/Y" }}</span>
+        </div>
+        <div class="recap-row">
+            <span class="recap-label">Check-out</span>
+            <span class="recap-value">{{ reservation.date_depart|date:"d/m/Y" }}</span>
+        </div>
+        <div class="recap-row">
+            <span class="recap-label">Guests</span>
+            <span class="recap-value">{{ reservation.nombre_personnes }}</span>
+        </div>
+        <div class="recap-row">
+            <span class="recap-label">Payment method</span>
+            <span class="recap-value">{{ reservation.get_moyen_paiement_display }}</span>
+        </div>
+        <div class="recap-row">
+            <span class="recap-label">Status</span>
+            <span class="recap-value" style="color:#F59E0B;">⏳ Awaiting confirmation</span>
+        </div>
+    </div>
+
+    <!-- Note depending on the chosen payment method -->
+    {% if reservation.moyen_paiement == 'mobile_money' %}
+        <div class="note">
+            <strong>Mobile Money payment</strong>: please send the amount of your stay to one of our
+            numbers (shown on our website), then send us a screenshot of your payment
+            if you have not done so already. We will confirm as soon as we receive it.
+        </div>
+    {% elif reservation.moyen_paiement == 'carte' %}
+        <div class="note">
+            <strong>Card payment</strong>: a 3.5% fee will be added to the total amount,
+            to cover the payment gateway fees. The secure payment link will be
+            sent to you upon confirmation.
+        </div>
+    {% else %}
+        <div class="note">
+            <strong>Pay on arrival</strong>: payment will be made upon your arrival at the residence.
+        </div>
+    {% endif %}
+
+    <!-- Booking code -->
+    <div class="code-box">
+        <p class="code-label">Your booking code</p>
+        <p class="code">{{ reservation.code_confirmation }}</p>
+    </div>
+
+    <!-- QR Code -->
+    <div class="qr-section">
+        <p>Scan this QR code to view your booking at any time</p>
+        <img src="data:image/png;base64,{{ qr_base64 }}" alt="Booking QR code">
+    </div>
+
+    <!-- View online button -->
+    <a href="{{ url_consultation }}" class="btn">View my booking online</a>
+
+    <!-- Important note -->
+    <div class="note">
+        <strong>Important</strong>: keep this code or this QR code.
+        It will allow you to check the status of your booking
+        without creating an account.
+    </div>

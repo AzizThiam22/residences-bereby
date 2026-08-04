@@ -45,6 +45,32 @@
                 <span class="recap-value">{{ reservation.nombre_personnes }}</span>
             </div>
             <div class="recap-row">
+                <span class="recap-label">{% trans "Moyen de paiement" %}</span>
+                <span class="recap-value">{{ reservation.get_moyen_paiement_display }}</span>
+            </div>
+            {% if reservation.telephone_client %}
+                <div class="recap-row">
+                    <span class="recap-label">{% trans "Téléphone" %}</span>
+                    <span class="recap-value">{{ reservation.indicatif_regional|default:"" }} {{ reservation.telephone_client }}</span>
+                </div>
+            {% endif %}
+            {% if reservation.moyen_communication %}
+                <div class="recap-row">
+                    <span class="recap-label">{% trans "Contact préféré" %}</span>
+                    <span class="recap-value">{{ reservation.get_moyen_communication_display }}</span>
+                </div>
+            {% endif %}
+            {% if reservation.preuve_paiement %}
+                <div class="recap-row">
+                    <span class="recap-label">{% trans "Preuve de paiement" %}</span>
+                    <span class="recap-value">
+                        <a href="{{ reservation.preuve_paiement.url }}" target="_blank">
+                            {% trans "Voir la preuve" %}
+                        </a>
+                    </span>
+                </div>
+            {% endif %}
+            <div class="recap-row">
                 <span class="recap-label">{% trans "Statut" %}</span>
                 <span class="recap-value">
                     {% if reservation.statut == 'confirmee' %}

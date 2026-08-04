@@ -9,6 +9,9 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('chambres/', views.unite_list, name='unite_list'),
     path('chambres/<int:pk>/', views.unite_detail, name='unite_detail'),
+    # Calendrier iCal d'une unité (pour la synchronisation avec Airbnb)
+    path('chambres/<int:pk>/calendrier.ics',
+         views.calendrier_ical, name='calendrier_ical'),
     path('localisation/', views.localisation, name='localisation'),
     path('chambres/<int:pk>/reserver/',
          views.reservation_form, name='reservation_form'),
@@ -22,6 +25,8 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('dashboard/reservation/<int:reservation_id>/<str:action>/',
          views.dashboard_action, name='dashboard_action'),
+    # Page d'activités du gérant (lecture seule)
+    path('activites/', views.activites, name='activites'),
     # Authentification gestionnaire
     path('login/', views.gestionnaire_login, name='login'),
     path('logout/', views.gestionnaire_logout, name='logout'),

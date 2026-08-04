@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-01 00:33+0000\n"
+"POT-Creation-Date: 2026-08-03 16:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,13 +17,521 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-#: .\config\settings.py:141
+
+#: .\config\settings.py:130
 msgid "Français"
 msgstr ""
 
-#: .\config\settings.py:142
+#: .\config\settings.py:131
 msgid "English"
 msgstr ""
 
+#: .\residences\forms.py:55 .\residences\forms.py:160
+msgid "Votre nom complet"
+msgstr ""
+
+#: .\residences\forms.py:56 .\residences\forms.py:164
+msgid "votre@email.com"
+msgstr ""
+
+#: .\residences\forms.py:57
+msgid "XX XX XX XX XX"
+msgstr ""
+
+#: .\residences\forms.py:70 .\residences\forms.py:75
+msgid "Sélectionner une date"
+msgstr ""
+
+#: .\residences\forms.py:83
+msgid "Demandes particulières (optionnel)"
+msgstr ""
+
+#: .\residences\forms.py:88 .\residences\forms.py:178
+msgid "Nom complet"
+msgstr ""
+
+#: .\residences\forms.py:89 .\residences\forms.py:179 .\residences\forms.py:205
+#: .\residences\models.py:167 .\templates\base.html:79
 msgid "Email"
 msgstr "Email"
+
+#: .\residences\forms.py:90 .\residences\templates\residences\contact.html:28
+#: .\residences\templates\residences\ma_reservation.html:53
+msgid "Téléphone"
+msgstr ""
+
+#: .\residences\forms.py:91
+msgid "Indicatif régional"
+msgstr ""
+
+#: .\residences\forms.py:92
+msgid "Comment pouvons-nous vous contacter ?"
+msgstr ""
+
+#: .\residences\forms.py:93
+msgid "Date d'arrivée"
+msgstr ""
+
+#: .\residences\forms.py:94
+msgid "Date de départ"
+msgstr ""
+
+#: .\residences\forms.py:95
+msgid "Nombre de personnes"
+msgstr ""
+
+#: .\residences\forms.py:96
+msgid "Moyen de paiement souhaité"
+msgstr ""
+
+#: .\residences\forms.py:97
+msgid "Preuve de paiement (photo/capture)"
+msgstr ""
+
+#: .\residences\forms.py:98
+msgid "Message (optionnel)"
+msgstr ""
+
+#: .\residences\forms.py:168
+msgid "Objet de votre message (optionnel)"
+msgstr ""
+
+#: .\residences\forms.py:173
+msgid "Votre message..."
+msgstr ""
+
+#: .\residences\forms.py:180
+msgid "Sujet"
+msgstr ""
+
+#: .\residences\forms.py:181
+msgid "Message"
+msgstr ""
+
+#: .\residences\forms.py:196
+msgid "Votre nom (optionnel)"
+msgstr ""
+
+#: .\residences\forms.py:204
+#: .\residences\templates\residences\ma_reservation.html:28
+msgid "Nom"
+msgstr ""
+
+#: .\residences\models.py:16
+msgid "Studio"
+msgstr ""
+
+#: .\residences\models.py:17
+msgid "Appartement"
+msgstr ""
+
+#: .\residences\models.py:18
+msgid "Local commercial"
+msgstr ""
+
+#: .\residences\models.py:23
+msgid "Sous-sol"
+msgstr ""
+
+#: .\residences\models.py:24
+msgid "1er étage"
+msgstr ""
+
+#: .\residences\models.py:25
+msgid "2e étage"
+msgstr ""
+
+#: .\residences\models.py:26
+msgid "3e étage"
+msgstr ""
+
+#: .\residences\models.py:160
+msgid "Mobile Money"
+msgstr ""
+
+#: .\residences\models.py:161
+msgid "Carte bancaire (Visa/Mastercard)"
+msgstr ""
+
+#: .\residences\models.py:162
+msgid "Paiement sur place"
+msgstr ""
+
+#: .\residences\models.py:168
+msgid "Appel téléphonique"
+msgstr ""
+
+#: .\residences\models.py:169
+msgid "WhatsApp"
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_disponibilite.html:5
+msgid "Être notifié"
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_disponibilite.html:11
+#: .\residences\templates\residences\reservation_form.html:15
+msgid "Retour à"
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_disponibilite.html:14
+msgid "Être notifié de la disponibilité"
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_disponibilite.html:16
+#, python-format
+msgid ""
+"\n"
+"            Laissez votre email ci-dessous. Nous vous contacterons dès que\n"
+"            <strong>%(nom)s</strong> sera à nouveau disponible.\n"
+"        "
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_disponibilite.html:34
+msgid "Me notifier dès que disponible"
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_success.html:4
+msgid "Inscription confirmée"
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_success.html:8
+msgid "Vous serez notifié !"
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_success.html:10
+#, python-format
+msgid ""
+"\n"
+"            Nous vous enverrons un email dès que <strong>%(nom)s</strong>\n"
+"            sera à nouveau disponible.\n"
+"        "
+msgstr ""
+
+#: .\residences\templates\residences\abonnement_success.html:16
+msgid "Voir les autres logements"
+msgstr ""
+
+#: .\residences\templates\residences\contact.html:5
+#: .\residences\templates\residences\ma_reservation.html:95
+#: .\templates\base.html:33 .\templates\base.html:74
+msgid "Contact"
+msgstr ""
+
+#: .\residences\templates\residences\contact.html:14
+msgid "Contactez-nous"
+msgstr ""
+
+#: .\residences\templates\residences\contact.html:16
+msgid ""
+"Une question ? Une demande particulière ? N'hésitez pas à nous écrire ou à "
+"nous appeler directement."
+msgstr ""
+
+#: .\residences\templates\residences\contact.html:64
+msgid "Réseaux sociaux"
+msgstr ""
+
+#: .\residences\templates\residences\contact.html:89
+msgid "Envoyez-nous un message"
+msgstr ""
+
+#: .\residences\templates\residences\contact.html:113
+msgid "Envoyer le message"
+msgstr ""
+
+#: .\residences\templates\residences\home.html:7 .\templates\base.html:30
+msgid "Accueil"
+msgstr ""
+
+#: .\residences\templates\residences\home.html:16
+msgid "Logements meublés face à l'océan, à Grand-Béréby, Côte d'Ivoire"
+msgstr ""
+
+#: .\residences\templates\residences\home.html:19
+msgid "Voir nos chambres"
+msgstr ""
+
+#: .\residences\templates\residences\home.html:26
+msgid "Bienvenue à Résidences Bereby"
+msgstr ""
+
+#: .\residences\templates\residences\home.html:28
+msgid ""
+"Située sur le littoral de Grand-Béréby, notre résidence vous offre des "
+"logements meublés confortables, à quelques pas de l'océan. Idéal pour un "
+"séjour court ou prolongé."
+msgstr ""
+
+#: .\residences\templates\residences\home.html:34
+#: .\residences\templates\residences\unite_list.html:11
+msgid "Nos logements"
+msgstr ""
+
+#: .\residences\templates\residences\home.html:47
+#: .\residences\templates\residences\unite_list.html:36
+msgid "Photo à venir"
+msgstr ""
+
+#: .\residences\templates\residences\home.html:57
+#: .\residences\templates\residences\unite_list.html:45
+msgid "Vue mer"
+msgstr ""
+
+#: .\residences\templates\residences\home.html:60
+#: .\residences\templates\residences\reservation_form.html:19
+#: .\residences\templates\residences\unite_detail.html:102
+#: .\residences\templates\residences\unite_list.html:48
+msgid "nuit"
+msgstr ""
+
+#: .\residences\templates\residences\home.html:63
+#: .\residences\templates\residences\unite_list.html:51
+msgid "Voir le détail"
+msgstr ""
+
+#: .\residences\templates\residences\home.html:69
+msgid "Aucune unité disponible pour le moment."
+msgstr ""
+
+#: .\residences\templates\residences\localisation.html:6
+#: .\templates\base.html:32
+msgid "Localisation"
+msgstr ""
+
+#: .\residences\templates\residences\localisation.html:16
+msgid "Notre localisation"
+msgstr ""
+
+#: .\residences\templates\residences\localisation.html:18
+#, python-format
+msgid ""
+"\n"
+"                %(nom)s est située directement sur le littoral de Grand-"
+"Béréby, en bord d'océan Atlantique.\n"
+"            "
+msgstr ""
+
+#: .\residences\templates\residences\localisation.html:31
+msgid "Distances depuis la résidence"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:5
+#: .\residences\templates\residences\ma_reservation.html:10
+msgid "Ma réservation"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:12
+msgid "Code"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:21
+msgid "Récapitulatif"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:24
+msgid "Logement"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:32
+msgid "Étage"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:36
+#: .\residences\templates\residences\reservation_form.html:38
+msgid "Arrivée"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:40
+#: .\residences\templates\residences\reservation_form.html:42
+msgid "Départ"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:44
+msgid "Personnes"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:48
+msgid "Moyen de paiement"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:59
+msgid "Contact préféré"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:65
+msgid "Preuve de paiement"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:68
+msgid "Voir la preuve"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:74
+msgid "Statut"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:77
+msgid "Confirmée"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:79
+msgid "Annulée"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:81
+msgid "En attente"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:87
+msgid "Votre message"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:97
+msgid ""
+"Pour toute question concernant votre réservation, contactez-nous directement."
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:115
+msgid "Réservation effectuée le"
+msgstr ""
+
+#: .\residences\templates\residences\ma_reservation.html:123
+msgid "Retour à l'accueil"
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:5
+#: .\residences\templates\residences\reservation_form.html:18
+#: .\residences\templates\residences\unite_detail.html:112
+msgid "Réserver"
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:33
+msgid "Choisissez vos dates"
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:54
+msgid "En attente de confirmation"
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:58
+#: .\residences\templates\residences\unite_detail.html:94
+msgid "Réservée confirmée"
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:65
+msgid "Vos informations"
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:107
+msgid "Instructions de paiement Mobile Money"
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:109
+msgid ""
+"Envoyez le montant du séjour à l'un de ces numéros, puis joignez la capture "
+"d'écran comme preuve."
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:126
+msgid ""
+"Optionnel : vous pourrez aussi l'envoyer plus tard par WhatsApp ou email."
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:136
+#, python-format
+msgid ""
+"Paiement par carte bancaire : des frais de 3,5 %% seront ajoutés au montant "
+"total, pour couvrir les frais de la passerelle de paiement."
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:149
+msgid ""
+"Veuillez sélectionner vos dates d'arrivée et de départ dans le calendrier."
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:153
+msgid "Envoyer ma demande de réservation"
+msgstr ""
+
+#: .\residences\templates\residences\reservation_form.html:158
+msgid ""
+"Ceci est une demande de pré-réservation. Nous vous contacterons rapidement "
+"pour confirmer la disponibilité et finaliser les modalités de paiement."
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:20
+msgid "Retour aux logements"
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:68
+msgid "Description"
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:73
+msgid "Équipements"
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:83
+msgid "Disponibilité"
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:90
+msgid "Réservée mais non confirmée"
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:105
+msgid "Capacité"
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:105
+msgid "personne(s)"
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:108
+msgid "Surface"
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:119
+msgid "Me notifier si une date se libère"
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:127
+msgid "Ou payez directement via Mobile Money"
+msgstr ""
+
+#: .\residences\templates\residences\unite_detail.html:167
+msgid "Envoyez le montant correspondant puis contactez-nous pour confirmation."
+msgstr ""
+
+#: .\residences\templates\residences\unite_list.html:12
+msgid "Studios et appartements meublés, certains avec vue directe sur l'océan."
+msgstr ""
+
+#: .\residences\templates\residences\unite_list.html:18
+msgid "Toutes les unités"
+msgstr ""
+
+#: .\residences\templates\residences\unite_list.html:21
+msgid "Vue mer uniquement"
+msgstr ""
+
+#: .\residences\templates\residences\unite_list.html:56
+msgid "Aucune unité ne correspond à ce filtre pour le moment."
+msgstr ""
+
+#: .\templates\base.html:31
+msgid "Nos chambres"
+msgstr ""
+
+#: .\templates\base.html:76
+msgid "Tél"
+msgstr ""
+
+#: .\templates\base.html:84
+msgid "Suivez-nous"
+msgstr ""
+
+#: .\templates\base.html:100
+msgid "Tous droits réservés"
+msgstr ""

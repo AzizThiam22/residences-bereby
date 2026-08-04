@@ -1,10 +1,12 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from datetime import date, timedelta
+import base64
 from .models import Unite, Parametres, Reservation, VilleCle
 from .forms import ReservationForm, ContactForm
 from django.contrib.auth.models import User
 from django.core.management import call_command
+from django.core.files.uploadedfile import SimpleUploadedFile
 from io import StringIO
 
 # ===== TESTS DES MODÈLES =====
@@ -246,6 +248,77 @@ class ReservationFormTest(TestCase):
         form.unite = self.unite
         self.assertTrue(form.is_valid())
 
+    def test_formulaire_valide_avec_paiement_carte(self):
+        """
+        Un formulaire avec le moyen de paiement "carte" et un moyen de
+        communication WhatsApp doit être accepté.
+        """
+        form = ReservationForm(data={
+            'nom_client': 'Jean Dupont',
+            'email_client': 'jean@test.com',
+            'telephone_client': '01 02 03 04 05',
+            'indicatif_regional': '+225',
+            'moyen_communication': 'whatsapp',
+            'moyen_paiement': 'carte',
+            'date_arrivee': self.demain,
+            'date_depart': self.dans_3_jours,
+            'nombre_personnes': 2,
+        })
+        form.unite = self.unite
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['moyen_paiement'], 'carte')
+        self.assertEqual(form.cleaned_data['moyen_communication'], 'whatsapp')
+        self.assertEqual(form.cleaned_data['indicatif_regional'], '+225')
+
+    def test_formulaire_valide_avec_mobile_money_et_preuve(self):
+        """
+        Un formulaire avec Mobile Money et une capture d'écran (fichier)
+        doit être accepté. Le fichier est un vrai PNG 1x1 encodé en base64.
+        """
+        # Petit PNG 1x1 valide (l'ImageField vérifie que c'est une vraie image)
+        png_bytes = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        )
+        preuve = SimpleUploadedFile(
+            "preuve.png", png_bytes, content_type="image/png")
+
+        form = ReservationForm(
+            data={
+                'nom_client': 'Jean Dupont',
+                'email_client': 'jean@test.com',
+                'telephone_client': '01 02 03 04 05',
+                'indicatif_regional': '+225',
+                'moyen_communication': 'appel',
+                'moyen_paiement': 'mobile_money',
+                'date_arrivee': self.demain,
+                'date_depart': self.dans_3_jours,
+                'nombre_personnes': 2,
+            },
+            files={'preuve_paiement': preuve}
+        )
+        form.unite = self.unite
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['moyen_paiement'], 'mobile_money')
+        self.assertIsNotNone(form.cleaned_data['preuve_paiement'])
+
+    def test_moyen_paiement_par_defaut(self):
+        """
+        Sans choix explicite, le moyen de paiement par défaut doit être
+        'sur_place' et le moyen de communication par défaut 'email'.
+        """
+        form = ReservationForm(data={
+            'nom_client': 'Jean Dupont',
+            'email_client': 'jean@test.com',
+            'telephone_client': '01 02 03 04 05',
+            'date_arrivee': self.demain,
+            'date_depart': self.dans_3_jours,
+            'nombre_personnes': 2,
+        })
+        form.unite = self.unite
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['moyen_paiement'], 'sur_place')
+        self.assertEqual(form.cleaned_data['moyen_communication'], 'email')
+
     def test_date_depart_avant_arrivee(self):
         """
         Un formulaire où la date de départ est avant l'arrivée doit être refusé.
@@ -428,6 +501,79 @@ class ReservationViewTest(TestCase):
         reservation = Reservation.objects.first()
         self.assertEqual(reservation.nom_client, 'Test Client')
         self.assertEqual(reservation.statut, 'en_attente')
+
+    def test_soumission_avec_moyen_paiement(self):
+        """
+        Une soumission avec un moyen de paiement, un indicatif régional
+        et un moyen de communication doit les enregistrer en base.
+        """
+        demain = self.aujourd_hui + timedelta(days=1)
+        dans_3_jours = self.aujourd_hui + timedelta(days=3)
+
+        response = self.client.post(
+            reverse('residences:reservation_form',
+                    kwargs={'pk': self.unite.pk}),
+            data={
+                'nom_client': 'Awa Diallo',
+                'email_client': 'awa@test.com',
+                'telephone_client': '07 08 09 10 11',
+                'indicatif_regional': '+225',
+                'moyen_communication': 'whatsapp',
+                'moyen_paiement': 'carte',
+                'date_arrivee': demain,
+                'date_depart': dans_3_jours,
+                'nombre_personnes': 2,
+                'message': '',
+            }
+        )
+        self.assertRedirects(
+            response,
+            reverse('residences:reservation_success')
+        )
+        reservation = Reservation.objects.get(email_client='awa@test.com')
+        self.assertEqual(reservation.moyen_paiement, 'carte')
+        self.assertEqual(reservation.moyen_communication, 'whatsapp')
+        self.assertEqual(reservation.indicatif_regional, '+225')
+
+    def test_soumission_mobile_money_avec_preuve(self):
+        """
+        Une soumission Mobile Money avec capture d'écran doit enregistrer
+        la preuve de paiement en base.
+        """
+        demain = self.aujourd_hui + timedelta(days=1)
+        dans_3_jours = self.aujourd_hui + timedelta(days=3)
+
+        png_bytes = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        )
+        preuve = SimpleUploadedFile(
+            "preuve.png", png_bytes, content_type="image/png")
+
+        response = self.client.post(
+            reverse('residences:reservation_form',
+                    kwargs={'pk': self.unite.pk}),
+            data={
+                'nom_client': 'Kouamé Yao',
+                'email_client': 'kouame@test.com',
+                'telephone_client': '01 02 03 04 05',
+                'indicatif_regional': '+225',
+                'moyen_communication': 'email',
+                'moyen_paiement': 'mobile_money',
+                'date_arrivee': demain,
+                'date_depart': dans_3_jours,
+                'nombre_personnes': 1,
+                'message': '',
+                # Le fichier se transmet DANS data, pas dans un kwarg séparé
+                'preuve_paiement': preuve,
+            }
+        )
+        self.assertRedirects(
+            response,
+            reverse('residences:reservation_success')
+        )
+        reservation = Reservation.objects.get(email_client='kouame@test.com')
+        self.assertEqual(reservation.moyen_paiement, 'mobile_money')
+        self.assertTrue(reservation.preuve_paiement)
 
         # ===== TESTS DU CODE DE CONFIRMATION =====
 
@@ -625,6 +771,147 @@ class EmailConfirmationTest(TestCase):
 
         self.assertIn("Résidences Bereby", mail.outbox[0].subject)
 
+    def test_email_contient_moyen_paiement(self):
+        """
+        L'email de confirmation doit mentionner le moyen de paiement choisi.
+        """
+        from django.core import mail
+        from .emails import envoyer_email_confirmation
+
+        # On choisit un moyen de paiement explicite
+        self.reservation.moyen_paiement = 'mobile_money'
+        self.reservation.save()
+
+        envoyer_email_confirmation(self.reservation)
+
+        # Le corps de l'email doit contenir le libellé du moyen de paiement
+        self.assertIn("Mobile Money", mail.outbox[0].body)
+
+    def test_email_bilingue(self):
+        """
+        L'email de confirmation doit être bilingue : version française,
+        un séparateur 'English version will follow', puis la version anglaise,
+        dans cet ordre.
+        """
+        from django.core import mail
+        from .emails import envoyer_email_confirmation
+
+        envoyer_email_confirmation(self.reservation)
+
+        body = mail.outbox[0].body
+
+        # La version française est présente
+        self.assertIn("Bonjour", body)
+        self.assertIn("Votre demande de réservation", body)
+        # Le séparateur annonce la version anglaise
+        self.assertIn("English version will follow", body)
+        # La version anglaise est présente
+        self.assertIn("Your booking request", body)
+
+        # Vérifie l'ordre : français → séparateur → anglais
+        self.assertLess(
+            body.index("Votre demande de réservation"),
+            body.index("English version will follow"),
+        )
+        self.assertLess(
+            body.index("English version will follow"),
+            body.index("Your booking request"),
+        )
+
+    def test_email_html_bilingue(self):
+        """
+        Le HTML de l'email contient les deux versions, le séparateur,
+        et les valeurs traduites dans la bonne langue (nom d'unité FR et EN).
+        """
+        from django.core import mail
+        from .emails import envoyer_email_confirmation
+
+        envoyer_email_confirmation(self.reservation)
+
+        # mail.outbox[0].alternatives contient (contenu, 'text/html')
+        html = mail.outbox[0].alternatives[0][0]
+
+        self.assertIn("Bonjour", html)
+        self.assertIn("English version will follow", html)
+        self.assertIn("Hello", html)
+
+        # Le nom de l'unité apparaît dans les deux langues :
+        # version française et version anglaise du récapitulatif
+        self.assertIn("Studio Test", html)
+        self.assertIn("Test Studio", html)
+
+# ===== TESTS DE L'EXPORT iCal (SYNCHRONISATION AIRBNB) =====
+
+
+class IcalExportTest(TestCase):
+    """Tests de l'export iCal d'une unité (blocage des dates sur Airbnb)."""
+
+    def setUp(self):
+        self.unite = Unite.objects.create(
+            nom_fr="Studio Test", nom_en="Test Studio",
+            type_unite="studio", etage=1, vue_mer=False,
+            prix_nuit=30000, disponible=True,
+        )
+        self.url_ical = reverse(
+            'residences:calendrier_ical', args=[self.unite.pk])
+
+    def _creer_reservation(self, statut):
+        """Helper : crée une réservation avec le statut demandé."""
+        return Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Test Client",
+            email_client="test@test.com",
+            telephone_client="+225 01 01 01 01 01",
+            date_arrivee=date.today() + timedelta(days=2),
+            date_depart=date.today() + timedelta(days=5),
+            statut=statut,
+        )
+
+    def test_ical_accessible_sans_connexion(self):
+        """
+        Le fichier iCal doit être public : Airbnb doit pouvoir le lire
+        sans être connecté au site.
+        """
+        response = self.client.get(self.url_ical)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/calendar; charset=utf-8')
+
+    def test_ical_contient_headers(self):
+        """Le fichier doit contenir les en-têtes VCALENDAR requis."""
+        response = self.client.get(self.url_ical)
+        self.assertContains(response, 'BEGIN:VCALENDAR')
+        self.assertContains(response, 'VERSION:2.0')
+        self.assertContains(response, 'END:VCALENDAR')
+
+    def test_ical_contient_reservation_confirmee(self):
+        """Une réservation confirmée doit bloquer ses dates dans le iCal."""
+        reservation = self._creer_reservation('confirmee')
+        response = self.client.get(self.url_ical)
+        arrivee = reservation.date_arrivee.strftime('%Y%m%d')
+        depart = reservation.date_depart.strftime('%Y%m%d')
+        self.assertContains(response, f'DTSTART;VALUE=DATE:{arrivee}')
+        self.assertContains(response, f'DTEND;VALUE=DATE:{depart}')
+
+    def test_ical_inclut_reservation_en_attente(self):
+        """Une réservation en attente doit aussi bloquer ses dates."""
+        reservation = self._creer_reservation('en_attente')
+        response = self.client.get(self.url_ical)
+        arrivee = reservation.date_arrivee.strftime('%Y%m%d')
+        self.assertContains(response, f'DTSTART;VALUE=DATE:{arrivee}')
+
+    def test_ical_exclut_reservation_annulee(self):
+        """Une réservation annulée ne doit pas apparaître dans le iCal."""
+        reservation = self._creer_reservation('annulee')
+        response = self.client.get(self.url_ical)
+        arrivee = reservation.date_arrivee.strftime('%Y%m%d')
+        self.assertNotContains(response, f'DTSTART;VALUE=DATE:{arrivee}')
+
+    def test_ical_unite_inexistante_404(self):
+        """Un fichier iCal pour une unité inconnue doit retourner 404."""
+        response = self.client.get(
+            reverse('residences:calendrier_ical', args=[99999]))
+        self.assertEqual(response.status_code, 404)
+
 # ===== TESTS DU DASHBOARD ET DE L'AUTHENTIFICATION =====
 
 
@@ -681,18 +968,16 @@ class LoginViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Identifiants incorrects")
 
-    def test_login_utilisateur_non_staff(self):
+    def test_login_gerant(self):
         """
-        Un utilisateur non-staff ne doit pas pouvoir accéder au dashboard,
-        même avec les bons identifiants.
+        Un utilisateur non-staff (gérant) avec les bons identifiants doit
+        être redirigé vers la page d'activités (et non le dashboard).
         """
         response = self.client.post(reverse('residences:login'), {
             'username': 'client',
             'password': 'motdepasse123',
         })
-        self.assertEqual(response.status_code, 200)
-        # On cherche un mot sans apostrophe pour éviter les problèmes d'encodage HTML
-        self.assertContains(response, "droits")
+        self.assertRedirects(response, '/activites/')
 
     def test_login_redirige_si_deja_connecte(self):
         """
@@ -702,6 +987,15 @@ class LoginViewTest(TestCase):
         self.client.login(username='gestionnaire', password='motdepasse123')
         response = self.client.get(reverse('residences:login'))
         self.assertRedirects(response, '/dashboard/')
+
+    def test_login_redirige_gerant_deja_connecte(self):
+        """
+        Un gérant déjà connecté qui visite /login/
+        doit être redirigé vers la page d'activités.
+        """
+        self.client.login(username='client', password='motdepasse123')
+        response = self.client.get(reverse('residences:login'))
+        self.assertRedirects(response, '/activites/')
 
 
 class DashboardViewTest(TestCase):
@@ -742,6 +1036,19 @@ class DashboardViewTest(TestCase):
         response = self.client.get(reverse('residences:dashboard'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'residences/dashboard.html')
+
+    def test_dashboard_inaccessible_gerant(self):
+        """
+        Un gérant (non-staff) connecté qui visite le dashboard doit être
+        redirigé vers sa page d'activités.
+        """
+        # Crée un utilisateur gérant (compte simple, non-staff)
+        User.objects.create_user(
+            username='gerant', password='motdepasse123', is_staff=False
+        )
+        self.client.login(username='gerant', password='motdepasse123')
+        response = self.client.get(reverse('residences:dashboard'))
+        self.assertRedirects(response, '/activites/')
 
     def test_dashboard_affiche_unites(self):
         """Le dashboard doit afficher les unités disponibles."""
@@ -832,6 +1139,100 @@ class DashboardViewTest(TestCase):
         self.assertRedirects(response, '/dashboard/')
         reservation.refresh_from_db()
         self.assertEqual(reservation.statut, 'annulee')
+
+
+class ActivitesViewTest(TestCase):
+    """Tests de la page d'activités du gérant (lecture seule)."""
+
+    def setUp(self):
+        self.client = Client()
+        Parametres.objects.create(
+            nom_residence_fr="Résidences Bereby",
+            nom_residence_en="Bereby Residences",
+            latitude=4.65082,
+            longitude=-6.92441,
+        )
+        self.unite = Unite.objects.create(
+            nom_fr="Studio Test", nom_en="Test Studio",
+            type_unite="studio", etage=1, vue_mer=False,
+            prix_nuit=30000, disponible=True,
+        )
+        # Un gérant : compte simple, non-staff
+        self.gerant = User.objects.create_user(
+            username='gerant', password='motdepasse123', is_staff=False,
+        )
+        # Un gestionnaire : compte staff
+        self.gestionnaire = User.objects.create_user(
+            username='gestionnaire', password='motdepasse123', is_staff=True,
+        )
+
+    def test_activites_inaccessibles_sans_connexion(self):
+        """La page d'activités doit rediriger vers /login/ si non connecté."""
+        response = self.client.get(reverse('residences:activites'))
+        self.assertRedirects(response, '/login/?next=/activites/')
+
+    def test_activites_accessible_gerant(self):
+        """Un gérant connecté doit pouvoir accéder à la page d'activités."""
+        self.client.login(username='gerant', password='motdepasse123')
+        response = self.client.get(reverse('residences:activites'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'residences/activites.html')
+
+    def test_activites_affiche_unites(self):
+        """La page d'activités doit afficher les unités disponibles."""
+        self.client.login(username='gerant', password='motdepasse123')
+        response = self.client.get(reverse('residences:activites'))
+        self.assertContains(response, "Studio Test")
+
+    def test_activites_staff_redirige_dashboard(self):
+        """
+        Un membre du staff qui visite la page d'activités doit être
+        redirigé vers le dashboard.
+        """
+        self.client.login(username='gestionnaire', password='motdepasse123')
+        response = self.client.get(reverse('residences:activites'))
+        self.assertRedirects(response, '/dashboard/')
+
+    def test_activites_lecture_seule(self):
+        """
+        La page d'activités ne doit contenir aucun bouton d'action
+        (confirmation / annulation) : c'est une vue en lecture seule.
+        """
+        Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Test Client",
+            email_client="test@test.com",
+            telephone_client="+225 01 01 01 01 01",
+            date_arrivee=date.today() + timedelta(days=1),
+            date_depart=date.today() + timedelta(days=3),
+            statut='en_attente',
+        )
+        self.client.login(username='gerant', password='motdepasse123')
+        response = self.client.get(reverse('residences:activites'))
+        self.assertNotContains(response, 'dashboard_action')
+
+    def test_gerant_ne_peut_pas_confirmer(self):
+        """
+        Un gérant ne doit pas pouvoir confirmer une réservation :
+        l'action est refusée et le statut reste inchangé.
+        """
+        reservation = Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Test Client",
+            email_client="test@test.com",
+            telephone_client="+225 01 01 01 01 01",
+            date_arrivee=date.today() + timedelta(days=1),
+            date_depart=date.today() + timedelta(days=3),
+            statut='en_attente',
+        )
+        self.client.login(username='gerant', password='motdepasse123')
+        response = self.client.get(
+            reverse('residences:dashboard_action',
+                    kwargs={'reservation_id': reservation.pk, 'action': 'confirmer'})
+        )
+        self.assertRedirects(response, '/activites/')
+        reservation.refresh_from_db()
+        self.assertEqual(reservation.statut, 'en_attente')
 
 # ===== TESTS DES ABONNEMENTS DE DISPONIBILITÉ =====
 

@@ -10,8 +10,15 @@ Logement   : {{ reservation.unite.nom }}
 Arrivée    : {{ reservation.date_arrivee|date:"d/m/Y" }}
 Départ     : {{ reservation.date_depart|date:"d/m/Y" }}
 Personnes  : {{ reservation.nombre_personnes }}
+Paiement   : {{ reservation.get_moyen_paiement_display }}
 Statut     : En attente de confirmation
 
+{% if reservation.moyen_paiement == 'mobile_money' %}Suivez les instructions Mobile Money affichées sur notre site
+et transmettez-nous la capture d'écran de votre paiement.
+{% elif reservation.moyen_paiement == 'carte' %}Un lien de paiement sécurisé vous sera communiqué lors de la
+confirmation (frais de 3,5 % ajoutés au montant total).
+{% else %}Le paiement se fera à votre arrivée à la résidence.
+{% endif %}
 VOTRE CODE DE RÉSERVATION : {{ reservation.code_confirmation }}
 
 Consultez votre réservation ici :

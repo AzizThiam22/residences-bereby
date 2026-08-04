@@ -3,10 +3,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Unite, Parametres, VilleCle, Reservation
 from .forms import ReservationForm, ContactForm
 from django.utils import translation
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from .emails import envoyer_email_confirmation
 from django.db.models import Q
-from datetime import date
+from datetime import date, datetime
+from django.urls import reverse
 from .models import Unite, Parametres, VilleCle, Reservation, ContactMessage
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -82,6 +83,70 @@ def unite_detail(request, pk):
     return render(request, 'residences/unite_detail.html', context)
 
 
+def calendrier_ical(request, pk):
+    """
+    Exporte le calendrier de disponibilité d'une unité au format iCal (RFC 5545).
+    Chaque réservation 'en_attente' ou 'confirmee' devient un événement qui
+    bloque ses dates. On peut importer ce fichier dans un calendrier externe
+    (ex: Airbnb) pour éviter les doubles réservations.
+    URL publique : pas besoin de connexion (Airbnb doit pouvoir lire ce fichier).
+    """
+    unite = get_object_or_404(Unite, pk=pk)
+
+    # Réservations qui bloquent les dates : en attente (à confirmer) ou confirmées.
+    # Les réservations annulées sont exclues : elles ne bloquent plus rien.
+    reservations = unite.reservations.filter(
+        statut__in=['en_attente', 'confirmee']
+    ).order_by('date_arrivee')
+
+    # On génère le fichier iCal à la main (format texte standard RFC 5545),
+    # sans ajouter de dépendance externe.
+    # Un événement sur des dates seules (VALUE=DATE) n'a pas de fuseau horaire :
+    # pas de risque de décalage selon la localisation d'Airbnb.
+    lignes = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Residences Bereby//Disponibilite//FR',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        f'X-WR-CALNAME:Résidences Bereby - {unite.nom}',
+        'X-WR-TIMEZONE:Africa/Abidjan',
+    ]
+
+    # Horodatage de génération du fichier (obligatoire par le standard)
+    maintenant = datetime.now().strftime('%Y%m%dT%H%M%S')
+
+    for reservation in reservations:
+        # Les dates sont au format AAAAMMJJ (sans heure).
+        # IMPORTANT : DTEND est EXCLUSIF dans le standard iCal : le jour de départ
+        # n'est pas considéré comme occupé. On met donc la date de départ telle quelle.
+        date_arrivee = reservation.date_arrivee.strftime('%Y%m%d')
+        date_depart = reservation.date_depart.strftime('%Y%m%d')
+
+        lignes.append('BEGIN:VEVENT')
+        # UID stable : indispensable pour que les calendriers externes
+        # synchronisent correctement les annulations / modifications
+        lignes.append(f'UID:reservation-{reservation.pk}@residences-bereby')
+        lignes.append(f'DTSTAMP:{maintenant}')
+        lignes.append(f'DTSTART;VALUE=DATE:{date_arrivee}')
+        lignes.append(f'DTEND;VALUE=DATE:{date_depart}')
+        lignes.append(f'SUMMARY:Réservé - {reservation.nom_client}')
+        # TRANSP:OPAQUE = cette période est bien indisponible (pas un simple rappel)
+        lignes.append('TRANSP:OPAQUE')
+        lignes.append('END:VEVENT')
+
+    lignes.append('END:VCALENDAR')
+
+    # Le standard iCal exige des retours à la ligne en CRLF
+    contenu = '\r\n'.join(lignes) + '\r\n'
+
+    response = HttpResponse(
+        contenu, content_type='text/calendar; charset=utf-8')
+    # filename est proposé au téléchargement ; le nom contient celui de l'unité
+    response['Content-Disposition'] = f'attachment; filename="{unite.nom}.ics"'
+    return response
+
+
 def localisation(request):
     """
     Page dédiée à la localisation : carte interactive (résidence + villes clés)
@@ -114,8 +179,10 @@ def reservation_form(request, pk):
     ).order_by('date_arrivee')
 
     if request.method == 'POST':
-        # Le formulaire a été soumis : on le reconstruit avec les données envoyées
-        form = ReservationForm(request.POST)
+        # Le formulaire a été soumis : on le reconstruit avec les données envoyées.
+        # request.FILES est transmis pour que la capture d'écran (preuve de paiement)
+        # puisse être reçue et enregistrée par Django.
+        form = ReservationForm(request.POST, request.FILES)
         # On attache l'unité au formulaire AVANT d'appeler is_valid(),
         # pour que clean() puisse y accéder via self.unite
         form.unite = unite
@@ -127,6 +194,16 @@ def reservation_form(request, pk):
             reservation = form.save(commit=False)
             reservation.unite = unite
             reservation.save()
+
+            # IMPORTANT : model.save() seul ne stocke PAS le fichier joint
+            # (la preuve de paiement). On doit l'écrire explicitement sur le
+            # disque avec FileField.save(), sinon seule la référence en base
+            # serait enregistrée sans le fichier lui-même.
+            preuve = form.cleaned_data.get('preuve_paiement')
+            if preuve:
+                reservation.preuve_paiement.save(
+                    preuve.name, preuve, save=False)
+                reservation.save()
 
             # Envoie l'email de confirmation avec le code et le QR code
             try:
@@ -250,14 +327,60 @@ def ma_reservation(request, code):
     return render(request, 'residences/ma_reservation.html', context)
 
 
+def unites_avec_statut_aujourd_hui():
+    """
+    Calcule, pour chaque unité disponible, son statut du jour :
+    'libre', 'occupee' (réservation confirmée en cours) ou 'attente'
+    (réservation en attente en cours). Utilisé par le dashboard et
+    par la page d'activités du gérant.
+    """
+    aujourd_hui = date.today()
+
+    toutes_unites = Unite.objects.filter(
+        disponible=True
+    ).exclude(type_unite='local_commercial')
+
+    # Unités occupées aujourd'hui (réservation confirmée qui couvre aujourd'hui)
+    unites_occupees_ids = Reservation.objects.filter(
+        statut='confirmee',
+        date_arrivee__lte=aujourd_hui,
+        date_depart__gt=aujourd_hui
+    ).values_list('unite_id', flat=True)
+
+    # Unités en attente aujourd'hui
+    unites_attente_ids = Reservation.objects.filter(
+        statut='en_attente',
+        date_arrivee__lte=aujourd_hui,
+        date_depart__gt=aujourd_hui
+    ).values_list('unite_id', flat=True)
+
+    # On enrichit chaque unité avec son statut du jour
+    unites_avec_statut = []
+    for unite in toutes_unites:
+        if unite.pk in list(unites_occupees_ids):
+            statut = 'occupee'
+        elif unite.pk in list(unites_attente_ids):
+            statut = 'attente'
+        else:
+            statut = 'libre'
+        unites_avec_statut.append({'unite': unite, 'statut': statut})
+
+    return unites_avec_statut
+
+
 @login_required(login_url='/login/')
 def dashboard(request):
     """
-    Tableau de bord réservé aux gestionnaires (staff uniquement).
-    Affiche une vue d'ensemble des réservations, unités et messages.
-    @staff_member_required redirige automatiquement vers /admin/login/
-    si l'utilisateur n'est pas connecté ou n'est pas staff.
+    Tableau de bord réservé au staff (gestionnaire / admin).
+    Affiche une vue d'ensemble des réservations, unités et messages,
+    avec la possibilité de confirmer ou d'annuler des réservations.
+    Un gérant (compte simple non-staff) est redirigé vers sa page
+    d'activités : il n'a pas accès à ces actions de gestion.
     """
+    # Page réservée au staff : un gérant est redirigé vers sa page d'activités
+    if not request.user.is_staff:
+        return redirect('residences:activites')
+
     aujourd_hui = date.today()
 
     # ===== STATISTIQUES GÉNÉRALES =====
@@ -291,35 +414,8 @@ def dashboard(request):
     ).order_by('-date_envoi')
 
     # ===== DISPONIBILITÉ DES UNITÉS =====
-    # Pour chaque unité, on vérifie si elle est occupée aujourd'hui
-    toutes_unites = Unite.objects.filter(
-        disponible=True
-    ).exclude(type_unite='local_commercial')
-
-    # Unités occupées aujourd'hui (réservation confirmée qui couvre aujourd'hui)
-    unites_occupees_ids = Reservation.objects.filter(
-        statut='confirmee',
-        date_arrivee__lte=aujourd_hui,
-        date_depart__gt=aujourd_hui
-    ).values_list('unite_id', flat=True)
-
-    # Unités en attente aujourd'hui
-    unites_attente_ids = Reservation.objects.filter(
-        statut='en_attente',
-        date_arrivee__lte=aujourd_hui,
-        date_depart__gt=aujourd_hui
-    ).values_list('unite_id', flat=True)
-
-    # On enrichit chaque unité avec son statut du jour
-    unites_avec_statut = []
-    for unite in toutes_unites:
-        if unite.pk in list(unites_occupees_ids):
-            statut = 'occupee'
-        elif unite.pk in list(unites_attente_ids):
-            statut = 'attente'
-        else:
-            statut = 'libre'
-        unites_avec_statut.append({'unite': unite, 'statut': statut})
+    # Statut du jour de chaque unité (libre / occupée / en attente)
+    unites_avec_statut = unites_avec_statut_aujourd_hui()
 
     # ===== RECHERCHE =====
     # Permet de chercher une réservation par nom ou téléphone
@@ -340,6 +436,19 @@ def dashboard(request):
         '-date_creation'
     )[:20]  # les 20 dernières
 
+    # ===== SYNCHRONISATION AIRBNB (iCal) =====
+    # Pour chaque unité, on prépare le lien iCal public à copier dans Airbnb.
+    # build_absolute_uri + reverse : l'URL absolue est nécessaire, car Airbnb
+    # doit pouvoir accéder au fichier depuis Internet (pas un chemin relatif).
+    unites_ical = [
+        {
+            'nom': item['unite'].nom,
+            'url': request.build_absolute_uri(
+                reverse('residences:calendrier_ical', args=[item['unite'].pk])),
+        }
+        for item in unites_avec_statut
+    ]
+
     parametres = get_object_or_404(Parametres, pk=1)
 
     context = {
@@ -350,6 +459,7 @@ def dashboard(request):
         'reservations_a_venir': reservations_a_venir,
         'messages_non_traites': messages_non_traites,
         'unites_avec_statut': unites_avec_statut,
+        'unites_ical': unites_ical,
         'recherche': recherche,
         'resultats_recherche': resultats_recherche,
         'reservations_recentes': reservations_recentes,
@@ -367,8 +477,14 @@ def dashboard_action(request, reservation_id, action):
     """
     Confirme ou annule une réservation depuis le dashboard.
     Si annulation : notifie les abonnés et le gestionnaire.
+    Réservé au staff (gestionnaire / admin) : un gérant n'a pas le
+    droit de confirmer ou d'annuler des réservations.
     """
     from .emails import envoyer_notifications_disponibilite, envoyer_notification_gestionnaire
+
+    # Page réservée au staff : un gérant est redirigé vers sa page d'activités
+    if not request.user.is_staff:
+        return redirect('residences:activites')
 
     reservation = get_object_or_404(Reservation, pk=reservation_id)
     parametres = get_object_or_404(Parametres, pk=1)
@@ -401,12 +517,17 @@ def dashboard_action(request, reservation_id, action):
 
 def gestionnaire_login(request):
     """
-    Page de connexion dédiée aux gestionnaires.
-    Accessible sans être connecté. Si déjà connecté, redirige vers le dashboard.
+    Page de connexion de l'espace réservé (gestionnaire et gérant).
+    Accessible sans être connecté. Si déjà connecté, redirige vers
+    l'espace correspondant au rôle :
+    - staff (gestionnaire / admin) → dashboard
+    - compte simple (gérant) → page d'activités
     """
-    # Si déjà connecté, redirige directement vers le dashboard
+    # Si déjà connecté, redirige vers l'espace correspondant à son rôle
     if request.user.is_authenticated:
-        return redirect('residences:dashboard')
+        if request.user.is_staff:
+            return redirect('residences:dashboard')
+        return redirect('residences:activites')
 
     parametres = get_object_or_404(Parametres, pk=1)
     erreur = None
@@ -419,15 +540,18 @@ def gestionnaire_login(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
+            # Connexion réussie : crée la session, puis redirige vers
+            # l'espace correspondant au rôle de l'utilisateur
+            login(request, user)
+
+            # staff (gestionnaire / admin) → dashboard
+            # compte simple (gérant) → page d'activités
             if user.is_staff:
-                # Connexion réussie : crée la session
-                login(request, user)
-                # Redirige vers le dashboard (ou la page demandée initialement)
                 next_url = request.GET.get('next', '/dashboard/')
-                return redirect(next_url)
             else:
-                # Compte existant mais pas gestionnaire
-                erreur = "Vous n'avez pas les droits d'accès au dashboard."
+                next_url = request.GET.get('next', '/activites/')
+
+            return redirect(next_url)
         else:
             # Identifiants incorrects
             erreur = "Identifiants incorrects. Veuillez réessayer."
@@ -441,10 +565,70 @@ def gestionnaire_login(request):
 
 def gestionnaire_logout(request):
     """
-    Déconnecte le gestionnaire et redirige vers la page de login.
+    Déconnecte le gestionnaire ou le gérant et redirige vers la page de login.
     """
     logout(request)
     return redirect('residences:login')
+
+
+@login_required(login_url='/login/')
+def activites(request):
+    """
+    Page du gérant : vue d'ensemble (lecture seule) sur les activités de la
+    résidence — arrivées / départs du jour, disponibilité des unités et
+    prochaines réservations.
+    Réservée aux comptes simples (gérants, non-staff). Un membre du staff
+    (gestionnaire / admin) est redirigé vers le dashboard.
+    """
+    # Un membre du staff a déjà son propre espace de gestion :
+    # on le redirige vers le dashboard
+    if request.user.is_staff:
+        return redirect('residences:dashboard')
+
+    aujourd_hui = date.today()
+
+    # Arrivées du jour (en attente ou confirmées)
+    arrivees_aujourd_hui = Reservation.objects.filter(
+        date_arrivee=aujourd_hui,
+        statut__in=['en_attente', 'confirmee']
+    )
+
+    # Départs du jour (confirmés uniquement)
+    departs_aujourd_hui = Reservation.objects.filter(
+        date_depart=aujourd_hui,
+        statut='confirmee'
+    )
+
+    # Prochaines réservations confirmées, triées par date d'arrivée
+    reservations_a_venir = Reservation.objects.filter(
+        statut='confirmee',
+        date_arrivee__gte=aujourd_hui
+    ).order_by('date_arrivee')
+
+    # Réservations en attente de confirmation (affichées en compteur)
+    reservations_en_attente = Reservation.objects.filter(
+        statut='en_attente'
+    ).order_by('-date_creation')
+
+    # Statut du jour de chaque unité (libre / occupée / en attente)
+    unites_avec_statut = unites_avec_statut_aujourd_hui()
+
+    parametres = get_object_or_404(Parametres, pk=1)
+
+    context = {
+        'aujourd_hui': aujourd_hui,
+        'arrivees_aujourd_hui': arrivees_aujourd_hui,
+        'departs_aujourd_hui': departs_aujourd_hui,
+        'reservations_a_venir': reservations_a_venir,
+        'reservations_en_attente': reservations_en_attente,
+        'unites_avec_statut': unites_avec_statut,
+        'parametres': parametres,
+        # Compteurs pour les cartes statistiques
+        'nb_en_attente': reservations_en_attente.count(),
+        'nb_libres': sum(1 for u in unites_avec_statut if u['statut'] == 'libre'),
+        'nb_occupees': sum(1 for u in unites_avec_statut if u['statut'] == 'occupee'),
+    }
+    return render(request, 'residences/activites.html', context)
 
 
 def abonnement_disponibilite(request, pk):

@@ -1,0 +1,32 @@
+Résidences Bereby — Booking request confirmation
+
+Hello {{ reservation.nom_client }},
+
+Your booking request has been successfully received.
+
+SUMMARY
+-------
+Accommodation : {{ reservation.unite.nom }}
+Check-in      : {{ reservation.date_arrivee|date:"d/m/Y" }}
+Check-out     : {{ reservation.date_depart|date:"d/m/Y" }}
+Guests        : {{ reservation.nombre_personnes }}
+Payment       : {{ reservation.get_moyen_paiement_display }}
+Status        : Awaiting confirmation
+
+{% if reservation.moyen_paiement == 'mobile_money' %}Please follow the Mobile Money instructions shown on our website
+and send us a screenshot of your payment.
+{% elif reservation.moyen_paiement == 'carte' %}A secure payment link will be sent to you upon
+confirmation (a 3.5% fee is added to the total amount).
+{% else %}Payment will be made upon your arrival at the residence.
+{% endif %}
+YOUR BOOKING CODE : {{ reservation.code_confirmation }}
+
+View your booking here:
+{{ url_consultation }}
+
+Our team will contact you to confirm your booking
+and share the payment details.
+
+For any question: {{ reservation.unite.nom }}
+---
+Résidences Bereby | Grand-Béréby, Côte d'Ivoire

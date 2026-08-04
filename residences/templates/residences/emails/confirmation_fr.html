@@ -1,0 +1,76 @@
+    <!-- ===== VERSION FRANÇAISE ===== -->
+    <p class="greeting">Bonjour <strong>{{ reservation.nom_client }}</strong>,</p>
+    <p style="color:#6B7280; margin-bottom:28px;">
+        Votre demande de réservation a bien été enregistrée.
+        Notre équipe vous contactera pour confirmer la disponibilité.
+    </p>
+
+    <!-- Récapitulatif -->
+    <div class="recap">
+        <h2>Récapitulatif</h2>
+        <div class="recap-row">
+            <span class="recap-label">Logement</span>
+            <span class="recap-value">{{ reservation.unite.nom }}</span>
+        </div>
+        <div class="recap-row">
+            <span class="recap-label">Arrivée</span>
+            <span class="recap-value">{{ reservation.date_arrivee|date:"d/m/Y" }}</span>
+        </div>
+        <div class="recap-row">
+            <span class="recap-label">Départ</span>
+            <span class="recap-value">{{ reservation.date_depart|date:"d/m/Y" }}</span>
+        </div>
+        <div class="recap-row">
+            <span class="recap-label">Personnes</span>
+            <span class="recap-value">{{ reservation.nombre_personnes }}</span>
+        </div>
+        <div class="recap-row">
+            <span class="recap-label">Moyen de paiement</span>
+            <span class="recap-value">{{ reservation.get_moyen_paiement_display }}</span>
+        </div>
+        <div class="recap-row">
+            <span class="recap-label">Statut</span>
+            <span class="recap-value" style="color:#F59E0B;">⏳ En attente de confirmation</span>
+        </div>
+    </div>
+
+    <!-- Note selon le moyen de paiement choisi -->
+    {% if reservation.moyen_paiement == 'mobile_money' %}
+        <div class="note">
+            <strong>Paiement Mobile Money</strong> : envoyez le montant du séjour à l'un de nos numéros
+            (affichés sur notre site), puis transmettez-nous la capture d'écran de votre paiement
+            si ce n'est pas déjà fait. Nous confirmerons dès réception.
+        </div>
+    {% elif reservation.moyen_paiement == 'carte' %}
+        <div class="note">
+            <strong>Paiement par carte</strong> : des frais de 3,5 % seront ajoutés au montant total,
+            pour couvrir les frais de la passerelle de paiement. Le lien de paiement sécurisé vous
+            sera communiqué lors de la confirmation.
+        </div>
+    {% else %}
+        <div class="note">
+            <strong>Paiement sur place</strong> : le paiement se fera à votre arrivée à la résidence.
+        </div>
+    {% endif %}
+
+    <!-- Code de confirmation -->
+    <div class="code-box">
+        <p class="code-label">Votre code de réservation</p>
+        <p class="code">{{ reservation.code_confirmation }}</p>
+    </div>
+
+    <!-- QR Code -->
+    <div class="qr-section">
+        <p>Scannez ce QR code pour consulter votre réservation à tout moment</p>
+        <img src="data:image/png;base64,{{ qr_base64 }}" alt="QR Code réservation">
+    </div>
+
+    <!-- Bouton consulter -->
+    <a href="{{ url_consultation }}" class="btn">Consulter ma réservation en ligne</a>
+
+    <!-- Note importante -->
+    <div class="note">
+        <strong>Important</strong> : conservez ce code ou ce QR code.
+        Il vous permettra de consulter le statut de votre réservation
+        sans besoin de créer un compte.
+    </div>

@@ -4,6 +4,7 @@ import io
 import base64
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.utils import translation
 from django.conf import settings
 
 
@@ -35,36 +36,77 @@ def generer_qr_code_base64(url):
 def envoyer_email_confirmation(reservation, request=None):
     """
     Envoie un email de confirmation au client après sa pré-réservation.
+    L'email est bilingue : version française d'abord, puis un séparateur
+    annonçant la version anglaise, puis la version anglaise.
+    Chaque version est rendue avec la langue active correspondante,
+    afin que les valeurs traduites (nom de l'unité, moyen de paiement, etc.)
+    s'affichent dans la bonne langue.
     Contient :
     - Le récapitulatif de la réservation (unité, dates, code)
     - Un QR code qui pointe vers la page de consultation
     - Les instructions pour annuler ou contacter la résidence
     """
+    from django.conf import settings as django_settings
     # Construit l'URL de consultation de la réservation
     if request:
         base_url = request.build_absolute_uri('/')
     else:
         # Fallback vers SITE_URL si pas de requête disponible (ex: tests)
-        from django.conf import settings
-        base_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8080')
+        base_url = getattr(django_settings, 'SITE_URL',
+                           'http://127.0.0.1:8080')
 
     url_consultation = f"{base_url}ma-reservation/{reservation.code_confirmation}/"
 
     # Génère le QR code
     qr_base64 = generer_qr_code_base64(url_consultation)
 
-    # Contexte transmis au template de l'email
+    # Contexte transmis aux templates de l'email
     context = {
         'reservation': reservation,
         'url_consultation': url_consultation,
         'qr_base64': qr_base64,
     }
 
-    # Génère le contenu HTML et texte brut de l'email
-    html_content = render_to_string(
-        'residences/emails/confirmation.html', context)
-    text_content = render_to_string(
+    # On mémorise la langue active au moment de l'appel,
+    # pour la restaurer après le rendu bilingue
+    langue_active = translation.get_language()
+
+    # ==== VERSION FRANÇAISE ====
+    # On active le français pour que les valeurs traduites
+    # (unite.nom, get_moyen_paiement_display...) soient en français
+    translation.activate('fr')
+    fr_content = render_to_string(
+        'residences/emails/confirmation_fr.html', context)
+    fr_text = render_to_string(
         'residences/emails/confirmation.txt', context)
+
+    # ==== VERSION ANGLAISE ====
+    translation.activate('en')
+    en_content = render_to_string(
+        'residences/emails/confirmation_en.html', context)
+    en_text = render_to_string(
+        'residences/emails/confirmation_en.txt', context)
+
+    # On restaure la langue qui était active avant l'appel
+    translation.activate(langue_active)
+
+    # Séparateur texte brut annonçant la version anglaise
+    separateur_texte = (
+        "\n\n========================================\n"
+        "English version will follow\n"
+        "========================================\n\n"
+    )
+
+    # Enveloppe HTML commune : version FR, séparateur, version EN
+    # (fr_content et en_content sont injectés tels quels grâce à |safe)
+    html_content = render_to_string(
+        'residences/emails/confirmation.html', {
+            'fr_content': fr_content,
+            'en_content': en_content,
+        })
+
+    # Version texte : partie FR, séparateur, partie EN
+    text_content = fr_text + separateur_texte + en_text
 
     # Crée et envoie l'email
     email = EmailMultiAlternatives(
@@ -84,7 +126,7 @@ def envoyer_notifications_disponibilite(unite, raison='annulation'):
     raison : 'annulation' ou 'depart' (fin de séjour naturelle)
     """
     from .models import AbonnementDisponibilite
-    from django.conf import settings
+    from django.conf import settings as django_settings
 
     abonnements = AbonnementDisponibilite.objects.filter(
         unite=unite,
@@ -103,8 +145,8 @@ def envoyer_notifications_disponibilite(unite, raison='annulation'):
                 'abonnement': abonnement,
                 'unite': unite,
                 'raison': raison,
-                'url_reservation': f"{getattr(settings, 'SITE_URL', 'http://127.0.0.1:8080')}/chambres/{unite.pk}/reserver/",
-                'url_detail': f"{getattr(settings, 'SITE_URL', 'http://127.0.0.1:8080')}/chambres/{unite.pk}/",
+                'url_reservation': f"{getattr(django_settings, 'SITE_URL', 'http://127.0.0.1:8080')}/chambres/{unite.pk}/reserver/",
+                'url_detail': f"{getattr(django_settings, 'SITE_URL', 'http://127.0.0.1:8080')}/chambres/{unite.pk}/",
             }
 
             html_content = render_to_string(
@@ -141,7 +183,7 @@ def envoyer_notification_gestionnaire(unite, raison, parametres):
     Notifie le gestionnaire par email quand une unité se libère.
     raison : 'annulation' ou 'depart'
     """
-    from django.conf import settings
+    from django.conf import settings as django_settings
 
     if not parametres.email_contact:
         return  # Pas d'email gestionnaire configuré
@@ -152,7 +194,7 @@ def envoyer_notification_gestionnaire(unite, raison, parametres):
         'unite': unite,
         'raison': raison,
         'nb_abonnes': nb_abonnes,
-        'url_dashboard': f"{getattr(settings, 'SITE_URL', 'http://127.0.0.1:8080')}/dashboard/",
+        'url_dashboard': f"{getattr(django_settings, 'SITE_URL', 'http://127.0.0.1:8080')}/dashboard/",
     }
 
     html_content = render_to_string(

@@ -181,8 +181,13 @@
     <!-- JS de Flatpickr -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/fr.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/en.js"></script>
 
     <script>
+        // Langue active du site : le calendrier s'affiche dans la bonne langue
+        const localeFlatpickr = "{{ LANGUAGE_CODE }}" === 'en'
+            ? flatpickr.l10ns.en : flatpickr.l10ns.fr;
+
         // Django génère ici un tableau JavaScript avec toutes les périodes réservées
         // pour CETTE unité (en_attente ou confirmée), sous forme de dates de début/fin.
         const periodesReservees = [
@@ -199,7 +204,7 @@
         // pas dans un champ de formulaire
         flatpickr('#dispo-calendar', {
             inline: true,
-            locale: 'fr',
+            locale: localeFlatpickr,
             disableMobile: true,
             minDate: 'today',
 

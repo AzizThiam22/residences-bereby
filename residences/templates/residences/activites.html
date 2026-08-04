@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Activités de la résidence{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+
+    <!-- ===== EN-TÊTE DE LA PAGE ===== -->
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="dashboard-header-content">
+                <div>
+                    <h1>Activités de la résidence</h1>
+                    <p class="dashboard-date">
+                        {{ aujourd_hui|date:"l d F Y" }}
+                    </p>
+                </div>
+                <div class="dashboard-header-actions">
+                    <a href="{% url 'residences:home' %}" class="btn btn-secondary">
+                        Voir le site
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container dashboard-content">
+
+        <!-- ===== STATISTIQUES RAPIDES ===== -->
+        <div class="stats-grid">
+            <div class="stat-card stat-libres">
+                <span class="stat-number">{{ nb_libres }} / {{ unites_avec_statut|length }}</span>
+                <span class="stat-label">Unités libres</span>
+            </div>
+            <div class="stat-card stat-arrivees">
+                <span class="stat-number">{{ arrivees_aujourd_hui.count }}</span>
+                <span class="stat-label">Arrivées aujourd'hui</span>
+            </div>
+            <div class="stat-card stat-departs">
+                <span class="stat-number">{{ departs_aujourd_hui.count }}</span>
+                <span class="stat-label">Départs aujourd'hui</span>
+            </div>
+            <div class="stat-card stat-attente">
+                <span class="stat-number">{{ nb_en_attente }}</span>
+                <span class="stat-label">Réservations en attente</span>
+            </div>
+        </div>
+
+        <!-- ===== DISPONIBILITÉ DES UNITÉS ===== -->
+        <section class="dashboard-section">
+            <h2>Disponibilité des unités — aujourd'hui</h2>
+            <div class="unites-dispo-grid">
+                {% for item in unites_avec_statut %}
+                    <div class="unite-dispo-card unite-dispo-{{ item.statut }}">
+                        <div class="unite-dispo-header">
+                            <span class="unite-dispo-nom">{{ item.unite.nom }}</span>
+                            <span class="unite-dispo-badge badge-{{ item.statut }}">
+                                {% if item.statut == 'libre' %}✓ Libre
+                                {% elif item.statut == 'occupee' %}⊗ Occupée
+                                {% else %}⏳ En attente
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="unite-dispo-meta">
+                            {{ item.unite.get_etage_display }}
+                            {% if item.unite.vue_mer %} · Vue mer{% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>Aucune unité configurée.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- ===== ARRIVÉES ET DÉPARTS DU JOUR ===== -->
+        {% if arrivees_aujourd_hui or departs_aujourd_hui %}
+        <section class="dashboard-section">
+            <h2>Aujourd'hui</h2>
+            <div class="dashboard-main-grid">
+
+                {% if arrivees_aujourd_hui %}
+                <div>
+                    <h3 style="color:var(--ocean); margin-bottom:12px;">
+                        🛬 Arrivées ({{ arrivees_aujourd_hui.count }})
+                    </h3>
+                    {% for r in arrivees_aujourd_hui %}
+                        <div class="reservation-item">
+                            <strong>{{ r.nom_client }}</strong> — {{ r.unite.nom }}
+                            <br><small>{{ r.indicatif_regional|default:"" }} {{ r.telephone_client }}</small>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if departs_aujourd_hui %}
+                <div>
+                    <h3 style="color:var(--or); margin-bottom:12px;">
+                        🛫 Départs ({{ departs_aujourd_hui.count }})
+                    </h3>
+                    {% for r in departs_aujourd_hui %}
+                        <div class="reservation-item">
+                            <strong>{{ r.nom_client }}</strong> — {{ r.unite.nom }}
+                            <br><small>{{ r.indicatif_regional|default:"" }} {{ r.telephone_client }}</small>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- ===== PROCHAINES RÉSERVATIONS (lecture seule) ===== -->
+        <section class="dashboard-section">
+            <h2>Prochaines réservations confirmées</h2>
+
+            {% if reservations_a_venir %}
+                <div class="table-wrapper">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Unité</th>
+                                <th>Arrivée</th>
+                                <th>Départ</th>
+                                <th>Paiement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in reservations_a_venir %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ r.nom_client }}</strong><br>
+                                        <small>{{ r.email_client }}</small>
+                                    </td>
+                                    <td>{{ r.unite.nom }}</td>
+                                    <td>{{ r.date_arrivee|date:"d/m/Y" }}</td>
+                                    <td>{{ r.date_depart|date:"d/m/Y" }}</td>
+                                    <td>{{ r.get_moyen_paiement_display }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="5">Aucune réservation à venir.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="empty-state">✓ Aucune réservation à venir.</p>
+            {% endif %}
+        </section>
+
+    </div>
+</div>
+{% endblock %}

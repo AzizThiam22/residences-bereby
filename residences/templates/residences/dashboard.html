@@ -77,6 +77,30 @@
             </div>
         </section>
 
+        <!-- ===== SYNCHRONISATION AIRBNB (iCal) ===== -->
+        <section class="dashboard-section">
+            <h2>Synchronisation Airbnb (iCal)</h2>
+            <p class="ical-info">
+                Collez le lien d'une unité dans son calendrier Airbnb
+                (<em>Calendrier → Synchronisation → Importer le calendrier</em>).
+                Les dates réservées ou en attente y seront automatiquement bloquées.
+            </p>
+            <div class="ical-list">
+                {% for u in unites_ical %}
+                    <div class="ical-item">
+                        <span class="ical-nom">{{ u.nom }}</span>
+                        <code class="ical-url">{{ u.url }}</code>
+                        <button type="button" class="btn btn-primary ical-copy"
+                                data-url="{{ u.url }}">
+                            Copier
+                        </button>
+                    </div>
+                {% empty %}
+                    <p>Aucune unité configurée.</p>
+                {% endfor %}
+            </div>
+        </section>
+
         <!-- ===== RECHERCHE ===== -->
         <section class="dashboard-section">
             <h2>Rechercher une réservation</h2>
@@ -108,6 +132,7 @@
                                     <th>Unité</th>
                                     <th>Arrivée</th>
                                     <th>Départ</th>
+                                    <th>Paiement</th>
                                     <th>Statut</th>
                                     <th>Code</th>
                                     <th>Actions</th>
@@ -119,10 +144,16 @@
                                         <td><strong>{{ r.nom_client }}</strong><br>
                                             <small>{{ r.email_client }}</small>
                                         </td>
-                                        <td>{{ r.telephone_client }}</td>
+                                        <td>{{ r.indicatif_regional|default:"" }} {{ r.telephone_client }}</td>
                                         <td>{{ r.unite.nom }}</td>
                                         <td>{{ r.date_arrivee|date:"d/m/Y" }}</td>
                                         <td>{{ r.date_depart|date:"d/m/Y" }}</td>
+                                        <td>
+                                            {{ r.get_moyen_paiement_display }}
+                                            {% if r.preuve_paiement %}
+                                                <br><a href="{{ r.preuve_paiement.url }}" target="_blank" style="font-size:0.8rem; color:var(--ocean);">Voir preuve</a>
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             <span class="statut-badge statut-{{ r.statut }}">
                                                 {{ r.get_statut_display }}
@@ -181,7 +212,14 @@
                                 <div class="reservation-item-body">
                                     <span>{{ r.unite.nom }}</span>
                                     <span>{{ r.date_arrivee|date:"d/m" }} → {{ r.date_depart|date:"d/m/Y" }}</span>
-                                    <span>{{ r.telephone_client }}</span>
+                                    <span>{{ r.indicatif_regional|default:"" }} {{ r.telephone_client }}</span>
+                                    <span>
+                                        💳 {{ r.get_moyen_paiement_display }}
+                                        {% if r.preuve_paiement %}
+                                            · <a href="{{ r.preuve_paiement.url }}" target="_blank" style="color:var(--ocean);">Voir preuve</a>
+                                        {% endif %}
+                                    </span>
+                                    <span>📞 {{ r.get_moyen_communication_display }}</span>
                                 </div>
                                 <div class="reservation-item-actions">
                                     <a href="{% url 'residences:dashboard_action' r.pk 'confirmer' %}"
@@ -263,7 +301,7 @@
                     {% for r in arrivees_aujourd_hui %}
                         <div class="reservation-item">
                             <strong>{{ r.nom_client }}</strong> — {{ r.unite.nom }}
-                            <br><small>{{ r.telephone_client }}</small>
+                            <br><small>{{ r.indicatif_regional|default:"" }} {{ r.telephone_client }}</small>
                         </div>
                     {% endfor %}
                 </div>
@@ -277,7 +315,7 @@
                     {% for r in departs_aujourd_hui %}
                         <div class="reservation-item">
                             <strong>{{ r.nom_client }}</strong> — {{ r.unite.nom }}
-                            <br><small>{{ r.telephone_client }}</small>
+                            <br><small>{{ r.indicatif_regional|default:"" }} {{ r.telephone_client }}</small>
                         </div>
                     {% endfor %}
                 </div>
@@ -299,6 +337,7 @@
                             <th>Unité</th>
                             <th>Arrivée</th>
                             <th>Départ</th>
+                            <th>Paiement</th>
                             <th>Statut</th>
                             <th>Actions</th>
                         </tr>
@@ -310,10 +349,16 @@
                                     <strong>{{ r.nom_client }}</strong><br>
                                     <small>{{ r.email_client }}</small>
                                 </td>
-                                <td>{{ r.telephone_client }}</td>
+                                <td>{{ r.indicatif_regional|default:"" }} {{ r.telephone_client }}</td>
                                 <td>{{ r.unite.nom }}</td>
                                 <td>{{ r.date_arrivee|date:"d/m/Y" }}</td>
                                 <td>{{ r.date_depart|date:"d/m/Y" }}</td>
+                                <td>
+                                    {{ r.get_moyen_paiement_display }}
+                                    {% if r.preuve_paiement %}
+                                        <br><a href="{{ r.preuve_paiement.url }}" target="_blank" style="font-size:0.8rem; color:var(--ocean);">Voir preuve</a>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <span class="statut-badge statut-{{ r.statut }}">
                                         {{ r.get_statut_display }}
@@ -333,7 +378,7 @@
                                 </td>
                             </tr>
                         {% empty %}
-                            <tr><td colspan="7">Aucune réservation.</td></tr>
+                            <tr><td colspan="8">Aucune réservation.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -342,4 +387,21 @@
 
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Copie le lien iCal dans le presse-papiers quand on clique sur "Copier"
+    document.querySelectorAll('.ical-copy').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            navigator.clipboard.writeText(this.dataset.url)
+                .then(() => {
+                    this.textContent = 'Copié ✓';
+                    const bouton = this;
+                    setTimeout(function () { bouton.textContent = 'Copier'; }, 2000);
+                })
+                .catch(() => alert('Impossible de copier le lien.'));
+        });
+    });
+</script>
 {% endblock %}

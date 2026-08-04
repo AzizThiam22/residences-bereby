@@ -153,6 +153,22 @@ class Reservation(models.Model):
         ('annulee', 'Annulée'),
     ]
 
+    # Liste des moyens de paiement possibles. La confirmation reste TOUJOURS manuelle,
+    # mais ce champ permet au client d'indiquer comment il souhaite payer
+    # (évite de devoir l'appeler pour lui poser la question).
+    MOYEN_PAIEMENT_CHOICES = [
+        ('mobile_money', _('Mobile Money')),
+        ('carte', _('Carte bancaire (Visa/Mastercard)')),
+        ('sur_place', _('Paiement sur place')),
+    ]
+
+    # Moyen de contact préféré du client (utile au gestionnaire pour le recontacter)
+    MOYEN_COMMUNICATION_CHOICES = [
+        ('email', _('Email')),
+        ('appel', _('Appel téléphonique')),
+        ('whatsapp', _('WhatsApp')),
+    ]
+
     # Quelle unité est concernée par cette réservation
     unite = models.ForeignKey(
         Unite, on_delete=models.CASCADE, related_name='reservations')
@@ -163,11 +179,32 @@ class Reservation(models.Model):
     email_client = models.EmailField()
     telephone_client = models.CharField(max_length=30)
 
+    # Indicatif régional séparé du numéro (ex: +225 pour la Côte d'Ivoire).
+    # Indispensable pour les clients internationaux.
+    indicatif_regional = models.CharField(
+        max_length=10, blank=True, help_text="Ex: +225 (Côte d'Ivoire)")
+
+    # Comment le client préfère être recontacté (mail, appel ou WhatsApp)
+    moyen_communication = models.CharField(
+        max_length=20, choices=MOYEN_COMMUNICATION_CHOICES, default='email')
+
     # DateField = uniquement une date, sans heure
     date_arrivee = models.DateField()
     date_depart = models.DateField()
 
     nombre_personnes = models.PositiveIntegerField(default=1)
+
+    # Moyen de paiement choisi par le client dans le formulaire.
+    # La confirmation reste manuelle (le gestionnaire vérifie tout).
+    moyen_paiement = models.CharField(
+        max_length=20, choices=MOYEN_PAIEMENT_CHOICES, default='sur_place')
+
+    # Capture d'écran de la preuve de paiement (pour Mobile Money surtout).
+    # Optionnel : le client peut l'envoyer plus tard par WhatsApp/email
+    # s'il a un problème de réseau au moment de réserver.
+    preuve_paiement = models.ImageField(
+        upload_to='preuves_paiement/', blank=True, null=True,
+        help_text="Capture d'écran du paiement (Mobile Money)")
 
     # Statut de la réservation, modifiable depuis l'admin (vous validez manuellement)
     statut = models.CharField(

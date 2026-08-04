@@ -44,8 +44,8 @@ class EquipementAdmin(admin.ModelAdmin):
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
     list_display = ['nom_client', 'unite',
-                    'date_arrivee', 'date_depart', 'statut']
-    list_filter = ['statut', 'unite']
+                    'date_arrivee', 'date_depart', 'moyen_paiement', 'statut']
+    list_filter = ['statut', 'unite', 'moyen_paiement']
     search_fields = ['nom_client', 'email_client', 'telephone_client']
     # Permet de changer le statut directement depuis la liste (ex: passer "en_attente" à "confirmee")
     list_editable = ['statut']

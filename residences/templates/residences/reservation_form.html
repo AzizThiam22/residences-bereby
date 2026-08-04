@@ -60,47 +60,104 @@
             </div>
         </div>
 
-        <!-- Colonne droite : formulaire -->
-        <div class="reservation-form-col">
-            <h2 class="reservation-section-title">{% trans "Vos informations" %}</h2>
+            <!-- Colonne droite : formulaire -->
+            <div class="reservation-form-col">
+                <h2 class="reservation-section-title">{% trans "Vos informations" %}</h2>
 
-            <form method="post" class="reservation-form" id="reservation-form">
-                {% csrf_token %}
+                <!-- enctype="multipart/form-data" est OBLIGATOIRE car le formulaire
+                     contient maintenant un champ fichier (la capture de preuve de paiement).
+                     Sans lui, Django ne pourrait pas recevoir le fichier. -->
+                <form method="post" class="reservation-form" id="reservation-form" enctype="multipart/form-data">
+                    {% csrf_token %}
 
-                {% for field in form %}
-                    {% if field.name != 'date_arrivee' and field.name != 'date_depart' %}
-                        <div class="form-group">
-                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <p class="field-error">{{ field.errors.0 }}</p>
-                            {% endif %}
+                    {% for field in form %}
+                        {% if field.name != 'date_arrivee' and field.name != 'date_depart' and field.name != 'moyen_paiement' and field.name != 'preuve_paiement' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <p class="field-error">{{ field.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- ===== MOYEN DE PAIEMENT =====
+                         Le client choisit comment il souhaite payer. En fonction de son choix,
+                         le JS affiche les instructions adaptées juste en dessous. -->
+                    <div class="form-group">
+                        <label>{{ form.moyen_paiement.label }}</label>
+                        <div class="radio-group">
+                            {% for radio in form.moyen_paiement %}
+                                <label class="radio-label">
+                                    {{ radio.tag }}
+                                    <span>{{ radio.choice_label }}</span>
+                                </label>
+                            {% endfor %}
                         </div>
+                        {% if form.moyen_paiement.errors %}
+                            <p class="field-error">{{ form.moyen_paiement.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Instructions Mobile Money : affichées seulement si le client
+                         choisit "Mobile Money" (voir le JS plus bas). -->
+                    <div id="mm-instructions" class="payment-instructions" style="display:none;">
+                        <p class="payment-instructions-title">
+                            {% trans "Instructions de paiement Mobile Money" %}
+                        </p>
+                        <p>{% trans "Envoyez le montant du séjour à l'un de ces numéros, puis joignez la capture d'écran comme preuve." %}</p>
+                        {% if parametres.numero_orange_money %}
+                            <p>Orange Money : <strong>{{ parametres.numero_orange_money }}</strong></p>
+                        {% endif %}
+                        {% if parametres.numero_mtn_money %}
+                            <p>MTN Money : <strong>{{ parametres.numero_mtn_money }}</strong></p>
+                        {% endif %}
+                        {% if parametres.numero_wave %}
+                            <p>Wave : <strong>{{ parametres.numero_wave }}</strong></p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Champ "preuve de paiement" : visible uniquement si Mobile Money est choisi -->
+                    <div id="preuve-group" class="form-group" style="display:none;">
+                        <label for="{{ form.preuve_paiement.id_for_label }}">{{ form.preuve_paiement.label }}</label>
+                        {{ form.preuve_paiement }}
+                        <p class="field-help">
+                            {% trans "Optionnel : vous pourrez aussi l'envoyer plus tard par WhatsApp ou email." %}
+                        </p>
+                        {% if form.preuve_paiement.errors %}
+                            <p class="field-error">{{ form.preuve_paiement.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Avertissement frais carte : visible uniquement si "Carte bancaire" est choisi.
+                         Les 3,5 % couvrent les frais de la passerelle (pour les clients internationaux surtout). -->
+                    <div id="carte-warning" class="payment-warning" style="display:none;">
+                        {% trans "Paiement par carte bancaire : des frais de 3,5 % seront ajoutés au montant total, pour couvrir les frais de la passerelle de paiement." %}
+                    </div>
+
+                    <!-- Champs cachés pour les dates (remplis par le calendrier via JS) -->
+                    <input type="hidden" name="date_arrivee" id="id_date_arrivee">
+                    <input type="hidden" name="date_depart" id="id_date_depart">
+
+                    {% if form.date_arrivee.errors %}
+                        <p class="field-error">{{ form.date_arrivee.errors.0 }}</p>
                     {% endif %}
-                {% endfor %}
 
-                <!-- Champs cachés pour les dates (remplis par le calendrier via JS) -->
-                <input type="hidden" name="date_arrivee" id="id_date_arrivee">
-                <input type="hidden" name="date_depart" id="id_date_depart">
+                    <!-- Message d'avertissement si dates non sélectionnées -->
+                    <p class="dates-warning" id="dates-warning" style="display:none;">
+                        ⚠️ {% trans "Veuillez sélectionner vos dates d'arrivée et de départ dans le calendrier." %}
+                    </p>
 
-                {% if form.date_arrivee.errors %}
-                    <p class="field-error">{{ form.date_arrivee.errors.0 }}</p>
-                {% endif %}
+                    <button type="submit" class="btn btn-primary btn-block" id="btn-submit">
+                        {% trans "Envoyer ma demande de réservation" %}
+                    </button>
+                </form>
 
-                <!-- Message d'avertissement si dates non sélectionnées -->
-                <p class="dates-warning" id="dates-warning" style="display:none;">
-                    ⚠️ {% trans "Veuillez sélectionner vos dates d'arrivée et de départ dans le calendrier." %}
+                <p class="reservation-note">
+                    {% trans "Ceci est une demande de pré-réservation. Nous vous contacterons rapidement pour confirmer la disponibilité et finaliser les modalités de paiement." %}
                 </p>
-
-                <button type="submit" class="btn btn-primary btn-block" id="btn-submit">
-                    {% trans "Envoyer ma demande de réservation" %}
-                </button>
-            </form>
-
-            <p class="reservation-note">
-                {% trans "Ceci est une demande de pré-réservation. Nous vous contacterons rapidement pour confirmer la disponibilité et finaliser les modalités de paiement." %}
-            </p>
-        </div>
+            </div>
 
     </div>
 
@@ -109,8 +166,42 @@
 
 {% block extra_js %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <!-- Les deux locales sont chargées ; on active celle qui correspond à la langue du site -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/fr.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/en.js"></script>
     <script>
+        // Langue active du site, injectée par Django (fr ou en)
+        // Le calendrier s'affichera dans la bonne langue automatiquement
+        const langueSite = "{{ LANGUAGE_CODE }}" === 'en' ? 'en' : 'fr';
+        const localeFlatpickr = langueSite === 'en' ? flatpickr.l10ns.en : flatpickr.l10ns.fr;
+
+        // ===== AFFICHAGE CONDITIONNEL DU MOYEN DE PAIEMENT =====
+        // Selon le choix du client, on affiche les instructions adaptées :
+        // - Mobile Money  → instructions de paiement + champ capture d'écran
+        // - Carte bancaire → avertissement des frais de 3,5 %
+        // - Sur place      → rien de spécial
+        function mettreAJourMoyenPaiement() {
+            const radioSelectionne = document.querySelector('input[name="moyen_paiement"]:checked');
+            const choix = radioSelectionne ? radioSelectionne.value : '';
+
+            const mmInstructions = document.getElementById('mm-instructions');
+            const preuveGroup = document.getElementById('preuve-group');
+            const carteWarning = document.getElementById('carte-warning');
+
+            mmInstructions.style.display = choix === 'mobile_money' ? 'block' : 'none';
+            preuveGroup.style.display = choix === 'mobile_money' ? 'block' : 'none';
+            carteWarning.style.display = choix === 'carte' ? 'block' : 'none';
+        }
+
+        // On écoute le changement sur chaque bouton radio du moyen de paiement
+        document.querySelectorAll('input[name="moyen_paiement"]').forEach(function(radio) {
+            radio.addEventListener('change', mettreAJourMoyenPaiement);
+        });
+
+        // On initialise l'affichage (utile si le formulaire est renvoyé avec une erreur :
+        // le choix précédent du client reste coché)
+        mettreAJourMoyenPaiement();
+
         // Périodes déjà réservées pour cette unité
         const periodesReservees = [
             {% for periode in periodes_reservees %}
@@ -142,7 +233,7 @@
         flatpickr('#calendrier-reservation', {
             inline: true,
             mode: 'range',       // permet de sélectionner une plage arrivée → départ
-            locale: 'fr',
+            locale: localeFlatpickr,
             minDate: 'today',
             disableMobile: true,
 
@@ -210,133 +301,3 @@
         });
     </script>
 {% endblock %}
-
-{% comment %}
-Formulaire de pré-réservation pour une unité précise
-{% extends 'base.html' %}
-{% load static %}
-{% load i18n %}
-
-{% block extra_head %}
-    <!-- CSS de Flatpickr -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
-{% endblock %}
-
-{% block title %}Réserver {{ unite.nom }}{% endblock %}
-
-{% block content %}
-
-    <section class="reservation-page container">
-
-        <a href="{% url 'residences:unite_detail' pk=unite.pk %}" class="back-link">&larr; Retour à {{ unite.nom }}</a>
-
-        <h1>{% trans "Réserver" %} : {{ unite.nom }}</h1>
-        <p class="unite-detail-meta">{{ unite.prix_nuit }} FCFA / {% trans "nuit" %}</p>
-
-        <!-- Affiche les erreurs globales du formulaire (ex: date de départ avant date d'arrivée) -->
-        {% if form.non_field_errors %}
-            <div class="form-errors">
-                {% for error in form.non_field_errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        <!-- Calendrier de disponibilité : même logique que sur la page détail -->
-        {% if periodes_reservees %}
-            <div class="dispo-reservation-form">
-                <h3>{% trans "Dates déjà réservées" %}</h3>
-                <div id="dispo-calendar-form"></div>
-                <div class="dispo-legend">
-                    <span class="legend-item">
-                        <span class="legend-dot legend-attente"></span>
-                        {% trans "Réservée mais non confirmée" %}
-                    </span>
-                    <span class="legend-item">
-                        <span class="legend-dot legend-confirmee"></span>
-                        {% trans "Réservée confirmée" %}
-                    </span>
-                </div>
-            </div>
-        {% endif %}
-
-        <!-- method="post" : les données du formulaire seront envoyées en POST, pas dans l'URL -->
-        <form method="post" class="reservation-form">
-            <!-- csrf_token : jeton de sécurité obligatoire pour tout formulaire Django en POST,
-                 protège contre les attaques CSRF (falsification de requête) -->
-            {% csrf_token %}
-
-            <!-- Boucle sur tous les champs du formulaire pour un affichage uniforme -->
-            {% for field in form %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    <!-- Affiche les erreurs spécifiques à ce champ, s'il y en a -->
-                    {% if field.errors %}
-                        <p class="field-error">{{ field.errors.0 }}</p>
-                    {% endif %}
-                </div>
-            {% endfor %}
-
-            <button type="submit" class="btn btn-primary btn-block">Envoyer ma demande de réservation</button>
-        </form>
-
-        <p class="reservation-note">
-            Ceci est une demande de pré-réservation. Nous vous contacterons rapidement
-            pour confirmer la disponibilité et finaliser les modalités de paiement.
-        </p>
-
-    </section>
-
-    {% block extra_js %}
-    <!-- JS de Flatpickr -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
-    <!-- Traduction française de Flatpickr (mois/jours en français) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/fr.js"></script>
-
-    <script>
-        // Initialise le calendrier de disponibilité (lecture seule, informatif)
-        const periodesReservees = [
-            {% for periode in periodes_reservees %}
-                {
-                    debut: "{{ periode.date_arrivee|date:'Y-m-d' }}",
-                    fin: "{{ periode.date_depart|date:'Y-m-d' }}",
-                    statut: "{{ periode.statut }}"
-                },
-            {% endfor %}
-        ];
-
-        {% if periodes_reservees %}
-        flatpickr('#dispo-calendar-form', {
-            inline: true,
-            locale: 'fr',
-            disableMobile: true,
-            minDate: 'today',
-            onDayCreate: function(dObj, dStr, fp, dayElem) {
-                const dateStr = fp.formatDate(dayElem.dateObj, 'Y-m-d');
-                periodesReservees.forEach(function(periode) {
-                    if (dateStr >= periode.debut && dateStr < periode.fin) {
-                        dayElem.classList.add(
-                            periode.statut === 'confirmee' ? 'dispo-confirmee' : 'dispo-attente'
-                        );
-                    }
-                });
-            }
-        });
-        {% endif %}
-        // On initialise Flatpickr sur tous les champs ayant la classe 'datepicker'
-        // (donc nos deux champs date_arrivee et date_depart)
-        flatpickr('.datepicker', {
-            locale: 'fr',           // affiche le calendrier en français
-            dateFormat: 'Y-m-d',    // format envoyé au serveur (doit matcher le format Django ci-dessus)
-            altInput: true,         // affiche un format plus lisible à l'utilisateur...
-            altFormat: 'd F Y',     // ...par exemple "25 juin 2026"
-            minDate: 'today',       // empêche de choisir une date dans le passé
-            disableMobile: true     // garde notre calendrier custom même sur mobile (sinon le natif reprend le dessus)
-        });
-    </script>
-    {% endblock %}
-{% endblock %}
-
-{% endcomment %}
-
