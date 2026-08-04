@@ -3,8 +3,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Unite, Parametres, VilleCle, Reservation
 from .forms import ReservationForm, ContactForm
 from django.utils import translation
-from django.http import HttpResponse, HttpResponseRedirect
+from django.utils import timezone
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
 from .emails import envoyer_email_confirmation
+from .cinetpay import creer_paiement, verifier_paiement, CinetPayNonConfigure
 from django.db.models import Q
 from datetime import date, datetime
 from django.urls import reverse
@@ -214,6 +217,11 @@ def reservation_form(request, pk):
                 print(f"Erreur envoi email : {e}")
 
             # redirect évite qu'un rechargement de page ne soumette le formulaire 2 fois
+            # Si le client a choisi de payer par carte, on l'envoie vers le
+            # paiement en ligne CinetPay ; sinon, page de confirmation classique.
+            if reservation.moyen_paiement == 'carte':
+                return redirect('residences:paiement',
+                                code=reservation.code_confirmation)
             return redirect('residences:reservation_success')
         # Si le formulaire n'est pas valide, on continue plus bas : il sera
         # ré-affiché avec les erreurs visibles pour l'utilisateur
@@ -238,6 +246,109 @@ def reservation_success(request):
     parametres = get_object_or_404(Parametres, pk=1)
     context = {'parametres': parametres}
     return render(request, 'residences/reservation_success.html', context)
+
+
+def paiement(request, code):
+    """
+    Initie le paiement en ligne CinetPay pour une réservation (moyen de
+    paiement 'carte'). Redirige le client vers la page de paiement CinetPay.
+    Si l'intégration n'est pas encore configurée, affiche une page explicative.
+    """
+    parametres = get_object_or_404(Parametres, pk=1)
+    reservation = get_object_or_404(
+        Reservation, code_confirmation__iexact=code)
+
+    # On marque le paiement comme en attente avant d'initier la session
+    if reservation.paiement_statut == 'non_paye':
+        reservation.paiement_statut = 'en_attente'
+        reservation.save(update_fields=['paiement_statut'])
+
+    try:
+        # L'appel à CinetPay peut échouer (identifiants absents, réseau...)
+        url_paiement = creer_paiement(reservation, request)
+    except CinetPayNonConfigure:
+        # Intégration pas encore activée : on affiche une page explicative
+        return render(request, 'residences/paiement_erreur.html', {
+            'reservation': reservation,
+            'parametres': parametres,
+            'message': (
+                "L'intégration du paiement en ligne (CinetPay) n'est pas "
+                "encore activée. Votre demande a bien été enregistrée ; "
+                "notre équipe vous contactera pour régler le paiement."
+            ),
+        })
+    except Exception as e:
+        # Erreur imprévue côté CinetPay
+        print(f"Erreur création paiement CinetPay : {e}")
+        return render(request, 'residences/paiement_erreur.html', {
+            'reservation': reservation,
+            'parametres': parametres,
+            'message': (
+                "Une erreur est survenue lors de la création du paiement. "
+                "Veuillez réessayer ou contacter la résidence."
+            ),
+        })
+
+    # Le client paie sur la page sécurisée de CinetPay
+    return redirect(url_paiement)
+
+
+def paiement_retour(request, code):
+    """
+    Page de retour sur le site après le paiement CinetPay.
+    CinetPay redirige le client ici une fois le paiement tenté.
+    La confirmation fiable passe par le webhook (paiement_notification) ;
+    cette page affiche simplement le récapitulatif et l'état du paiement.
+    """
+    parametres = get_object_or_404(Parametres, pk=1)
+    reservation = get_object_or_404(
+        Reservation, code_confirmation__iexact=code)
+
+    context = {
+        'reservation': reservation,
+        'parametres': parametres,
+    }
+    return render(request, 'residences/paiement_retour.html', context)
+
+
+@csrf_exempt
+def paiement_notification(request, code):
+    """
+    Webhook appelé par CinetPay après le traitement du paiement
+    (notify_url). On vérifie auprès de l'API CinetPay le vrai statut
+    de la transaction, puis on met à jour la réservation.
+    csrf_exempt : CinetPay envoie la requête sans cookie de session.
+    """
+    if request.method != 'POST':
+        return HttpResponse(status=405)  # Method Not Allowed
+
+    reservation = get_object_or_404(
+        Reservation, code_confirmation__iexact=code)
+
+    try:
+        statut, reference = verifier_paiement(reservation.code_confirmation)
+    except CinetPayNonConfigure:
+        # Intégration pas encore activée : on ne peut pas confirmer
+        return HttpResponse('CinetPay non configuré', status=503)
+    except Exception as e:
+        print(f"Erreur vérification paiement CinetPay : {e}")
+        return HttpResponse('Erreur de vérification', status=400)
+
+    # Met à jour le suivi du paiement selon le statut retourné par CinetPay
+    if statut == 'ACCEPTED':
+        reservation.paiement_statut = 'effectue'
+        reservation.paiement_reference = reference
+        reservation.date_paiement = timezone.now()
+        reservation.save()
+    elif statut == 'REFUSED':
+        reservation.paiement_statut = 'refuse'
+        reservation.save()
+    elif statut == 'PENDING':
+        reservation.paiement_statut = 'en_attente'
+        reservation.save()
+
+    # CinetPay attend une réponse rapide en 200
+    return HttpResponse('OK', status=200)
 
 
 def contact(request):

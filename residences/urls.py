@@ -17,6 +17,12 @@ urlpatterns = [
          views.reservation_form, name='reservation_form'),
     path('reservation/confirmee/', views.reservation_success,
          name='reservation_success'),
+    # Paiement en ligne CinetPay (carte)
+    path('paiement/<str:code>/', views.paiement, name='paiement'),
+    path('paiement/<str:code>/retour/',
+         views.paiement_retour, name='paiement_retour'),
+    path('paiement/<str:code>/notification/',
+         views.paiement_notification, name='paiement_notification'),
     path('contact/', views.contact, name='contact'),
     path('contact/envoye/', views.contact_success, name='contact_success'),
     path('langue/', views.changer_langue, name='changer_langue'),

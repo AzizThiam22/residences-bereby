@@ -48,6 +48,20 @@
                 <span class="recap-label">{% trans "Moyen de paiement" %}</span>
                 <span class="recap-value">{{ reservation.get_moyen_paiement_display }}</span>
             </div>
+            {% if reservation.paiement_statut != 'non_paye' %}
+                <div class="recap-row">
+                    <span class="recap-label">{% trans "Statut du paiement" %}</span>
+                    <span class="recap-value">
+                        {% if reservation.paiement_statut == 'effectue' %}
+                            <span class="statut-badge statut-confirmee">✓ {% trans "Paiement effectué" %}</span>
+                        {% elif reservation.paiement_statut == 'refuse' %}
+                            <span class="statut-badge statut-annulee">✗ {% trans "Paiement refusé" %}</span>
+                        {% elif reservation.paiement_statut == 'en_attente' %}
+                            <span class="statut-badge statut-attente">⏳ {% trans "Paiement en attente" %}</span>
+                        {% endif %}
+                    </span>
+                </div>
+            {% endif %}
             {% if reservation.telephone_client %}
                 <div class="recap-row">
                     <span class="recap-label">{% trans "Téléphone" %}</span>

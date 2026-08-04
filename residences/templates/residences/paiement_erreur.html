@@ -1,0 +1,22 @@
+<!-- Page affichée quand le paiement en ligne ne peut pas être initié -->
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Paiement indisponible{% endblock %}
+
+{% block content %}
+
+    <section class="reservation-success container">
+        <h1>Paiement en ligne indisponible</h1>
+        <p style="margin-bottom:24px;">{{ message }}</p>
+
+        <a href="{% url 'residences:ma_reservation' code=reservation.code_confirmation %}"
+           class="btn btn-primary">
+            Voir ma réservation
+        </a>
+        <a href="{% url 'residences:home' %}" class="btn btn-secondary">
+            Retour à l'accueil
+        </a>
+    </section>
+
+{% endblock %}

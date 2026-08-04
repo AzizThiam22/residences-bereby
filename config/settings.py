@@ -178,3 +178,13 @@ DEFAULT_FROM_EMAIL = 'Résidences Bereby <noreply@residences-bereby.com>'
 
 # URL de base du site (utilisé pour générer les liens dans les emails)
 SITE_URL = 'http://127.0.0.1:8080'
+
+# ===== CinetPay (paiement en ligne par carte) =====
+# SOCLE D'INTÉGRATION : tant que ces identifiants sont vides, l'intégration
+# est désactivée (la page de paiement affiche un message explicite).
+# Renseignez-les une fois votre compte CinetPay créé.
+CINETPAY_API_KEY = ''
+CINETPAY_SITE_ID = ''
+# URLs des services CinetPay (version 2 de l'API)
+CINETPAY_API_URL_PAIEMENT = 'https://api-checkout.cinetpay.com/v2/payment'
+CINETPAY_API_URL_VERIFICATION = 'https://api-checkout.cinetpay.com/v2/verification/checkPayStatus'

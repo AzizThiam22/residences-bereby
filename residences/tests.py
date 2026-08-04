@@ -526,11 +526,14 @@ class ReservationViewTest(TestCase):
                 'message': '',
             }
         )
+        # Comme le moyen de paiement est la carte, la soumission redirige
+        # vers la page de paiement en ligne (et non la page de confirmation)
+        reservation = Reservation.objects.get(email_client='awa@test.com')
         self.assertRedirects(
             response,
-            reverse('residences:reservation_success')
+            reverse('residences:paiement',
+                    args=[reservation.code_confirmation])
         )
-        reservation = Reservation.objects.get(email_client='awa@test.com')
         self.assertEqual(reservation.moyen_paiement, 'carte')
         self.assertEqual(reservation.moyen_communication, 'whatsapp')
         self.assertEqual(reservation.indicatif_regional, '+225')
@@ -911,6 +914,161 @@ class IcalExportTest(TestCase):
         response = self.client.get(
             reverse('residences:calendrier_ical', args=[99999]))
         self.assertEqual(response.status_code, 404)
+
+# ===== TESTS DU SOCLE DE PAIEMENT CINETPAY =====
+
+
+class CinetPayTest(TestCase):
+    """
+    Tests du socle d'intégration CinetPay (paiement en ligne par carte).
+    CinetPay n'est pas encore configuré (pas de compte) : les appels API
+    sont simulés avec unittest.mock.
+    """
+
+    def setUp(self):
+        Parametres.objects.create(
+            nom_residence_fr="Résidences Bereby",
+            nom_residence_en="Bereby Residences",
+            latitude=4.65082,
+            longitude=-6.92441,
+        )
+        self.unite = Unite.objects.create(
+            nom_fr="Studio Test", nom_en="Test Studio",
+            type_unite="studio", etage=1, vue_mer=False,
+            prix_nuit=30000, disponible=True,
+        )
+        self.reservation = Reservation.objects.create(
+            unite=self.unite,
+            nom_client="Marie Martin",
+            email_client="marie@test.com",
+            telephone_client="+225 05 05 05 05 05",
+            date_arrivee=date.today() + timedelta(days=2),
+            date_depart=date.today() + timedelta(days=5),  # 3 nuits
+        )
+
+    def test_montant_total(self):
+        """Le montant total = nombre de nuits × prix par nuit."""
+        # 3 nuits × 30000 FCFA = 90000
+        self.assertEqual(self.reservation.montant_total, 90000)
+
+    def test_paiement_statut_defaut(self):
+        """Par défaut, le statut de paiement d'une réservation est 'non_paye'."""
+        self.assertEqual(self.reservation.paiement_statut, 'non_paye')
+
+    def test_creer_paiement_sans_configuration(self):
+        """Sans identifiants CinetPay, creer_paiement doit lever une exception."""
+        from .cinetpay import creer_paiement, CinetPayNonConfigure
+        with self.assertRaises(CinetPayNonConfigure):
+            creer_paiement(self.reservation)
+
+    def test_page_paiement_sans_configuration(self):
+        """
+        Sans CinetPay configuré, la page de paiement affiche un message
+        explicatif (et n'envoie pas l'utilisateur ailleurs).
+        """
+        response = self.client.get(
+            reverse('residences:paiement',
+                    args=[self.reservation.code_confirmation]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "CinetPay")
+
+    def test_page_paiement_retour_accessible(self):
+        """La page de retour après paiement doit être accessible."""
+        response = self.client.get(
+            reverse('residences:paiement_retour',
+                    args=[self.reservation.code_confirmation]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'residences/paiement_retour.html')
+
+    def test_reservation_carte_redirige_vers_paiement(self):
+        """
+        Une réservation payée par carte doit rediriger vers la page de
+        paiement en ligne (route 'residences:paiement').
+        """
+        from unittest.mock import patch
+
+        with patch('residences.views.creer_paiement'):
+            response = self.client.post(
+                reverse('residences:reservation_form', args=[self.unite.pk]),
+                {
+                    'nom_client': 'Test Client',
+                    'email_client': 'test@test.com',
+                    'telephone_client': '+225 01 01 01 01 01',
+                    'date_arrivee': (date.today() + timedelta(days=10)).strftime('%Y-%m-%d'),
+                    'date_depart': (date.today() + timedelta(days=13)).strftime('%Y-%m-%d'),
+                    'nombre_personnes': '2',
+                    'moyen_paiement': 'carte',
+                },
+            )
+
+        # La réservation a bien été créée
+        reservation = Reservation.objects.get(email_client='test@test.com')
+        self.assertEqual(reservation.moyen_paiement, 'carte')
+
+        # La réponse redirige vers la page de paiement de cette réservation
+        self.assertRedirects(
+            response,
+            reverse('residences:paiement',
+                    args=[reservation.code_confirmation]),
+            fetch_redirect_response=False,
+        )
+
+    def test_paiement_redirige_vers_cinetpay(self):
+        """
+        La vue 'paiement' appelle l'API CinetPay et redirige vers l'URL
+        de paiement renvoyée par la passerelle.
+        """
+        from unittest.mock import patch
+
+        url_cinetpay = 'https://paiement.cinetpay.com/checkout/123'
+        with patch('residences.views.creer_paiement',
+                   return_value=url_cinetpay):
+            response = self.client.get(
+                reverse('residences:paiement',
+                        args=[self.reservation.code_confirmation]))
+
+        self.assertRedirects(
+            response, url_cinetpay, fetch_redirect_response=False)
+
+    def test_notification_paiement_accepte(self):
+        """
+        Le webhook CinetPay doit marquer le paiement comme effectué
+        quand la vérification renvoie ACCEPTED.
+        """
+        from unittest.mock import patch
+
+        url = reverse('residences:paiement_notification',
+                      args=[self.reservation.code_confirmation])
+        with patch('residences.views.verifier_paiement',
+                   return_value=('ACCEPTED', 'CPM-TRANS-123')):
+            response = self.client.post(url, data={})
+
+        self.assertEqual(response.status_code, 200)
+        self.reservation.refresh_from_db()
+        self.assertEqual(self.reservation.paiement_statut, 'effectue')
+        self.assertEqual(self.reservation.paiement_reference, 'CPM-TRANS-123')
+        self.assertIsNotNone(self.reservation.date_paiement)
+
+    def test_notification_paiement_refuse(self):
+        """Le webhook doit marquer le paiement comme refusé si REFUSED."""
+        from unittest.mock import patch
+
+        url = reverse('residences:paiement_notification',
+                      args=[self.reservation.code_confirmation])
+        with patch('residences.views.verifier_paiement',
+                   return_value=('REFUSED', 'CPM-TRANS-123')):
+            response = self.client.post(url, data={})
+
+        self.assertEqual(response.status_code, 200)
+        self.reservation.refresh_from_db()
+        self.assertEqual(self.reservation.paiement_statut, 'refuse')
+
+    def test_notification_ignore_methode_get(self):
+        """Le webhook doit refuser les requêtes autres que POST."""
+        url = reverse('residences:paiement_notification',
+                      args=[self.reservation.code_confirmation])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 405)
 
 # ===== TESTS DU DASHBOARD ET DE L'AUTHENTIFICATION =====
 

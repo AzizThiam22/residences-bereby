@@ -1,0 +1,76 @@
+<!-- Page de retour après un paiement en ligne (CinetPay) -->
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Paiement{% endblock %}
+
+{% block content %}
+
+    <section class="reservation-success container">
+        <h1>Paiement — {{ reservation.code_confirmation }}</h1>
+        <p>
+            Votre réservation a bien été enregistrée.
+            Voici l'état de votre paiement en ligne.
+        </p>
+
+        <!-- Récapitulatif de la réservation -->
+        <div class="recap-card" style="max-width:480px; margin:0 auto 28px;">
+            <div class="recap-row">
+                <span class="recap-label">Logement</span>
+                <span class="recap-value">{{ reservation.unite.nom }}</span>
+            </div>
+            <div class="recap-row">
+                <span class="recap-label">Arrivée</span>
+                <span class="recap-value">{{ reservation.date_arrivee|date:"d/m/Y" }}</span>
+            </div>
+            <div class="recap-row">
+                <span class="recap-label">Départ</span>
+                <span class="recap-value">{{ reservation.date_depart|date:"d/m/Y" }}</span>
+            </div>
+            <div class="recap-row">
+                <span class="recap-label">Montant</span>
+                <span class="recap-value">{{ reservation.montant_total }} FCFA</span>
+            </div>
+            <div class="recap-row">
+                <span class="recap-label">Statut du paiement</span>
+                <span class="recap-value">
+                    {% if reservation.paiement_statut == 'effectue' %}
+                        <span class="statut-badge statut-confirmee">✓ Paiement effectué</span>
+                    {% elif reservation.paiement_statut == 'refuse' %}
+                        <span class="statut-badge statut-annulee">✗ Paiement refusé</span>
+                    {% elif reservation.paiement_statut == 'en_attente' %}
+                        <span class="statut-badge statut-attente">⏳ Paiement en attente</span>
+                    {% else %}
+                        <span class="statut-badge statut-attente">Aucun paiement reçu</span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        {% if reservation.paiement_statut == 'effectue' %}
+            <p style="margin-bottom:24px;">
+                Merci ! Votre paiement a bien été pris en compte.
+                Notre équipe vous contactera pour confirmer définitivement votre réservation.
+            </p>
+        {% elif reservation.paiement_statut == 'refuse' %}
+            <p style="margin-bottom:24px;">
+                Votre paiement a été refusé. Vous pouvez réessayer depuis votre page
+                de réservation, ou nous contacter directement.
+            </p>
+        {% else %}
+            <p style="margin-bottom:24px;">
+                Votre paiement est en cours de traitement. Dès qu'il sera confirmé,
+                vous en serez informé par email.
+            </p>
+        {% endif %}
+
+        <a href="{% url 'residences:ma_reservation' code=reservation.code_confirmation %}"
+           class="btn btn-primary">
+            Voir ma réservation
+        </a>
+        <a href="{% url 'residences:home' %}" class="btn btn-secondary">
+            Retour à l'accueil
+        </a>
+    </section>
+
+{% endblock %}

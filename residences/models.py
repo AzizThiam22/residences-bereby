@@ -206,6 +206,32 @@ class Reservation(models.Model):
         upload_to='preuves_paiement/', blank=True, null=True,
         help_text="Capture d'écran du paiement (Mobile Money)")
 
+    # ==== Paiement en ligne par carte (CinetPay) ====
+    # Suivi du paiement par carte. Indépendant du statut de la réservation :
+    # on peut avoir une réservation confirmée avec un paiement encore en attente.
+    PAIEMENT_STATUT_CHOICES = [
+        ('non_paye', _('Non payé')),
+        ('en_attente', _('Paiement en attente')),
+        ('effectue', _('Paiement effectué')),
+        ('refuse', _('Paiement refusé')),
+    ]
+
+    # Statut actuel du paiement en ligne
+    paiement_statut = models.CharField(
+        max_length=20,
+        choices=PAIEMENT_STATUT_CHOICES,
+        default='non_paye',
+        help_text="Suivi du paiement par carte (CinetPay)")
+
+    # Référence de transaction retournée par CinetPay une fois le paiement traité
+    paiement_reference = models.CharField(
+        max_length=100, blank=True,
+        help_text="Référence de la transaction CinetPay")
+
+    # Date à laquelle le paiement a été effectué (remplie par le webhook)
+    date_paiement = models.DateTimeField(
+        null=True, blank=True, help_text="Date du paiement en ligne")
+
     # Statut de la réservation, modifiable depuis l'admin (vous validez manuellement)
     statut = models.CharField(
         max_length=20, choices=STATUT_CHOICES, default='en_attente')
@@ -245,6 +271,16 @@ class Reservation(models.Model):
             code = uuid.uuid4().hex[:8].upper()
             self.code_confirmation = f"BRB-{code[:4]}-{code[4:]}"
         super().save(*args, **kwargs)
+
+    @property
+    def montant_total(self):
+        """
+        Montant total du séjour : nombre de nuits × prix par nuit de l'unité.
+        Le nombre de nuits est l'écart en jours entre l'arrivée et le départ
+        (le jour de départ n'est pas facturé).
+        """
+        nombre_de_nuits = (self.date_depart - self.date_arrivee).days
+        return nombre_de_nuits * self.unite.prix_nuit
 
 
 class ContactMessage(models.Model):
