@@ -227,6 +227,7 @@
                 });
             }
         });
+
         // Permet de copier un numéro Mobile Money dans le presse-papier en un clic
         document.querySelectorAll('.mm-copy').forEach(function (button) {
             button.addEventListener('click', function () {
@@ -241,5 +242,43 @@
                 });
             });
         });
+
+        // ===== Suivi des visites du client (localStorage, sans compte) =====
+        (function () {
+            const STORAGE_KEY = 'residences_visites';
+            const MAX_VISITES = 5;
+
+            // Collecte les infos de l'unité courante (disponibles dans le template)
+            const uniteData = {
+                id: {{ unite.pk }},
+                nom: "{{ unite.nom|escapejs }}",
+                url: "{% url 'residences:unite_detail' pk=unite.pk %}",
+                {% with photo=unite.photos.first %}{% if photo %}
+                image: "{{ photo.image.url|escapejs }}",
+                {% else %}
+                image: null,
+                {% endif %}{% endwith %}
+                prix: "{{ unite.prix_nuit }}",
+                etage: "{{ unite.get_etage_display|escapejs }}",
+                vue_mer: {{ unite.vue_mer|yesno:'true,false' }}
+            };
+
+            try {
+                let visites = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+                // Supprime l'unité si elle existe déjà (pour la remettre en haut)
+                visites = visites.filter(function (v) { return v.id !== uniteData.id; });
+
+                // L'ajoute en tête de liste
+                visites.unshift(uniteData);
+
+                // Limite à MAX_VISITES unités les plus récentes
+                visites = visites.slice(0, MAX_VISITES);
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(visites));
+            } catch (e) {
+                // Si localStorage est plein ou indisponible, on ignore silencieusement
+            }
+        })();
     </script>
 {% endblock %}

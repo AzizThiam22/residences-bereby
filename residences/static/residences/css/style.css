@@ -1467,3 +1467,56 @@ span.flatpickr-day.dispo-confirmee {
 .login-back:hover {
     color: var(--ocean);
 }
+
+/* ===== Section des dernières visites (localStorage, sans compte) ===== */
+.visited-units {
+    margin-bottom: 32px;
+}
+
+.visited-units details {
+    border-radius: var(--radius-lg);
+    background: var(--blanc);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.visited-units summary {
+    padding: 16px 24px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ocean);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.visited-units summary::-webkit-details-marker {
+    display: none;
+}
+
+.visited-units summary::before {
+    content: '▶';
+    font-size: 0.75rem;
+    margin-right: 10px;
+    transition: transform 0.2s;
+}
+
+.visited-units details[open] summary::before {
+    transform: rotate(90deg);
+}
+
+#visited-count {
+    font-weight: normal;
+    color: var(--gris);
+    font-size: 0.85rem;
+    margin-left: 6px;
+}
+
+.unites-visitees-grid {
+    padding: 16px 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}

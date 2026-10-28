@@ -29,6 +29,16 @@
         </p>
     </section>
 
+    <!-- ===== VOS DERNIÈRES VISITES (localStorage, sans compte) ===== -->
+    <section class="visited-units container" id="visited-units-section" style="display:none;">
+        <details>
+            <summary id="visited-summary">
+                {% trans "Vos dernières visites" %} <span id="visited-count"></span>
+            </summary>
+            <div class="unites-visitees-grid" id="visited-units-list"></div>
+        </details>
+    </section>
+
     <!-- ===== APERÇU DES UNITÉS ===== -->
     <section class="unites-preview container">
         <h2>{% trans "Nos logements" %}</h2>
@@ -71,4 +81,56 @@
         </div>
     </section>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var STORAGE_KEY = 'residences_visites';
+    var visites;
+    try {
+        visites = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    } catch (e) { visites = []; }
+
+    if (visites.length === 0) { return; }
+
+    var section = document.getElementById('visited-units-section');
+    var list = document.getElementById('visited-units-list');
+    var countSpan = document.getElementById('visited-count');
+
+    countSpan.textContent = '(' + visites.length + ')';
+    list.className = 'unites-grid';
+
+    visites.forEach(function (unite) {
+        var card = document.createElement('div');
+        card.className = 'unite-card';
+
+        var imageHtml;
+        if (unite.image) {
+            imageHtml = '<img src="' + unite.image + '" alt="' + unite.nom + '">';
+        } else {
+            imageHtml = '<div class="unite-card-placeholder">Photo à venir</div>';
+        }
+
+        var badgeSea = '';
+        if (unite.vue_mer) {
+            badgeSea = '<span class="badge badge-sea">Vue mer</span>';
+        }
+
+        card.innerHTML =
+            imageHtml +
+            '<div class="unite-card-body">' +
+                '<h3>' + unite.nom + '</h3>' +
+                '<p>' + unite.etage + '</p>' +
+                badgeSea +
+                '<p class="unite-price">' + unite.prix + ' FCFA / nuit</p>' +
+                '<a href="' + unite.url + '" class="btn btn-secondary">Voir le détail</a>' +
+            '</div>';
+
+        list.appendChild(card);
+    });
+
+    section.style.display = 'block';
+})();
+</script>
 {% endblock %}
