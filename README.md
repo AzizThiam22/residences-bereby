@@ -1,5 +1,7 @@
 # Résidences Bereby
 
+> Reprise du projet Octobre 2026
+
 Site web pour la gestion et la réservation de logements meublés des **Résidences Bereby**, situées sur le littoral de Grand-Béréby, Côte d'Ivoire.
 
 ## À propos
