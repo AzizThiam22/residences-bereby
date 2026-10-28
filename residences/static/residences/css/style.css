@@ -1520,3 +1520,81 @@ span.flatpickr-day.dispo-confirmee {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 20px;
 }
+
+/* ===== Loisirs environnants (page localisation) ===== */
+.loisirs-section {
+    padding: 0 0 60px;
+}
+
+.loisirs-section h2 {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.loisirs-intro {
+    text-align: center;
+    color: var(--gris);
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+}
+
+.loisirs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.loisirs-card {
+    border-radius: var(--radius-lg);
+    background: var(--blanc);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.loisirs-card summary {
+    padding: 16px 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ocean-dark);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.loisirs-card summary::-webkit-details-marker {
+    display: none;
+}
+
+.loisirs-card summary::after {
+    content: '▸';
+    margin-left: auto;
+    font-size: 0.8rem;
+    transition: transform 0.2s;
+}
+
+.loisirs-card details[open] summary::after {
+    transform: rotate(90deg);
+}
+
+.loisirs-card ul.activite-list {
+    list-style: none;
+    padding: 0 20px 16px;
+    margin: 0;
+}
+
+.loisirs-card ul.activite-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gris-light);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.loisirs-card ul.activite-list li:last-child {
+    border-bottom: none;
+}
+
+.loisirs-card ul.activite-list li strong {
+    color: var(--ocean-dark);
+}

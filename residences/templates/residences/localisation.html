@@ -47,6 +47,94 @@
 
     </section>
 
+    <!-- ===== LOISIRS ENVIRONNANTS ===== -->
+    <section class="loisirs-section container">
+        <h2>{% trans "Loisirs et activités aux alentours" %}</h2>
+        <p class="loisirs-intro">
+            {% blocktrans %}Grand-Béréby et ses environs offrent de nombreuses activités pour tous les profils.{% endblocktrans %}
+        </p>
+
+        <div class="loisirs-grid">
+
+            <!-- Balnéaire et détente -->
+            <details class="loisirs-card">
+                <summary>🏖️ {% trans "Balnéaire et détente" %}</summary>
+                <ul class="activite-list">
+                    <li>
+                        <strong>{% trans "Baie des Sirènes" %}</strong> —
+                        {% trans "Eaux calmes et protégées de la forte barre atlantique, idéales pour la baignade." %}
+                    </li>
+                    <li>
+                        <strong>{% trans "Piscines naturelles de Tabaoulé" %}</strong> —
+                        {% trans "À marée basse, baignez-vous dans des bassins d'eau cristalline au milieu de blocs de granit." %}
+                    </li>
+                    <li>
+                        <strong>{% trans "Plages sauvages" %}</strong> —
+                        {% trans "Lézardez sur le sable fin de Belle Plage ou découvrez les criques rocheuses environnantes." %}
+                    </li>
+                </ul>
+            </details>
+
+            <!-- Écotourisme et faune -->
+            <details class="loisirs-card">
+                <summary>🐒 {% trans "Écotourisme et faune" %}</summary>
+                <ul class="activite-list">
+                    <li>
+                        <strong>{% trans "Balade en pirogue sur la Néro" %}</strong> —
+                        {% trans "Remontez le fleuve au milieu des mangroves pour observer les singes sacrés à nez blanc." %}
+                    </li>
+                    <li>
+                        <strong>{% trans " Aire marine protégée" %}</strong> —
+                        {% trans "Première du pays — selon la saison (nov. à fév.), assistez à la ponte ou à la libération des tortues marines." %}
+                    </li>
+                    <li>
+                        <strong>{% trans "Excursions en haute mer" %}</strong> —
+                        {% trans "Sorties en bateau pour observer les dauphins au large des côtes." %}
+                    </li>
+                </ul>
+            </details>
+
+            <!-- Sports et sensations -->
+            <details class="loisirs-card">
+                <summary>🏄 {% trans "Sports et sensations" %}</summary>
+                <ul class="activite-list">
+                    <li>
+                        <strong>{% trans "Sports nautiques" %}</strong> —
+                        {% trans "Kayak de mer, stand-up paddle, surf ou jet-ski selon les équipements disponibles." %}
+                    </li>
+                    <li>
+                        <strong>{% trans "Randonnées en quad" %}</strong> —
+                        {% trans "Explorez les pistes, traversez les plantations de cacao et dégustez du bandji local." %}
+                    </li>
+                    <li>
+                        <strong>{% trans "Tir à l'arc, tyrolienne, vélo" %}</strong> —
+                        {% trans "Activités terrestres proposées par les hôtels et complexes environnants." %}
+                    </li>
+                </ul>
+            </details>
+
+            <!-- Découvertes culturelles -->
+            <details class="loisirs-card">
+                <summary>🛶 {% trans "Découvertes culturelles" %}</summary>
+                <ul class="activite-list">
+                    <li>
+                        <strong>{% trans "Immersion Kroumen" %}</strong> —
+                        {% trans "Découvrez les coutumes, l'artisanat et l'histoire de l'ethnie autochtone Kroumen." %}
+                    </li>
+                    <li>
+                        <strong>{% trans "Villages de pêcheurs" %}</strong> —
+                        {% trans "Visitez les campements animés des pêcheurs ghanéens le long du littoral." %}
+                    </li>
+                    <li>
+                        <strong>{% trans "Rocher des amoureux" %}</strong> —
+                        {% trans "Explorez ce rocher incontourné, la cascade cachée de Trahé ou le curieux Palmier Anaconda de Mani." %}
+                    </li>
+                </ul>
+            </details>
+
+        </div>
+    </section>
+
 {% endblock %}
 
 {% block extra_js %}
