@@ -65,6 +65,12 @@ python manage.py runserver
 
 🚧 **En cours de développement** — Maquette/prototype en attendant la finalisation des résidences (livraison estimée : ~1 an).
 
+## Reste à venir
+
+- **Intégration CinetPay effective** : le socle technique est déjà en place (module API, webhook, pages de paiement) ; il sera activé une fois le compte CinetPay créé — prévu bien plus tard dans le développement.
+- **Liaison Airbnb** : l'export iCal (site → Airbnb) est prêt ; il sera utilisé après le déploiement du site, et l'import inverse (Airbnb → site) viendra ensuite.
+- **Déploiement en production** : PostgreSQL, serveur SMTP, réglages de sécurité.
+
 ## Note du développement
 Donner des noms aux unités afin d'apporter une touche aux résidences et facilité l'organisation des images sur le site web.
 Ajouter aussi des tests unitaires si possible
