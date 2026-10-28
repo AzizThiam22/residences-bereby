@@ -65,16 +65,15 @@
         // Initialise la carte centrée sur la résidence, avec un niveau de zoom raisonnable
         const map = L.map('map').setView([residenceLat, residenceLng], 9);
 
-        // Ajoute le fond de carte Carto Voyager.
-        // IMPORTANT : on n'utilise plus les serveurs OpenStreetMap "officiels"
-        // (tile.openstreetmap.org) : ce sont des serveurs bénévoles qui bloquent
-        // les usages qu'ils jugent non conformes à leur politique (message
-        // "Access blocked" à la place des tuiles). Carto fournit un fond de
-        // carte basé sur les données OSM, fiable et autorisé avec attribution.
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
-            maxZoom: 20
+        // Ajoute le fond de carte Esri World Street Map.
+        // Historique : les serveurs officiels OpenStreetMap (bénévoles) bloquent
+        // les usages non conformes à leur politique ("Access blocked"), et Carto
+        // exige désormais une clé API pour les requêtes venant d'un navigateur
+        // ("API Key required"). Esri fournit un fond de carte fiable et gratuit
+        // (attribution Esri obligatoire), sans clé API.
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a>',
+            maxZoom: 19
         }).addTo(map);
 
         // Marqueur principal sur la résidence, avec une popup d'info
