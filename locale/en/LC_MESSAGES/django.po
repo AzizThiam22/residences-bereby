@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-03 17:15+0000\n"
+"POT-Creation-Date: 2026-11-09 20:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,103 +26,105 @@ msgstr ""
 msgid "English"
 msgstr ""
 
-#: .\residences\forms.py:55 .\residences\forms.py:160
-msgid "Votre nom complet"
-msgstr "Your full name"
-
-#: .\residences\forms.py:56 .\residences\forms.py:164 .\residences\forms.py:200
-msgid "votre@email.com"
-msgstr "your@email.com"
-
-#: .\residences\forms.py:57
-msgid "XX XX XX XX XX"
-msgstr "XX XX XX XX XX"
-
-#: .\residences\forms.py:70 .\residences\forms.py:75
-msgid "Sélectionner une date"
-msgstr "Select a date"
-
-#: .\residences\forms.py:83
-msgid "Demandes particulières (optionnel)"
-msgstr "Special requests (optional)"
-
-#: .\residences\forms.py:88 .\residences\forms.py:178
-msgid "Nom complet"
-msgstr "Full name"
-
-#: .\residences\forms.py:89 .\residences\forms.py:179 .\residences\forms.py:205
-#: .\residences\models.py:167 .\templates\base.html:79
-msgid "Email"
-msgstr "Email"
-
-#: .\residences\forms.py:90 .\residences\templates\residences\contact.html:28
-#: .\residences\templates\residences\ma_reservation.html:53
-msgid "Téléphone"
-msgstr "Phone"
-
-#: .\residences\forms.py:91
-msgid "Indicatif régional"
-msgstr "Country code"
-
-#: .\residences\forms.py:92
-msgid "Comment pouvons-nous vous contacter ?"
-msgstr "How should we contact you?"
-
-#: .\residences\forms.py:93
-msgid "Date d'arrivée"
-msgstr "Check-in date"
-
-#: .\residences\forms.py:94
-msgid "Date de départ"
-msgstr "Check-out date"
-
-#: .\residences\forms.py:95
-msgid "Nombre de personnes"
-msgstr "Guests"
-
-#: .\residences\forms.py:96
+#: .\residences\forms.py:24 .\residences\forms.py:100
 msgid "Moyen de paiement souhaité"
 msgstr "Preferred payment method"
 
+#: .\residences\forms.py:33 .\residences\forms.py:96
+msgid "Comment pouvons-nous vous contacter ?"
+msgstr "How should we contact you?"
+
+#: .\residences\forms.py:59 .\residences\forms.py:164
+msgid "Votre nom complet"
+msgstr "Your full name"
+
+#: .\residences\forms.py:60 .\residences\forms.py:168 .\residences\forms.py:204
+msgid "votre@email.com"
+msgstr "your@email.com"
+
+#: .\residences\forms.py:61
+msgid "XX XX XX XX XX"
+msgstr "XX XX XX XX XX"
+
+#: .\residences\forms.py:74 .\residences\forms.py:79
+msgid "Sélectionner une date"
+msgstr "Select a date"
+
+#: .\residences\forms.py:87
+msgid "Demandes particulières (optionnel)"
+msgstr "Special requests (optional)"
+
+#: .\residences\forms.py:92 .\residences\forms.py:182
+msgid "Nom complet"
+msgstr "Full name"
+
+#: .\residences\forms.py:93 .\residences\forms.py:183 .\residences\forms.py:209
+#: .\residences\models.py:167 .\templates\base.html:83
+msgid "Email"
+msgstr "Email"
+
+#: .\residences\forms.py:94 .\residences\templates\residences\contact.html:28
+#: .\residences\templates\residences\ma_reservation.html:67
+msgid "Téléphone"
+msgstr "Phone"
+
+#: .\residences\forms.py:95
+msgid "Indicatif régional"
+msgstr "Country code"
+
 #: .\residences\forms.py:97
+msgid "Date d'arrivée"
+msgstr "Check-in date"
+
+#: .\residences\forms.py:98
+msgid "Date de départ"
+msgstr "Check-out date"
+
+#: .\residences\forms.py:99
+msgid "Nombre de personnes"
+msgstr "Guests"
+
+#: .\residences\forms.py:101
 msgid "Preuve de paiement (photo/capture)"
 msgstr "Payment proof (photo/screenshot)"
 
-#: .\residences\forms.py:98
+#: .\residences\forms.py:102
 msgid "Message (optionnel)"
 msgstr "Message (Optional)"
 
-#: .\residences\forms.py:120
+#: .\residences\forms.py:124
 msgid "La date de départ doit être postérieure à la date d'arrivée."
 msgstr "The departure date, must be later than the arrival date"
 
-#: .\residences\forms.py:140
+#: .\residences\forms.py:144
 msgid ""
 "Ces dates ne sont plus disponibles pour cette unité. Merci de choisir "
 "d'autres dates ou de nous contacter directement."
-msgstr "These dates are no longer available, please choose other dates or contact us directly"
+msgstr ""
+"These dates are no longer available, please choose other dates or contact us "
+"directly"
 
-#: .\residences\forms.py:168
+#: .\residences\forms.py:172
 msgid "Objet de votre message (optionnel)"
 msgstr "Subject (optional)"
 
-#: .\residences\forms.py:173
+#: .\residences\forms.py:177
 msgid "Votre message..."
 msgstr "Send message"
 
-#: .\residences\forms.py:180
+#: .\residences\forms.py:184
 msgid "Sujet"
 msgstr "Subject"
 
-#: .\residences\forms.py:181
+#: .\residences\forms.py:185
 msgid "Message"
 msgstr "Your message"
 
-#: .\residences\forms.py:196
+#: .\residences\forms.py:200
 msgid "Votre nom (optionnel)"
 msgstr "Your name (optional)"
 
-#: .\residences\forms.py:204
+#: .\residences\forms.py:208
 #: .\residences\templates\residences\ma_reservation.html:28
 msgid "Nom"
 msgstr "Name"
@@ -174,6 +176,29 @@ msgstr "Phone call"
 #: .\residences\models.py:169
 msgid "WhatsApp"
 msgstr "WhatsApp"
+
+#: .\residences\models.py:213
+msgid "Non payé"
+msgstr "Not paid"
+
+#: .\residences\models.py:214
+#: .\residences\templates\residences\ma_reservation.html:60
+#, fuzzy
+#| msgid "Paiement sur place"
+msgid "Paiement en attente"
+msgstr "Pay on arrival"
+
+#: .\residences\models.py:215
+#: .\residences\templates\residences\ma_reservation.html:56
+msgid "Paiement effectué"
+msgstr "Pay made"
+
+#: .\residences\models.py:216
+#: .\residences\templates\residences\ma_reservation.html:58
+#, fuzzy
+#| msgid "Paiement sur place"
+msgid "Paiement refusé"
+msgstr "Pay on arrival"
 
 #: .\residences\templates\residences\abonnement_disponibilite.html:5
 msgid "Être notifié"
@@ -228,7 +253,6 @@ msgstr ""
 "             is available again.\n"
 "        "
 
-
 #: .\residences\templates\residences\abonnement_success.html:16
 #, fuzzy
 #| msgid "Nos logements"
@@ -236,8 +260,8 @@ msgid "Voir les autres logements"
 msgstr "Back to accommodations"
 
 #: .\residences\templates\residences\contact.html:5
-#: .\residences\templates\residences\ma_reservation.html:95
-#: .\templates\base.html:33 .\templates\base.html:74
+#: .\residences\templates\residences\ma_reservation.html:109
+#: .\templates\base.html:33 .\templates\base.html:78
 msgid "Contact"
 msgstr "Contact"
 
@@ -290,34 +314,38 @@ msgstr ""
 "furnished accommodations, just steps from the ocean. Perfect for a short or "
 "extended stay."
 
-#: .\residences\templates\residences\home.html:34
+#: .\residences\templates\residences\home.html:36
+msgid "Vos dernières visites"
+msgstr "Your Last visits"
+
+#: .\residences\templates\residences\home.html:44
 #: .\residences\templates\residences\unite_list.html:11
 msgid "Nos logements"
 msgstr "Our accommodations"
 
-#: .\residences\templates\residences\home.html:47
+#: .\residences\templates\residences\home.html:57
 #: .\residences\templates\residences\unite_list.html:36
 msgid "Photo à venir"
 msgstr "Photo coming soon"
 
-#: .\residences\templates\residences\home.html:57
+#: .\residences\templates\residences\home.html:67
 #: .\residences\templates\residences\unite_list.html:45
 msgid "Vue mer"
 msgstr "Ocean view"
 
-#: .\residences\templates\residences\home.html:60
+#: .\residences\templates\residences\home.html:70
 #: .\residences\templates\residences\reservation_form.html:19
 #: .\residences\templates\residences\unite_detail.html:102
 #: .\residences\templates\residences\unite_list.html:48
 msgid "nuit"
 msgstr "night"
 
-#: .\residences\templates\residences\home.html:63
+#: .\residences\templates\residences\home.html:73
 #: .\residences\templates\residences\unite_list.html:51
 msgid "Voir le détail"
 msgstr "View details"
 
-#: .\residences\templates\residences\home.html:69
+#: .\residences\templates\residences\home.html:79
 msgid "Aucune unité disponible pour le moment."
 msgstr "No units available at the moment."
 
@@ -346,6 +374,152 @@ msgstr ""
 #: .\residences\templates\residences\localisation.html:31
 msgid "Distances depuis la résidence"
 msgstr "Distances from the residence"
+
+#: .\residences\templates\residences\localisation.html:52
+msgid "Loisirs et activités aux alentours"
+msgstr "Nearby leisure and activities"
+
+#: .\residences\templates\residences\localisation.html:54
+msgid ""
+"Grand-Béréby et ses environs offrent de nombreuses activités pour tous les "
+"profils."
+msgstr ""
+"Grand-Béréby and its surroundings offer many activities for all profiles."
+
+#: .\residences\templates\residences\localisation.html:61
+msgid "Balnéaire et détente"
+msgstr "Seaside and relaxation"
+
+#: .\residences\templates\residences\localisation.html:64
+msgid "Baie des Sirènes"
+msgstr "Baie des Sirènes"
+
+#: .\residences\templates\residences\localisation.html:65
+msgid ""
+"Eaux calmes et protégées de la forte barre atlantique, idéales pour la "
+"baignade."
+msgstr ""
+"Calm waters protected form the strong Atlantic bar, ideal for swimming."
+
+#: .\residences\templates\residences\localisation.html:68
+msgid "Piscines naturelles de Tabaoulé"
+msgstr "Tabaoulé's natural pools"
+
+#: .\residences\templates\residences\localisation.html:69
+msgid ""
+"À marée basse, baignez-vous dans des bassins d'eau cristalline au milieu de "
+"blocs de granit."
+msgstr ""
+"At low tide, swim in pools of crystal clear water in the middle of granite "
+"blocks."
+
+#: .\residences\templates\residences\localisation.html:72
+msgid "Plages sauvages"
+msgstr "Wild beaches"
+
+#: .\residences\templates\residences\localisation.html:73
+msgid ""
+"Lézardez sur le sable fin de belles plages ou découvrez les criques "
+"rocheuses environnantes."
+msgstr "Laze on the fine sand of beautiful beaches or discover he rocky coves."
+
+#: .\residences\templates\residences\localisation.html:80
+msgid "Écotourisme et faune"
+msgstr "Ecotourism and wildlife"
+
+#: .\residences\templates\residences\localisation.html:83
+msgid "Balade en pirogue sur la Néro"
+msgstr "Canoe ride on the Nero"
+
+#: .\residences\templates\residences\localisation.html:84
+msgid ""
+"Remontez le fleuve au milieu des mangroves pour observer les singes sacrés à "
+"nez blanc."
+msgstr ""
+"Go up the river in the middle of the mangroves to observe the white-nosed "
+"monkeys."
+
+#: .\residences\templates\residences\localisation.html:87
+msgid " Aire marine protégée"
+msgstr "Marine protected area"
+
+#: .\residences\templates\residences\localisation.html:88
+msgid "Assistez à la ponte ou à la libération des tortues marines."
+msgstr "Witness the laying or release of sea turtles."
+
+#: .\residences\templates\residences\localisation.html:91
+msgid "Excursions en haute mer"
+msgstr "High sea excursion"
+
+#: .\residences\templates\residences\localisation.html:92
+msgid "Sorties en bateau pour observer les dauphins au large des côtes."
+msgstr "Boat trips to observe dolphins off the coast."
+
+#: .\residences\templates\residences\localisation.html:99
+msgid "Sports et sensations"
+msgstr "Sports and sensations"
+
+#: .\residences\templates\residences\localisation.html:102
+msgid "Sports nautiques"
+msgstr "Water sports"
+
+#: .\residences\templates\residences\localisation.html:103
+msgid ""
+"Kayak de mer, stand-up paddle, surf ou jet-ski selon les équipements "
+"disponibles."
+msgstr "Sea kayak, stand-up paddle, surf or jet-ski depending on the equipment available."
+
+#: .\residences\templates\residences\localisation.html:106
+msgid "Randonnées en quad"
+msgstr "Quad bike ride"
+
+#: .\residences\templates\residences\localisation.html:107
+msgid ""
+"Explorez les pistes, traversez les plantations de cacao et dégustez du "
+"bandji local."
+msgstr "Explore the slopes, cross the cocoa plantations and taste local bandji."
+
+#: .\residences\templates\residences\localisation.html:110
+msgid "Tir à l'arc, tyrolienne, vélo"
+msgstr "Archery, zip line, bicycle."
+
+#: .\residences\templates\residences\localisation.html:111
+msgid ""
+"Activités terrestres proposées par les hôtels et complexes environnants."
+msgstr "LAnd activities offered by surroundings hotels and resorts."
+
+#: .\residences\templates\residences\localisation.html:118
+msgid "Découvertes culturelles"
+msgstr "Cultural discoveries"
+
+#: .\residences\templates\residences\localisation.html:121
+msgid "Immersion Kroumen"
+msgstr "Kroumen immersion"
+
+#: .\residences\templates\residences\localisation.html:122
+msgid ""
+"Découvrez les coutumes, l'artisanat et l'histoire de l'ethnie autochtone "
+"Kroumen."
+msgstr "Discover the customs, crafts and history of the Kroumen indigenous ethnic group."
+
+#: .\residences\templates\residences\localisation.html:125
+msgid "Villages de pêcheurs"
+msgstr "Fishing villages"
+
+#: .\residences\templates\residences\localisation.html:126
+msgid ""
+"Visitez les campements animés des pêcheurs ghanéens le long du littoral."
+msgstr "Visit the lively camps of Ghanaian fishermen along the coast."
+
+#: .\residences\templates\residences\localisation.html:129
+msgid "Rocher des amoureux"
+msgstr "Rock of lovers"
+
+#: .\residences\templates\residences\localisation.html:130
+msgid ""
+"Explorez ce rocher incontourné, la cascade cachée de Trahé ou le curieux "
+"Palmier Anaconda de Mani."
+msgstr "Explore this must-see rock, Trahé's hidden waterfall or Mani's curious Anaconda Palm Tree."
 
 #: .\residences\templates\residences\ma_reservation.html:5
 #: .\residences\templates\residences\ma_reservation.html:10
@@ -386,48 +560,54 @@ msgstr "Guests"
 msgid "Moyen de paiement"
 msgstr "Payment method"
 
-#: .\residences\templates\residences\ma_reservation.html:59
+#: .\residences\templates\residences\ma_reservation.html:53
+#, fuzzy
+#| msgid "Preuve de paiement"
+msgid "Statut du paiement"
+msgstr "Payment proof"
+
+#: .\residences\templates\residences\ma_reservation.html:73
 msgid "Contact préféré"
 msgstr "Preferred contact"
 
-#: .\residences\templates\residences\ma_reservation.html:65
+#: .\residences\templates\residences\ma_reservation.html:79
 msgid "Preuve de paiement"
 msgstr "Payment proof"
 
-#: .\residences\templates\residences\ma_reservation.html:68
+#: .\residences\templates\residences\ma_reservation.html:82
 msgid "Voir la preuve"
 msgstr "View the proof"
 
-#: .\residences\templates\residences\ma_reservation.html:74
+#: .\residences\templates\residences\ma_reservation.html:88
 msgid "Statut"
 msgstr "Status"
 
-#: .\residences\templates\residences\ma_reservation.html:77
+#: .\residences\templates\residences\ma_reservation.html:91
 msgid "Confirmée"
 msgstr "Confirmed"
 
-#: .\residences\templates\residences\ma_reservation.html:79
+#: .\residences\templates\residences\ma_reservation.html:93
 msgid "Annulée"
 msgstr "Canceled"
 
-#: .\residences\templates\residences\ma_reservation.html:81
+#: .\residences\templates\residences\ma_reservation.html:95
 msgid "En attente"
 msgstr "Pending"
 
-#: .\residences\templates\residences\ma_reservation.html:87
+#: .\residences\templates\residences\ma_reservation.html:101
 msgid "Votre message"
 msgstr "Your message"
 
-#: .\residences\templates\residences\ma_reservation.html:97
+#: .\residences\templates\residences\ma_reservation.html:111
 msgid ""
 "Pour toute question concernant votre réservation, contactez-nous directement."
 msgstr "For any questions about your reservation, contact-us directly."
 
-#: .\residences\templates\residences\ma_reservation.html:115
+#: .\residences\templates\residences\ma_reservation.html:129
 msgid "Réservation effectuée le"
 msgstr "Reservation made on"
 
-#: .\residences\templates\residences\ma_reservation.html:123
+#: .\residences\templates\residences\ma_reservation.html:137
 msgid "Retour à l'accueil"
 msgstr "Back to home"
 
@@ -561,14 +741,14 @@ msgstr "No units match this filter."
 msgid "Nos chambres"
 msgstr "Our rooms"
 
-#: .\templates\base.html:76
+#: .\templates\base.html:80
 msgid "Tél"
 msgstr "Phone"
 
-#: .\templates\base.html:84
+#: .\templates\base.html:88
 msgid "Suivez-nous"
 msgstr "Follow us"
 
-#: .\templates\base.html:100
+#: .\templates\base.html:104
 msgid "Tous droits réservés"
 msgstr "All rights reserved"
