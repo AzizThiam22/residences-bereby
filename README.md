@@ -71,7 +71,8 @@ python manage.py runserver
 - **Liaison Airbnb** : l'export iCal (site → Airbnb) est prêt ; il sera utilisé après le déploiement du site, et l'import inverse (Airbnb → site) viendra ensuite.
 - **Déploiement en production** : PostgreSQL, serveur SMTP, réglages de sécurité.
 - **Boutons Mobile Money** : modifier les boutons pour qu'ils ouvrent une page vers le QR code du commerce, et si possible rediriger directement vers l'application Mobile Money quand le client clique dessus (QR codes des commerces pas encore générés — à voir plus tard).
-- **Notification gestionnaire** : notifier le gestionnaire par mail et SMS lors d'une nouvelle activité (réservation, message contact) et envoyer un rappel automatique après 1h sans traitement (module pas encore opérationnel). Attention : ne pas inclure trop d'informations dans les notifications, sinon le client peut s'y perdre — rester concis.
+- **Notification gestionnaire** : notifier le gestionnaire par mail et SMS lors d'une nouvelle activité (réservation, message contact) et envoyer un rappel automatique après 1h sans traitement (module pas encore opérationnel). Attention : ne pas inclure trop d'informations dans les notifications(dans le site tout entier), sinon le client peut s'y perdre — rester concis.
+- **Module d'envoi de courriel** : Voir Brevo pour les mails (300 messages par jour gratuits)
 
 ## Note du développement
 Donner des noms aux unités afin d'apporter une touche aux résidences et facilité l'organisation des images sur le site web.
