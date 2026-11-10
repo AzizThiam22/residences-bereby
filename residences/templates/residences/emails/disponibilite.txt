@@ -1,4 +1,4 @@
-Résidences Bereby — Bonne nouvelle !
+{% load prix_filters %}Résidences Bereby — Bonne nouvelle !
 
 Bonjour {% if abonnement.nom %}{{ abonnement.nom }}{% else %}{% endif %},
 
@@ -8,7 +8,7 @@ UNITÉ DISPONIBLE
 ----------------
 {{ unite.nom }}
 {{ unite.get_etage_display }}{% if unite.vue_mer %} · Vue mer{% endif %}
-{{ unite.prix_nuit }} FCFA / nuit
+{{ unite.prix_nuit|prix_fcfa }} FCFA / nuit
 
 {% if raison == 'annulation' %}Une réservation a été annulée, libérant cette unité.
 {% else %}Le séjour précédent est terminé, l'unité est à nouveau disponible.

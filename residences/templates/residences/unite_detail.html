@@ -2,6 +2,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load i18n %}
+{% load prix_filters %}
 
 {% block title %}{{ unite.nom }}{% endblock %}
 
@@ -99,7 +100,7 @@
             <!-- ===== ENCART RÉSERVATION (carte latérale) ===== -->
             <div class="unite-detail-sidebar">
                 <div class="booking-box">
-                    <p class="unite-price-big">{{ unite.prix_nuit }} FCFA <span>/ {% trans "nuit" %}</span></p>
+                    <p class="unite-price-big">{{ unite.prix_nuit|prix_fcfa }} FCFA <span>/ {% trans "nuit" %}</span></p>
 
                     {% if unite.capacite_personnes %}
                         <p>{% trans "Capacité" %} : {{ unite.capacite_personnes }} {% trans "personne(s)" %}</p>

@@ -1830,3 +1830,31 @@ class ChangerLangueTest(TestCase):
             response, '/',
             fetch_redirect_response=False
         )
+
+
+# ===== TESTS DU FILTRE DE PRIX (affichage « 30 000 FCFA ») =====
+
+
+class PrixFcfaFilterTest(TestCase):
+    """Tests du filtre de template prix_fcfa (formatage des prix)."""
+
+    def rendu(self, valeur):
+        """
+        Rend le filtre prix_fcfa sur la valeur donnée,
+        comme le ferait un template : {{ valeur|prix_fcfa }}.
+        """
+        from django.template import Context, Template
+        template = Template('{% load prix_filters %}{{ valeur|prix_fcfa }}')
+        return template.render(Context({'valeur': valeur}))
+
+    def test_formatage_prix(self):
+        """Le filtre retire les décimales et sépare les milliers par un espace."""
+        self.assertEqual(self.rendu(30000), '30 000')
+        self.assertEqual(self.rendu(30000.00), '30 000')
+        self.assertEqual(self.rendu('25000.00'), '25 000')
+        self.assertEqual(self.rendu(1000000), '1 000 000')
+
+    def test_valeur_invalide(self):
+        """Une valeur non numérique est renvoyée telle quelle (pas d'erreur)."""
+        self.assertEqual(self.rendu('gratuit'), 'gratuit')
+        self.assertEqual(self.rendu(''), '')

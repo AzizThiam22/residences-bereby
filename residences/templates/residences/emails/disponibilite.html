@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load prix_filters %}<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -51,7 +51,7 @@
             <div class="unite-card">
                 <h3>{{ unite.nom }}</h3>
                 <p class="unite-detail">{{ unite.get_etage_display }}{% if unite.vue_mer %} · Vue mer 🌊{% endif %}</p>
-                <p class="prix">{{ unite.prix_nuit }} FCFA <span style="font-size:0.9rem; font-weight:400; font-family:sans-serif;">/ nuit</span></p>
+                <p class="prix">{{ unite.prix_nuit|prix_fcfa }} FCFA <span style="font-size:0.9rem; font-weight:400; font-family:sans-serif;">/ nuit</span></p>
             </div>
 
             <a href="{{ url_reservation }}" class="btn">Réserver maintenant</a>

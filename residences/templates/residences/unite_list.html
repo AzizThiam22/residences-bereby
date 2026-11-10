@@ -2,6 +2,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load i18n %}
+{% load prix_filters %}
 
 {% block title %}Nos chambres{% endblock %}
 
@@ -45,7 +46,7 @@
                             <span class="badge badge-sea">{% trans "Vue mer" %}</span>
                         {% endif %}
 
-                        <p class="unite-price">{{ unite.prix_nuit }} FCFA / {% trans "nuit" %}</p>
+                        <p class="unite-price">{{ unite.prix_nuit|prix_fcfa }} FCFA / {% trans "nuit" %}</p>
 
                         <a href="{% url 'residences:unite_detail' pk=unite.pk %}" class="btn btn-secondary">
                             {% trans "Voir le détail" %}

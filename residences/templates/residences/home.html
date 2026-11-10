@@ -3,6 +3,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load i18n %}
+{% load prix_filters %}
 
 {% block title %}{% trans "Accueil" %}{% endblock %}
 
@@ -67,7 +68,7 @@
                             <span class="badge badge-sea">{% trans "Vue mer" %}</span>
                         {% endif %}
 
-                        <p class="unite-price">{{ unite.prix_nuit }} FCFA / {% trans "nuit" %}</p>
+                        <p class="unite-price">{{ unite.prix_nuit|prix_fcfa }} FCFA / {% trans "nuit" %}</p>
 
                         <a href="{% url 'residences:unite_detail' pk=unite.pk %}" class="btn btn-secondary">
                             {% trans "Voir le détail" %}
@@ -112,6 +113,14 @@
         nuit: '{% trans "nuit" %}'
     };
 
+    // Formate un prix pour l'affichage : retire les décimales (« .00 »)
+    // et sépare les milliers par un espace (ex : 30000.00 -> « 30 000 »).
+    // Gère aussi les prix bruts des visites enregistrées dans localStorage.
+    function formaterPrix(valeur) {
+        var nombre = Math.round(parseFloat(valeur) || 0);
+        return String(nombre).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+
     visites.forEach(function (unite) {
         var card = document.createElement('div');
         card.className = 'unite-card';
@@ -143,7 +152,7 @@
                 '<h3>' + nom + '</h3>' +
                 '<p>' + etage + '</p>' +
                 badgeSea +
-                '<p class="unite-price">' + unite.prix + ' FCFA / ' + TXT.nuit + '</p>' +
+                '<p class="unite-price">' + formaterPrix(unite.prix) + ' FCFA / ' + TXT.nuit + '</p>' +
                 '<a href="' + unite.url + '" class="btn btn-secondary">' + TXT.voirDetail + '</a>' +
             '</div>';
 

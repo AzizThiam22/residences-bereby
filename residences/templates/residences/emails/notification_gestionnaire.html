@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load prix_filters %}<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
             </div>
             <div class="info-row">
                 <span class="info-label">Prix / nuit</span>
-                <span class="info-value">{{ unite.prix_nuit }} FCFA</span>
+                <span class="info-value">{{ unite.prix_nuit|prix_fcfa }} FCFA</span>
             </div>
 
             {% if nb_abonnes > 0 %}
