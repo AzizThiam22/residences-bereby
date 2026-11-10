@@ -246,12 +246,13 @@
         // ===== Suivi des visites du client (localStorage, sans compte) =====
         (function () {
             const STORAGE_KEY = 'residences_visites';
-            const MAX_VISITES = 5;
+            const MAX_VISITES = 6;
 
             // Collecte les infos de l'unité courante (disponibles dans le template)
             const uniteData = {
                 id: {{ unite.pk }},
-                nom: "{{ unite.nom|escapejs }}",
+                nom_fr: "{{ unite.nom_fr|escapejs }}",
+                nom_en: "{{ unite.nom_en|escapejs }}",
                 url: "{% url 'residences:unite_detail' pk=unite.pk %}",
                 {% with photo=unite.photos.first %}{% if photo %}
                 image: "{{ photo.image.url|escapejs }}",
@@ -259,7 +260,8 @@
                 image: null,
                 {% endif %}{% endwith %}
                 prix: "{{ unite.prix_nuit }}",
-                etage: "{{ unite.get_etage_display|escapejs }}",
+                etage_fr: "{% language 'fr' %}{{ unite.get_etage_display|escapejs }}{% endlanguage %}",
+                etage_en: "{% language 'en' %}{{ unite.get_etage_display|escapejs }}{% endlanguage %}",
                 vue_mer: {{ unite.vue_mer|yesno:'true,false' }}
             };
 

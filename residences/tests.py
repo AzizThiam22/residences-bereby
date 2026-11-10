@@ -1750,3 +1750,83 @@ class CommandeVerifierDepartsTest(TestCase):
         # Un email doit avoir été envoyé
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ["abonne@test.com"])
+
+
+# ===== TESTS DU CHANGEMENT DE LANGUE (bouton FR/EN) =====
+
+
+class ChangerLangueTest(TestCase):
+    """
+    Tests de la vue changer_langue : le bouton FR/EN doit garder
+    l'utilisateur sur la page où il se trouve (redirection vers 'next'),
+    avec une protection contre les redirections vers des sites externes.
+    """
+
+    def test_redirection_vers_page_courante(self):
+        """Le champ 'next' du formulaire doit être utilisé pour la redirection."""
+        response = self.client.post(
+            reverse('residences:changer_langue'),
+            {'language': 'en', 'next': '/localisation/'}
+        )
+        # L'utilisateur reste sur la page où il était (ici /localisation/)
+        self.assertRedirects(
+            response, '/localisation/',
+            fetch_redirect_response=False
+        )
+        # Le choix de langue est mémorisé dans le cookie
+        self.assertEqual(response.cookies['django_language'].value, 'en')
+
+    def test_redirection_fallback_referer(self):
+        """Sans champ 'next', on retombe sur l'en-tête HTTP_REFERER."""
+        response = self.client.post(
+            reverse('residences:changer_langue'),
+            {'language': 'en'},
+            HTTP_REFERER='http://testserver/chambres/'
+        )
+        self.assertRedirects(
+            response, '/chambres/',
+            fetch_redirect_response=False
+        )
+
+    def test_redirection_fallback_accueil(self):
+        """Sans 'next' ni referer, la redirection va vers l'accueil."""
+        response = self.client.post(
+            reverse('residences:changer_langue'),
+            {'language': 'fr'}
+        )
+        self.assertRedirects(
+            response, '/',
+            fetch_redirect_response=False
+        )
+
+    def test_protection_open_redirect(self):
+        """Une URL externe dans 'next' doit être refusée (retour à l'accueil)."""
+        response = self.client.post(
+            reverse('residences:changer_langue'),
+            {'language': 'en', 'next': 'http://site-malveillant.com'}
+        )
+        # Le domaine externe n'est pas autorisé : on redirige vers l'accueil
+        self.assertRedirects(
+            response, '/',
+            fetch_redirect_response=False
+        )
+
+    def test_langue_invalide_reviens_fr(self):
+        """Une valeur de langue inconnue retombe sur le français."""
+        response = self.client.post(
+            reverse('residences:changer_langue'),
+            {'language': 'espagnol', 'next': '/contact/'}
+        )
+        self.assertRedirects(
+            response, '/contact/',
+            fetch_redirect_response=False
+        )
+        self.assertEqual(response.cookies['django_language'].value, 'fr')
+
+    def test_get_redirige_accueil(self):
+        """Un accès direct en GET (sans POST) redirige vers l'accueil."""
+        response = self.client.get(reverse('residences:changer_langue'))
+        self.assertRedirects(
+            response, '/',
+            fetch_redirect_response=False
+        )

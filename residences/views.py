@@ -6,9 +6,11 @@ from django.utils import translation
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.http import url_has_allowed_host_and_scheme
 from .emails import envoyer_email_confirmation
 from .cinetpay import creer_paiement, verifier_paiement, CinetPayNonConfigure
 from django.db.models import Q
+from urllib.parse import urlparse
 from datetime import date, datetime
 from django.urls import reverse
 from .models import Unite, Parametres, VilleCle, Reservation, ContactMessage
@@ -387,7 +389,9 @@ def contact_success(request):
 def changer_langue(request):
     """
     Vue personnalisée pour changer la langue active du site.
-    Sauvegarde le choix dans un cookie valable 1 an.
+    Sauvegarde le choix dans un cookie valable 1 an,
+    puis redirige vers la page où se trouvait l'utilisateur
+    (pour ne pas revenir systématiquement à l'accueil).
     """
     if request.method == 'POST':
         langue = request.POST.get('language', 'fr')
@@ -399,8 +403,32 @@ def changer_langue(request):
         # Active la langue immédiatement pour cette requête
         translation.activate(langue)
 
-        # Redirige vers la page d'accueil
-        response = HttpResponseRedirect('/')
+        # On détermine la page de retour :
+        # 1. Le champ 'next' du formulaire (rempli par le template avec l'URL courante)
+        # 2. Sinon l'en-tête HTTP_REFERER (la page d'où vient le POST)
+        # 3. Sinon l'accueil
+        # On vérifie que l'URL de retour appartient bien à notre site
+        # pour éviter les "open redirect" (redirection vers un site externe).
+        hotes_autorises = {request.get_host()}
+        url_retour = request.POST.get('next', '')
+        if not url_has_allowed_host_and_scheme(
+                url_retour, allowed_hosts=hotes_autorises):
+            # Le referer est une URL complète (ex: "http://monsite/page/") :
+            # on ne conserve que le chemin et les paramètres pour
+            # rediriger de façon relative vers la même page
+            url_retour = request.META.get('HTTP_REFERER', '')
+            if url_has_allowed_host_and_scheme(
+                    url_retour, allowed_hosts=hotes_autorises):
+                morceaux = urlparse(url_retour)
+                url_retour = morceaux.path + (
+                    '?' + morceaux.query if morceaux.query else '')
+            else:
+                url_retour = ''
+        if not url_retour or not url_has_allowed_host_and_scheme(
+                url_retour, allowed_hosts=hotes_autorises):
+            url_retour = '/'
+
+        response = HttpResponseRedirect(url_retour)
 
         # Sauvegarde le choix dans un cookie pour les prochaines visites
         response.set_cookie(

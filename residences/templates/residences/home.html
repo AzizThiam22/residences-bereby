@@ -101,30 +101,50 @@
     countSpan.textContent = '(' + visites.length + ')';
     list.className = 'unites-grid';
 
+    // Langue active du site : sert à choisir le nom d'unité à afficher
+    var langue = '{{ LANGUAGE_CODE }}';
+
+    // Textes de l'interface traduits par Django (site bilingue FR/EN)
+    var TXT = {
+        photoAvenir: '{% trans "Photo à venir" %}',
+        vueMer: '{% trans "Vue mer" %}',
+        voirDetail: '{% trans "Voir le détail" %}',
+        nuit: '{% trans "nuit" %}'
+    };
+
     visites.forEach(function (unite) {
         var card = document.createElement('div');
         card.className = 'unite-card';
 
+        // On choisit le nom et l'étage selon la langue active du site.
+        // Pour les visites enregistrées avant la double traduction
+        // (ancien format avec les clés 'nom' et 'etage'), on retombe
+        // sur ces anciennes clés pour ne rien afficher de vide.
+        var nom = (langue === 'en' && unite.nom_en) ? unite.nom_en
+            : (unite.nom_fr || unite.nom || '');
+        var etage = (langue === 'en' && unite.etage_en) ? unite.etage_en
+            : (unite.etage_fr || unite.etage || '');
+
         var imageHtml;
         if (unite.image) {
-            imageHtml = '<img src="' + unite.image + '" alt="' + unite.nom + '">';
+            imageHtml = '<img src="' + unite.image + '" alt="' + nom + '">';
         } else {
-            imageHtml = '<div class="unite-card-placeholder">Photo à venir</div>';
+            imageHtml = '<div class="unite-card-placeholder">' + TXT.photoAvenir + '</div>';
         }
 
         var badgeSea = '';
         if (unite.vue_mer) {
-            badgeSea = '<span class="badge badge-sea">Vue mer</span>';
+            badgeSea = '<span class="badge badge-sea">' + TXT.vueMer + '</span>';
         }
 
         card.innerHTML =
             imageHtml +
             '<div class="unite-card-body">' +
-                '<h3>' + unite.nom + '</h3>' +
-                '<p>' + unite.etage + '</p>' +
+                '<h3>' + nom + '</h3>' +
+                '<p>' + etage + '</p>' +
                 badgeSea +
-                '<p class="unite-price">' + unite.prix + ' FCFA / nuit</p>' +
-                '<a href="' + unite.url + '" class="btn btn-secondary">Voir le détail</a>' +
+                '<p class="unite-price">' + unite.prix + ' FCFA / ' + TXT.nuit + '</p>' +
+                '<a href="' + unite.url + '" class="btn btn-secondary">' + TXT.voirDetail + '</a>' +
             '</div>';
 
         list.appendChild(card);
